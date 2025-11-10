@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>ToppingXP — Login</title>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<style>
+:root{
+  --bg:#0a0f0a; --grid:#142714; --g:#79ff79; --g-weak:#36c436; --g-deep:#1c7a1c;
+  --scan:rgba(121,255,121,.06); --text-soft:#b6ffb6; --btn-bg:#0a140a; --btn-bg-hover:#0f1d0f;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; height:100vh; display:grid; place-items:center;
+  background:radial-gradient(1000px 600px at 50% 50%, #0b160b 0%, var(--bg) 70%);
+  color:var(--g); font-family:ui-monospace,Menlo,Consolas,monospace; letter-spacing:.2px;
+}
+.loginBox{
+  width:min(420px,90%); background:#0b130b; border:2px solid var(--g-deep);
+  padding:24px 20px; box-shadow:0 0 18px rgba(121,255,121,.25) inset; text-align:center;
+}
+h1{font-size:22px;margin:0 0 14px;text-shadow:0 0 10px rgba(121,255,121,.6);}
+.sub{font-size:13px;color:var(--text-soft);margin-bottom:20px}
+input{
+  width:100%;padding:12px;border:2px solid var(--g-deep);
+  background:#081108;color:var(--g);margin-bottom:10px;font-size:15px;
+}
+button{
+  width:100%;padding:12px;border:2px solid var(--g);
+  background:var(--btn-bg);color:var(--text-soft);font-weight:800;
+  cursor:pointer;transition:.15s;background:var(--btn-bg);
+}
+button:hover{background:var(--btn-bg-hover);color:#d4f77c}
+.msg{font-size:13px;color:var(--text-soft);min-height:18px;margin-top:8px}
+
+/* 모달 */
+.modalBack{
+  position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;place-items:center;
+}
+.modalBack.show{display:grid}
+.modal{
+  width:min(420px,90%);background:#0b130b;border:2px solid var(--g-deep);
+  padding:22px 18px;box-shadow:0 0 14px rgba(121,255,121,.3) inset;display:grid;gap:10px;
+}
+.modal h2{margin:0 0 8px;text-shadow:0 0 8px rgba(121,255,121,.4);}
+.close{all:unset;float:right;cursor:pointer;color:var(--text-soft)}
+</style>
+</head>
+<body>
+<div class="loginBox">
+  <h1>ToppingXP</h1>
+  <div class="sub">로그인 후 당신의 퀘스트를 관리하세요.</div>
+
+  <input id="email" type="email" placeholder="이메일"/>
+  <input id="pw" type="password" placeholder="비밀번호"/>
+  <button id="loginBtn">로그인</button>
+  <button id="signupOpenBtn" style="margin-top:10px;border-color:var(--g-weak);color:var(--g-weak)">회원가입</button>
+  <div id="msg" class="msg"></div>
+</div>
+
+<div class="modalBack" id="signupModal">
+  <div class="modal">
+    <button class="close" id="closeModal">✕</button>
+    <h2>회원가입</h2>
+    <input id="su-email" type="email" placeholder="이메일"/>
+    <input id="su-nick" type="text" placeholder="닉네임"/>
+    <input id="su-pw" type="password" placeholder="비밀번호 (6자 이상)"/>
+    <input id="su-pw2" type="password" placeholder="비밀번호 확인"/>
+    <button id="signupBtn">회원가입 완료</button>
+    <div id="su-msg" class="msg"></div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = "https://mgpxqmqvlbjfywbbsiwt.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1ncHhxbXF2bGJqZnl3YmJzaXd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI3NDc3OTYsImV4cCI6MjA3ODMyMzc5Nn0.dMKOkI0Vsty6ZMOxJmfF4IAPmkKF4kPhRhjCLH0dxEk";
+const supabase = supabasejs.createClient(SUPABASE_URL, SUPABASE_KEY);
+const $ = (id)=>document.getElementById(id);
+
+const msg = $('msg');
+const suMsg = $('su-msg');
+const modal = $('signupModal');
+
+$('signupOpenBtn').onclick = ()=> modal.classList.add('show');
+$('closeModal').onclick = ()=> modal.classList.remove('show');
+
+/* 로그인 */
+$('loginBtn').onclick = async ()=>{
+  msg.textContent='';
+  const email=$('email').value.trim(), pw=$('pw').value;
+  if(!email || !pw){msg.textContent='이메일/비밀번호를 입력하세요';return;}
+  const { data, error } = await supabase.auth.signInWithPassword({email,password:pw});
+  if(error){ msg.textContent = error.message; return; }
+  location.href = "index.html"; // 로그인 성공 → 메인으로
+};
+
+/* 회원가입 */
+$('signupBtn').onclick = async ()=>{
+  suMsg.textContent='';
+  const email=$('su-email').value.trim(), pw=$('su-pw').value, pw2=$('su-pw2').value, nick=$('su-nick').value.trim();
+  if(!email || !pw || !pw2){suMsg.textContent='모든 필드를 입력하세요';return;}
+  if(pw!==pw2){suMsg.textContent='비밀번호가 일치하지 않습니다';return;}
+  const { data, error } = await supabase.auth.signUp({email,password:pw});
+  if(error){suMsg.textContent=error.message;return;}
+  const uid=data.user?.id;
+  if(uid && nick){ await supabase.from('profiles').upsert({id:uid,display_name:nick}); }
+  suMsg.textContent='회원가입 완료! 로그인해주세요.';
+  setTimeout(()=>modal.classList.remove('show'),1200);
+};
+</script>
+</body>
+</html>

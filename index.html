@@ -173,6 +173,8 @@ body{
   <section class="panel">
     <div class="h1">Quests</div>
     <div class="date" id="today"></div>
+    <div class="sub" id="greet"></div>
+
     <p class="sub">한 줄 퀘스트 입력 후 <b>Enter</b> 또는 <b>추가</b> 버튼으로 등록. 완료할 때마다 오른쪽에 안내가 뜹니다.</p>
 
     <div class="inputRow">
@@ -604,6 +606,35 @@ els.today.textContent = new Date().toLocaleDateString('ko-KR',{year:'numeric',mo
 /* 첫 로드: 지난 날짜 퀘스트 자동 정리 */
 pruneOldQuests();
 render();
+
+<!-- ✅ 로그인 인증 확인 코드 -->
+<script type="module">
+  import { createClient } from "https://unpkg.com/@supabase/supabase-js@2";
+
+  const supabase = createClient("https://YOUR-PROJECT.supabase.co", "YOUR-ANON-KEY");
+
+  async function loadUser() {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      // 로그인 안 된 상태면 로그인 페이지로 보냄
+      window.location.href = "login.html";
+      return;
+    }
+
+    // 프로필 테이블에서 닉네임 불러오기
+    const { data, error } = await supabase.from("profiles").select("*").eq("id", user.id).single();
+    const name = data?.display_name || user.email.split("@")[0];
+
+    // 날짜 밑에 인사 문구 추가
+    const greetEl = document.createElement("div");
+    greetEl.className = "sub";
+    greetEl.textContent = `${name}님 안녕하세요, 오늘도 즐거운 레벨업 되세요 :)`;
+    document.getElementById("today").after(greetEl);
+  }
+
+  loadUser();
+</script>
+
 </script>
 </body>
 </html>
