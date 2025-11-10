@@ -52,7 +52,7 @@ body{
 }
 .btn:hover,.btn:focus{background:var(--btn-bg-hover); color:var(--text-hover); outline:none}
 
-.list{display:flex; flex-direction:column; gap:10px}
+.list{display:flex; flex-direction:column; gap:10px; min-height:140px}
 .card{
   border:2px solid var(--g-deep); background:rgba(0,0,0,.08); padding:10px 12px;
   display:grid; grid-template-columns:auto 1fr auto; gap:10px; align-items:center;
@@ -75,7 +75,7 @@ body{
   border:2px solid var(--g-deep); padding:12px; box-shadow:inset 0 0 0 2px rgba(29,122,29,.18);
 }
 .statTop{display:flex; justify-content:space-between; gap:10px; align-items:center; margin-bottom:8px}
-.kebab{position:relative}
+.kebab{position:relative; z-index:5000}
 .kebabBtn{
   border:2px solid var(--g-deep); background:#0b130b; color:var(--text-soft);
   padding:8px 10px; cursor:pointer; font-weight:800;
@@ -83,7 +83,7 @@ body{
 .kebabBtn:hover{background:#122012}
 .kebabMenu{
   position:absolute; right:0; top:40px; min-width:160px; display:none;
-  background:#0a130a; border:2px solid var(--g-deep); box-shadow:var(--glow); z-index:20;
+  background:#0a130a; border:2px solid var(--g-deep); box-shadow:var(--glow); z-index:6000;
 }
 .kebabMenu.show{display:block}
 .kebabMenu button{
@@ -116,6 +116,27 @@ body{
 .flash{animation:flash .6s ease}
 @keyframes flash{0%{box-shadow:0 0 0 0 rgba(121,255,121,0)}60%{box-shadow:0 0 18px 6px rgba(121,255,121,.35)}100%{box-shadow:0 0 0 0 rgba(121,255,121,0)}}
 
+/* 회고 모달 (버튼 클릭 시에만 열림) */
+.modal{position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,.45)}
+.modal.show{display:flex}
+.modalCard{width:min(520px,92%); background:#091109; color:var(--g); border:2px solid var(--g-deep); box-shadow:var(--glow); padding:16px; display:grid; gap:12px}
+.modalCard textarea,.modalCard input{width:100%; padding:10px; border:2px solid var(--g-deep); background:rgba(0,0,0,.15); color:var(--g)}
+.modalBtns{display:flex; gap:8px; justify-content:flex-end}
+
+/* 오른쪽 하단 토스트 */
+.toast{
+  position:fixed; right:22px; bottom:22px; z-index:7000;
+  display:none; min-width:320px;
+  background:#091109; color:var(--g);
+  border:2px solid var(--g-deep); box-shadow:var(--glow);
+  padding:14px 16px;
+}
+.toast.show{ display:block; animation:toastIn .18s ease }
+.toast .tmsg{ font-weight:800; margin-bottom:6px }
+.toast .tdesc{ font-size:13px; color:var(--text-soft); margin-bottom:10px }
+.toast .tbtns{ display:flex; gap:8px; justify-content:flex-end }
+@keyframes toastIn{ from{ transform:translateY(6px); opacity:0 } to{ transform:translateY(0); opacity:1 } }
+
 /* 초기화 축하 오버레이 */
 #seasonOverlay{
   position:fixed; inset:0; display:none; align-items:center; justify-content:center;
@@ -138,28 +159,6 @@ body{
 }
 @keyframes fall{0%{transform:translateY(-20px) scale(1); opacity:1}100%{transform:translateY(90vh) scale(.7); opacity:0}}
 
-/* 토스트(하단 오른쪽) */
-.toastWrap{
-  position:fixed; bottom:22px; right:22px; display:grid; gap:10px; z-index:9998;
-}
-.toast{
-  min-width:320px; max-width:520px;
-  background:#0b130b; color:var(--g);
-  border:2px solid var(--g-deep); box-shadow:var(--glow);
-  padding:16px; display:grid; gap:10px; animation:pop .2s ease;
-}
-.toast .title{font-weight:900; text-shadow:var(--glow)}
-.toast .actions{display:flex; gap:8px; justify-content:flex-end}
-@keyframes pop{from{transform:translateY(8px); opacity:0}to{transform:translateY(0); opacity:1}}
-
-/* 회고 모달(가운데) */
-.modal{position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,.45); z-index:9999}
-.modal.show{display:flex}
-.modalCard{width:min(520px,92%); background:#091109; color:var(--g); border:2px solid var(--g-deep); box-shadow:var(--glow); padding:16px; display:grid; gap:12px}
-.modalCard textarea,.modalCard input{width:100%; padding:10px; border:2px solid var(--g-deep); background:rgba(0,0,0,.15); color:var(--g)}
-.modalBtns{display:flex; gap:8px; justify-content:flex-end}
-
-/* 모바일 */
 @media(max-width:980px){
   .app{grid-template-columns:1fr}
   .storeGrid{grid-template-columns:1fr 1fr}
@@ -174,7 +173,7 @@ body{
   <section class="panel">
     <div class="h1">Quests</div>
     <div class="date" id="today"></div>
-    <p class="sub">한 줄 퀘스트 입력 후 <b>Enter</b> 또는 <b>추가</b> 버튼으로 등록. 모두 완료하면 회고 작성 안내가 뜹니다.</p>
+    <p class="sub">한 줄 퀘스트 입력 후 <b>Enter</b> 또는 <b>추가</b> 버튼으로 등록. 완료할 때마다 오른쪽에 안내가 뜹니다.</p>
 
     <div class="inputRow">
       <input id="input" class="input" placeholder="예) 고객 인터뷰 일정 확정 메일 보내기" />
@@ -192,7 +191,7 @@ body{
       <div class="box">
         <div class="statTop">
           <div class="small">진행 현황</div>
-          <div class="kebab">
+          <div class="kebab" id="kebab">
             <button class="kebabBtn" id="kebabBtn" aria-haspopup="true" aria-expanded="false">⋯</button>
             <div class="kebabMenu" id="kebabMenu" role="menu">
               <button id="resetToday" role="menuitem">오늘 리셋</button>
@@ -233,10 +232,7 @@ body{
   </section>
 </div>
 
-<!-- 토스트 컨테이너 -->
-<div class="toastWrap" id="toastWrap" aria-live="polite"></div>
-
-<!-- 회고 입력 모달 -->
+<!-- Retrospect Modal (버튼 눌렀을 때만 열림) -->
 <div class="modal" id="retroModal" role="dialog" aria-modal="true" aria-labelledby="retroTitle">
   <div class="modalCard">
     <div class="h1" id="retroTitle">오늘의 회고</div>
@@ -248,6 +244,22 @@ body{
       <button id="rSave" class="btn">저장</button>
     </div>
   </div>
+</div>
+
+<!-- 오른쪽 하단 안내 토스트 -->
+<div id="retroToast" class="toast" role="status" aria-live="polite">
+  <div class="tmsg" id="toastTitle">완료했습니다!</div>
+  <div class="tdesc">회고록을 여시겠어요?</div>
+  <div class="tbtns">
+    <button id="tLater" class="btn">나중에</button>
+    <button id="tOpen"  class="btn">열기</button>
+  </div>
+</div>
+
+<!-- Reward Toast -->
+<div id="buyToast" class="toast" role="status" aria-live="polite" style="bottom:92px">
+  <div class="tmsg">보상 구매 완료!</div>
+  <div class="small">즐기세요!</div>
 </div>
 
 <script>
@@ -293,7 +305,6 @@ const els = {
   logbox: $('logbox'),
   streak: $('streak'),
   store: $('store'),
-  toastWrap: $('toastWrap'),
   modal: $('retroModal'),
   rDone: $('rDone'),
   rFeel: $('rFeel'),
@@ -303,11 +314,18 @@ const els = {
   rewardName: $('rewardName'),
   rewardCost: $('rewardCost'),
   rewardAdd: $('rewardAdd'),
+  kebab: document.getElementById('kebab'),
   kebabBtn: $('kebabBtn'),
   kebabMenu: $('kebabMenu'),
   resetToday: $('resetToday'),
   resetAll: $('resetAll'),
-  overlay: $('seasonOverlay')
+  overlay: $('seasonOverlay'),
+  // toasts
+  retroToast: $('retroToast'),
+  toastTitle: $('toastTitle'),
+  tOpen: $('tOpen'),
+  tLater: $('tLater'),
+  buyToast: $('buyToast')
 };
 
 /* audio */
@@ -325,29 +343,10 @@ function save(){ store.quests.set(state.quests); store.meta.set(state.meta); sto
 function log(msg){
   const now = new Date();
   const line = `[${now.toTimeString().slice(0,5)}] ${msg}`;
-  const prev = els.log.textContent === '아직 기록 없음' ? '' : els.log.textContent + '\n';
+  const prev = els.log.textContent === '아직 기록 없음' ? '' : els.log.textContent + ' ';
   els.log.textContent = prev + line;
   els.logbox.classList.add('flash'); setTimeout(()=>els.logbox.classList.remove('flash'),600);
 }
-
-/* toast */
-function toast({title='',body='',actionLabel=null,cancelLabel=null,onAction=null,timeout=2200}){
-  const t = document.createElement('div'); t.className='toast';
-  t.innerHTML = `<div class="title">${title}</div>${body?`<div>${body.replace(/\n/g,'<br>')}</div>`:''}${actionLabel?`<div class="actions"></div>`:''}`;
-  if(actionLabel){
-    const actions = t.querySelector('.actions');
-    const ok = document.createElement('button'); ok.className='btn'; ok.textContent=actionLabel;
-    ok.onclick = ()=>{ onAction && onAction(); wrap.remove(); };
-    const cancel = document.createElement('button'); cancel.className='btn'; cancel.textContent= cancelLabel || '닫기';
-    cancel.onclick = ()=> wrap.remove();
-    actions.append(cancel,ok);
-  }
-  const wrap = document.createElement('div'); wrap.appendChild(t);
-  els.toastWrap.appendChild(wrap);
-  if(!actionLabel){ setTimeout(()=>wrap.remove(), timeout); }
-}
-
-/* XP/LEVEL */
 function gainXP(n=10){
   const before = state.meta.xp % 100;
   state.meta.xp += n;
@@ -356,15 +355,13 @@ function gainXP(n=10){
   else blip(980,110);
 }
 
-/* daily sweep: remove old quests automatically */
+/* prune yesterday data (keep only today quests visible) */
 function pruneOldQuests(){
-  const today = todayKey();
-  const beforeLen = state.quests.length;
-  state.quests = state.quests.filter(q => q.date === today);
-  if(beforeLen !== state.quests.length){
-    log('지난 퀘스트 자동 정리');
-    save();
-  }
+  const t = todayKey();
+  const before = state.quests.length;
+  state.quests = state.quests.filter(q=>q.date===t);
+  if(before !== state.quests.length) log('지난 날짜 퀘스트가 정리되었습니다.');
+  if(!state.meta.stats[t]) state.meta.stats[t] = { total:0, done:0 };
 }
 
 /* quests */
@@ -377,36 +374,29 @@ function addQuest(text){
   log(`Added: ${t}`);
   save(); render();
 }
+function showRetroToast(message){
+  els.toastTitle.textContent = message || '완료했습니다!';
+  els.retroToast.classList.add('show');
+}
+function hideRetroToast(){ els.retroToast.classList.remove('show'); }
+
 function toggleDone(q){
   if(q.done){
-    // 재오픈 가능하되, 보상은 이미 지급되었으면 다시 지급 금지
-    q.done=false; q.doing=false; log(`Reopened: ${q.text}`);
+    q.done=false; log(`Reopened: ${q.text}`);
   }else{
     q.done=true; q.doing=false;
-    if(!q.rewarded){
-      q.rewarded = true; // 1회만
-      gainXP(10); log(`Completed: ${q.text} (+10 XP)`);
-    }else{
-      log(`Completed: ${q.text} (보상 이미 지급됨)`);
-      blip(600,90);
-    }
+    if(!q.rewarded){ q.rewarded=true; gainXP(10); }
+    log(`Completed: ${q.text} (+10 XP once)`);
+    // ✅ 모달 자동 오픈 금지: 오른쪽 토스트만 띄움
+    showRetroToast(`‘${q.text}’ 완료!`);
   }
-
   const today = todayKey();
   const todayItems = state.quests.filter(x=>x.date===today);
   const allDone = todayItems.length>0 && todayItems.every(x=>x.done);
   if(allDone && state.meta.lastClear !== today){
     state.meta.streak += 1; state.meta.lastClear = today;
     log(`All quests cleared! Streak +1 → ${state.meta.streak}`);
-    if(!state.retro[today]){
-      toast({
-        title:'회고록을 여시겠습니까?',
-        body:'오늘의 회고를 기록해두면 내일이 더 쉬워집니다.',
-        actionLabel:'열기',
-        cancelLabel:'나중에',
-        onAction: openRetro
-      });
-    }
+    // 전부 완료해도 모달은 자동 오픈하지 않음 (요청사항)
   }
   save(); render();
 }
@@ -419,15 +409,12 @@ function addReward(name, cost){
   state.rewards.unshift({ id: crypto.randomUUID(), name:n, cost:Math.floor(c) });
   log(`Reward 추가: ${n} (${Math.floor(c)} 코인)`); save(); renderStore();
 }
+function showBuyToast(){ els.buyToast.classList.add('show'); setTimeout(()=>els.buyToast.classList.remove('show'), 1600); }
 function buyReward(r){
-  if(state.meta.coins < r.cost){
-    toast({ title:'코인이 부족합니다', body:`필요: ${r.cost} / 보유: ${state.meta.coins}` });
-    blip(220,160); return;
-  }
-  state.meta.coins -= r.cost;
-  log(`Reward 사용: ${r.name} (-${r.cost} 코인)`); blip(700,150);
+  if(state.meta.coins < r.cost){ log(`코인이 부족합니다 (${r.name})`); blip(220,160); return; }
+  state.meta.coins -= r.cost; log(`Reward 사용: ${r.name} (-${r.cost} 코인)`); blip(700,150);
+  showBuyToast();
   save(); renderStats(); renderStore();
-  toast({ title:'보상 구매 완료!', body:'즐기세요!' });
 }
 function editReward(r){
   const n = prompt('리워드 이름', r.name); if(n===null) return;
@@ -448,9 +435,9 @@ function toggleKebab(show){
   els.kebabMenu.classList.toggle('show', willShow);
   els.kebabBtn.setAttribute('aria-expanded', willShow ? 'true' : 'false');
 }
-document.addEventListener('click', (e)=>{
-  if(e.target===els.kebabBtn){ toggleKebab(); return; }
-  if(!els.kebabMenu.contains(e.target)){ toggleKebab(false); }
+els.kebabBtn.addEventListener('click',(e)=>{ e.stopPropagation(); toggleKebab(); });
+document.addEventListener('click',(e)=>{
+  if(!els.kebab.contains(e.target)) toggleKebab(false);
 });
 
 /* reset */
@@ -466,11 +453,22 @@ function resetToday(){
 }
 function resetAll(){
   if(!confirm('정말 모든 데이터를 완전히 초기화할까요? (XP / LEVEL 포함)')) return;
+
   localStorage.clear();
+
   state.quests = [];
-  state.meta = { xp:0, level:1, coins:0, streak:0, lastClear:null, selected:null, stats:{} };
+  state.meta = {
+    xp: 0,
+    level: 1,
+    coins: 0,
+    streak: 0,
+    lastClear: null,
+    selected: null,
+    stats: {}
+  };
   state.retro = {};
   state.rewards = defaults.slice();
+
   save(); render();
   log('전체 초기화 완료 — XP, 레벨, 코인, 스트릭 모두 리셋되었습니다.');
   blip(500,200);
@@ -481,7 +479,7 @@ function resetAll(){
 function celebrateReset(full=true){
   try{
     els.overlay.classList.remove('show'); void els.overlay.offsetWidth;
-    els.overlay.querySelector('.msg').textContent = full ? '새 시즌이 시작되었습니다!' : '오늘이 새로 시작되었습니다!';
+    els.overlay.querySelector('.msg').textContent = full ? '새 시즌이 시작되었습니다!' : '새로운 하루가 시작되었네요! 오늘의 퀘스트를 추가해보세요!';
     els.overlay.classList.add('show');
     for(let i=0;i<22;i++){
       const p=document.createElement('div'); p.className='particle';
@@ -567,19 +565,18 @@ function mkBtn(txt, title, on){
   const d=document.createElement('div'); d.className='iconbtn'; d.textContent=txt; d.title=title; d.onclick=on; return d;
 }
 
-/* 입력 이벤트 */
+/* events */
 els.add.onclick = ()=>{ addQuest(els.input.value); els.input.value=''; els.input.focus(); };
 els.input.addEventListener('keydown',e=>{
-  if(e.key==='Enter'){ e.preventDefault(); els.add.click(); } // Enter로 등록
+  if(e.key==='Enter'){ e.preventDefault(); els.add.click(); }
 });
 els.rewardAdd.onclick = ()=>{
   addReward(els.rewardName.value, els.rewardCost.value);
   els.rewardName.value=''; els.rewardCost.value='';
   els.rewardName.focus();
 };
-els.kebabBtn.onclick = ()=> toggleKebab();
 
-/* 회고 모달 */
+/* 회고 모달/토스트 */
 function openRetro(){
   els.modal.classList.add('show');
   els.rDone.value=''; els.rFeel.value=''; els.rNext.value='';
@@ -593,18 +590,20 @@ els.rSave.onclick = ()=>{
   log(`Retrospect saved for ${date}`);
   save(); closeRetro();
 };
-document.addEventListener('keydown',(e)=>{ if(e.key==='Escape' && els.modal.classList.contains('show')) closeRetro(); });
+els.tOpen.onclick  = ()=>{ hideRetroToast(); openRetro(); };
+els.tLater.onclick = ()=> hideRetroToast();
+
+/* kebab actions */
+els.resetToday.onclick = resetToday;
+els.resetAll.onclick = resetAll;
 
 /* init */
-document.addEventListener('click', (e)=>{
-  if(!els.kebabMenu.contains(e.target) && e.target!==els.kebabBtn){ toggleKebab(false); }
-});
+document.addEventListener('keydown',(e)=>{ if(e.key==='Escape' && els.modal.classList.contains('show')) closeRetro(); });
 els.today.textContent = new Date().toLocaleDateString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit',weekday:'short'});
 
-/* 첫 로드 시: 지난 날짜 퀘스트 자동 삭제 */
+/* 첫 로드: 지난 날짜 퀘스트 자동 정리 */
 pruneOldQuests();
 render();
 </script>
 </body>
 </html>
-~
