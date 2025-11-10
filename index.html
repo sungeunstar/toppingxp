@@ -4,7 +4,18 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>ToppingXP — Quests</title>
+
+
+  <!-- ① SDK: 한 번만 로드 -->
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+
+  <!-- ② 클라이언트 즉시 생성: 메인 스크립트보다 먼저 -->
+  <script>
+    const SUPABASE_URL  = "https://mgpxqmqvlbjfywbbsiwt.supabase.co";
+    const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1ncHhxbXF2bGJqZnl3YmJzaXd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI3NDc3OTYsImV4cCI6MjA3ODMyMzc5Nn0.dMKOkI0Vsty6ZMOxJmfF4IAPmkKF4kPhRhjCLH0dxEk";
+    window.sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+    console.log("[supabase] client ready:", !!window.sb);
+  </script>
   <style>
     :root{
       --bg:#0a0f0a; --grid:#142714; --g:#79ff79; --g-weak:#36c436; --g-deep:#1c7a1c;
@@ -646,17 +657,6 @@ els.today.textContent = new Date().toLocaleDateString('ko-KR',{year:'numeric',mo
 ensureAuthAndLoad();
 </script>
 
-
-  <!-- Supabase SDK -->
-  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-
-  <!-- Supabase 클라이언트 직접 초기화 -->
-  <script>
-    const SUPABASE_URL  = "https://mgpxqmqvlbjfywbbsiwt.supabase.co"; // 본인 프로젝트 URL
-    const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1ncHhxbXF2bGJqZnl3YmJzaXd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI3NDc3OTYsImV4cCI6MjA3ODMyMzc5Nn0.dMKOkI0Vsty6ZMOxJmfF4IAPmkKF4kPhRhjCLH0dxEk"; // Supabase anon key
-    window.sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
-    console.log("[supabase] client ready:", !!window.sb);
-  </script>
 
 
 </body>
