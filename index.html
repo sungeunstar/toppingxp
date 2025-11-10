@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>ToppingXP — Quests</title>
@@ -637,5 +638,473 @@ render();
 
   loadUser();
 </script>
+<script>
+/* =========================
+   0) Supabase 설정
+========================= */
+const SUPABASE_URL = "https://YOUR-PROJECT.supabase.co";   // ← 교체
+const SUPABASE_ANON_KEY = "YOUR-ANON-PUBLIC-KEY";          // ← 교체
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+/* =========================
+   1) DB 스키마 (한 번만 실행)
+   - 아래 SQL을 Supabase SQL Editor에서 이미 실행했다고 가정
+   quests(user_id, text, date, doing, done, rewarded)
+   rewards(user_id, name, cost)
+   retros(user_id, done, feel, next)
+   meta(user_id, xp, level, coins, streak, last_clear)
+========================= */
+// meta 테이블 예시
+// create table if not exists public.meta (
+//   user_id uuid primary key references auth.users(id) on delete cascade,
+//   xp int default 0, level int default 1, coins int default 0,
+//   streak int default 0, last_clear date
+// );
+// alter table public.meta enable row level security;
+// create policy "meta_self_select" on public.meta for select using (auth.uid() = user_id);
+// create policy "meta_self_upsert" on public.meta for insert with check (auth.uid() = user_id);
+// create policy "meta_self_update" on public.meta for update using (auth.uid() = user_id);
+
+/* =========================
+   2) 헬퍼/상태
+========================= */
+const todayKey = () => new Date().toISOString().slice(0,10);
+const $ = (id) => document.getElementById(id);
+
+const defaults = [
+  { id:'coffee', name:'핸드드립 커피 1잔', cost:80 },
+  { id:'video',  name:'영상 30분 감상',   cost:60 },
+  { id:'walk',   name:'산책 20분',       cost:40 },
+  { id:'game',   name:'게임 30분',       cost:90 },
+  { id:'book',   name:'책 구입 1만원',   cost:500 },
+  { id:'treat',  name:'맛있는 간식',     cost:120 }
+];
+
+const state = {
+  user: null,
+  profile: null,     // profiles.display_name
+  meta: { xp:0, level:1, coins:0, streak:0, lastClear:null, selected:null, stats:{} },
+  quests: [],        // 오늘 것만 메모리에 둠
+  rewards: [],       // 내 리워드
+  retro: {}          // { [date]: {done, feel, next, ts} } — 오늘 저장 후 메모리에만 들고 있음
+};
+
+/* 기존 엘리먼트 참조 (원본 코드의 ids 유지) */
+const els = {
+  today: $('today'),
+  list: $('list'),
+  input: $('input'),
+  add: $('add'),
+  xp: $('xp'),
+  level: $('level'),
+  coins: $('coins'),
+  xpbar: $('xpbar'),
+  xpPct: $('xpPct'),
+  dailybar: $('dailybar'),
+  dailyPct: $('dailyPct'),
+  log: $('log'),
+  logbox: $('logbox'),
+  streak: $('streak'),
+  store: $('store'),
+  modal: $('retroModal'),
+  rDone: $('rDone'),
+  rFeel: $('rFeel'),
+  rNext: $('rNext'),
+  rSave: $('rSave'),
+  rCancel: $('rCancel'),
+  rewardName: $('rewardName'),
+  rewardCost: $('rewardCost'),
+  rewardAdd: $('rewardAdd'),
+  kebab: document.getElementById('kebab'),
+  kebabBtn: $('kebabBtn'),
+  kebabMenu: $('kebabMenu'),
+  resetToday: $('resetToday'),
+  resetAll: $('resetAll'),
+  overlay: $('seasonOverlay'),
+  retroToast: $('retroToast'),
+  toastTitle: $('toastTitle'),
+  tOpen: $('tOpen'),
+  tLater: $('tLater'),
+  buyToast: $('buyToast'),
+  greet: document.getElementById('greet')
+};
+
+/* 사운드/작은 유틸 */
+function blip(freq=880,ms=120){
+  try{
+    const ac=new (window.AudioContext||window.webkitAudioContext)();
+    const o=ac.createOscillator(), g=ac.createGain();
+    o.type='square'; o.frequency.value=freq; o.connect(g); g.connect(ac.destination);
+    o.start(); g.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime+ms/1000); setTimeout(()=>ac.close(),ms+80);
+  }catch{}
+}
+function log(msg){
+  const now = new Date();
+  const line = `[${now.toTimeString().slice(0,5)}] ${msg}`;
+  const prev = els.log.textContent === '아직 기록 없음' ? '' : els.log.textContent + ' ';
+  els.log.textContent = prev + line;
+  els.logbox.classList.add('flash'); setTimeout(()=>els.logbox.classList.remove('flash'),600);
+}
+
+/* =========================
+   3) 인증/프로필/메타 로드
+========================= */
+async function ensureAuthAndLoad(){
+  // 3-1) 인증 확인
+  const { data:{ user } } = await sb.auth.getUser();
+  if(!user){ location.href = "login.html"; return; }
+  state.user = user;
+
+  // 3-2) 프로필(닉네임)
+  const { data: prof } = await sb.from('profiles').select('display_name').eq('id', user.id).maybeSingle();
+  state.profile = prof || null;
+  const name = state.profile?.display_name || user.email?.split('@')[0] || '사용자';
+  if(els.greet) els.greet.textContent = `${name}님 안녕하세요 오늘도 즐거운 레벨업 되세요 :)`;
+
+  // 3-3) 메타 로드(없으면 생성)
+  let { data: meta } = await sb.from('meta').select('*').eq('user_id', user.id).maybeSingle();
+  if(!meta){
+    await sb.from('meta').insert({ user_id:user.id, xp:0, level:1, coins:0, streak:0, last_clear:null });
+    meta = { xp:0, level:1, coins:0, streak:0, last_clear:null };
+  }
+  state.meta.xp = meta.xp||0; state.meta.level=meta.level||1; state.meta.coins=meta.coins||0;
+  state.meta.streak = meta.streak||0; state.meta.lastClear = meta.last_clear;
+  if(!state.meta.stats[todayKey()]) state.meta.stats[todayKey()] = { total:0, done:0 };
+
+  // 3-4) 오늘 퀘스트/리워드 로드
+  await Promise.all([loadTodayQuests(), loadRewards()]);
+  render();
+}
+async function saveMeta(){
+  await sb.from('meta').upsert({
+    user_id: state.user.id,
+    xp: state.meta.xp,
+    level: state.meta.level,
+    coins: state.meta.coins,
+    streak: state.meta.streak,
+    last_clear: state.meta.lastClear
+  });
+}
+
+/* =========================
+   4) DB: 퀘스트/리워드/회고 CRUD
+========================= */
+async function loadTodayQuests(){
+  const { data, error } = await sb.from('quests')
+    .select('*').eq('user_id', state.user.id).eq('date', todayKey())
+    .order('created_at', { ascending:false });
+  if(error){ console.error(error); return; }
+  state.quests = data || [];
+  state.meta.stats[todayKey()].total = state.quests.length;
+  state.meta.stats[todayKey()].done = state.quests.filter(q=>q.done).length;
+}
+
+async function addQuestDB(text){
+  const q = { user_id: state.user.id, text, date: todayKey(), doing:false, done:false, rewarded:false };
+  const { data, error } = await sb.from('quests').insert(q).select().single();
+  if(error){ console.error(error); return null; }
+  return data;
+}
+async function updateQuestDB(id, patch){
+  const { error } = await sb.from('quests').update(patch).eq('id', id);
+  if(error) console.error(error);
+}
+async function deleteQuestDB(id){
+  const { error } = await sb.from('quests').delete().eq('id', id);
+  if(error) console.error(error);
+}
+
+async function loadRewards(){
+  const { data, error } = await sb.from('rewards').select('*').eq('user_id', state.user.id).order('created_at', {ascending:false});
+  if(error){ console.error(error); return; }
+  state.rewards = (data && data.length) ? data : [];
+  // 최초 유저면 기본 리워드 채워주기
+  if(!state.rewards.length){
+    const rows = defaults.map(d=>({ user_id: state.user.id, name: d.name, cost: d.cost }));
+    await sb.from('rewards').insert(rows);
+    const { data:newRows } = await sb.from('rewards').select('*').eq('user_id', state.user.id).order('created_at',{ascending:false});
+    state.rewards = newRows || [];
+  }
+}
+async function addRewardDB(name, cost){
+  const { data, error } = await sb.from('rewards').insert({ user_id:state.user.id, name, cost:Math.floor(cost) }).select().single();
+  if(error){ console.error(error); return null; }
+  return data;
+}
+async function updateRewardDB(id, patch){
+  const { error } = await sb.from('rewards').update(patch).eq('id', id);
+  if(error) console.error(error);
+}
+async function deleteRewardDB(id){
+  const { error } = await sb.from('rewards').delete().eq('id', id);
+  if(error) console.error(error);
+}
+
+async function insertRetro(done, feel, next){
+  const { error } = await sb.from('retros').insert({ user_id:state.user.id, done, feel, next });
+  if(error) console.error(error);
+}
+
+/* =========================
+   5) 기존 로직을 Supabase에 맞게 수정
+========================= */
+function gainXP(n=10){
+  const before = state.meta.xp % 100;
+  state.meta.xp += n;
+  state.meta.coins += n;
+  if((state.meta.xp % 100) < before){ state.meta.level += 1; log(`Level Up! → ${state.meta.level}`); blip(1200,150); }
+  else blip(980,110);
+  saveMeta();
+}
+
+function showRetroToast(message){
+  els.toastTitle.textContent = message || '완료했습니다!';
+  els.retroToast.classList.add('show');
+}
+function hideRetroToast(){ els.retroToast.classList.remove('show'); }
+
+/* 퀘스트 추가/표시/완료 */
+async function addQuest(text){
+  const t = text.trim(); if(!t) return;
+  const row = await addQuestDB(t);
+  if(!row) return;
+  state.quests.unshift(row);
+  state.meta.stats[todayKey()].total++;
+  state.meta.selected = row.id;
+  log(`Added: ${t}`);
+  render();
+}
+async function toggleDone(q){
+  if(q.done){
+    q.done = false;
+    await updateQuestDB(q.id, { done:false, doing:false });
+    log(`Reopened: ${q.text}`);
+  }else{
+    q.done = true; q.doing = false;
+    let patch = { done:true, doing:false };
+    if(!q.rewarded){
+      q.rewarded = true;
+      patch.rewarded = true;
+      gainXP(10);
+    }
+    await updateQuestDB(q.id, patch);
+    log(`Completed: ${q.text} (+10 XP once)`);
+    showRetroToast(`‘${q.text}’ 완료!`);
+  }
+
+  const today = todayKey();
+  const todayItems = state.quests.filter(x=>x.date===today);
+  state.meta.stats[today].done = todayItems.filter(x=>x.done).length;
+
+  const allDone = todayItems.length>0 && todayItems.every(x=>x.done);
+  if(allDone && state.meta.lastClear !== today){
+    state.meta.streak += 1; state.meta.lastClear = today;
+    log(`All quests cleared! Streak +1 → ${state.meta.streak}`);
+    saveMeta();
+  }
+  render();
+}
+
+/* 리워드 */
+async function addReward(name, cost){
+  const n = name.trim(); const c = Number(cost);
+  if(!n || !Number.isFinite(c) || c<=0){ blip(250,160); return; }
+  const row = await addRewardDB(n, c);
+  if(!row) return;
+  state.rewards.unshift(row);
+  log(`Reward 추가: ${row.name} (${row.cost} 코인)`); renderStore();
+}
+async function buyReward(r){
+  if(state.meta.coins < r.cost){ log(`코인이 부족합니다 (${r.name})`); blip(220,160); return; }
+  state.meta.coins -= r.cost; await saveMeta();
+  log(`Reward 사용: ${r.name} (-${r.cost} 코인)`); blip(700,150);
+  showBuyToast(); renderStats(); renderStore();
+}
+async function editReward(r){
+  const n = prompt('리워드 이름', r.name); if(n===null) return;
+  const c = prompt('필요 코인', r.cost); if(c===null) return;
+  const cost = Number(c); if(!n.trim() || !Number.isFinite(cost) || cost<=0){ blip(250,160); return; }
+  await updateRewardDB(r.id, { name:n.trim(), cost:Math.floor(cost) });
+  r.name = n.trim(); r.cost = Math.floor(cost);
+  log(`Reward 수정: ${r.name} (${r.cost} 코인)`); renderStore();
+}
+async function deleteReward(id){
+  await deleteRewardDB(id);
+  state.rewards = state.rewards.filter(x=>x.id!==id);
+  log('Reward 삭제 완료'); renderStore();
+}
+
+/* 회고 모달/저장 */
+function openRetro(){
+  els.modal.classList.add('show');
+  els.rDone.value=''; els.rFeel.value=''; els.rNext.value='';
+  setTimeout(()=>els.rDone.focus(),10);
+}
+function closeRetro(){ els.modal.classList.remove('show'); }
+els.rCancel.onclick = ()=> closeRetro();
+els.rSave.onclick = async ()=>{
+  const date = todayKey();
+  const obj = { done:els.rDone.value.trim(), feel:els.rFeel.value.trim(), next:els.rNext.value.trim(), ts:Date.now() };
+  state.retro[date] = obj;
+  await insertRetro(obj.done, obj.feel, obj.next);
+  log(`Retrospect saved for ${date}`);
+  closeRetro();
+};
+els.tOpen.onclick  = ()=>{ hideRetroToast(); openRetro(); };
+els.tLater.onclick = ()=> hideRetroToast();
+
+/* kebab (점 메뉴) */
+function toggleKebab(show){
+  const willShow = typeof show==='boolean' ? show : !els.kebabMenu.classList.contains('show');
+  els.kebabMenu.classList.toggle('show', willShow);
+  els.kebabBtn.setAttribute('aria-expanded', willShow ? 'true' : 'false');
+}
+els.kebabBtn.addEventListener('click',(e)=>{ e.stopPropagation(); toggleKebab(); });
+document.addEventListener('click',(e)=>{ if(!els.kebab.contains(e.target)) toggleKebab(false); });
+
+/* 리셋 */
+async function resetToday(){
+  if(!confirm('오늘 퀘스트를 모두 초기화할까요?')) return;
+  const t = todayKey();
+  // 오늘 퀘스트 삭제
+  await sb.from('quests').delete().eq('user_id', state.user.id).eq('date', t);
+  // 오늘 회고 삭제
+  await sb.from('retros').delete().eq('user_id', state.user.id).gte('created_at', t).lt('created_at', t+'T23:59:59.999Z');
+
+  state.quests = state.quests.filter(q=>q.date!==t);
+  delete state.retro[t];
+  state.meta.stats[t] = { total:0, done:0 };
+  state.meta.selected = null;
+  render(); log('오늘 데이터 초기화 완료');
+  celebrateReset(false);
+}
+async function resetAll(){
+  if(!confirm('정말 모든 데이터를 완전히 초기화할까요? (XP / LEVEL 포함)')) return;
+  await Promise.all([
+    sb.from('quests').delete().eq('user_id', state.user.id),
+    sb.from('rewards').delete().eq('user_id', state.user.id),
+    sb.from('retros').delete().eq('user_id', state.user.id),
+    sb.from('meta').update({ xp:0, level:1, coins:0, streak:0, last_clear:null }).eq('user_id', state.user.id)
+  ]);
+  state.quests = [];
+  state.rewards = [];
+  state.meta = { xp:0, level:1, coins:0, streak:0, lastClear:null, selected:null, stats:{} };
+  render();
+  log('전체 초기화 완료 — XP, 레벨, 코인, 스트릭 모두 리셋되었습니다.');
+  blip(500,200);
+  celebrateReset(true);
+}
+
+/* 초기화 축하 연출 (원본 유지) */
+function celebrateReset(full=true){
+  try{
+    els.overlay.classList.remove('show'); void els.overlay.offsetWidth;
+    els.overlay.querySelector('.msg').textContent = full ? '새 시즌이 시작되었습니다!' : '새로운 하루가 시작되었네요! 오늘의 퀘스트를 추가해보세요!';
+    els.overlay.classList.add('show');
+    for(let i=0;i<22;i++){
+      const p=document.createElement('div'); p.className='particle';
+      const x=Math.random()*95+2; const delay=Math.random()*0.6;
+      p.style.left = x+'vw'; p.style.top='-10px'; p.style.animationDelay=delay+'s';
+      document.body.appendChild(p); setTimeout(()=>p.remove(), 2000);
+    }
+  }catch(e){}
+}
+
+/* 렌더링 (원본 구조 유지) */
+function render(){
+  els.today.textContent = new Date().toLocaleDateString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit',weekday:'short'});
+  renderQuests(); renderStats(); renderStore();
+}
+function renderQuests(){
+  els.list.innerHTML = '';
+  const today = todayKey();
+  const todayItems = state.quests.filter(q => q.date === today);
+  state.meta.stats[today] ||= { total:0, done:0 };
+  state.meta.stats[today].total = todayItems.length;
+  state.meta.stats[today].done  = todayItems.filter(q=>q.done).length;
+
+  todayItems.forEach(q=>{
+    const row = document.createElement('div');
+    row.className = 'card' + (q.done ? ' done' : '') + (state.meta.selected===q.id ? ' flash' : '');
+    row.tabIndex = 0;
+
+    const badge = document.createElement('div'); badge.className='badge'; badge.textContent = q.done ? 'DONE' : (q.doing?'DOING':'TODO');
+    const title = document.createElement('div'); title.className='title'; title.textContent=q.text;
+
+    const actions = document.createElement('div'); actions.className='row';
+    const bDo = mkBtn('진행','Doing',async()=>{ q.doing=true; q.done=false; await updateQuestDB(q.id,{doing:true,done:false}); log(`Started: ${q.text}`); render(); });
+    const bDone = mkBtn('완료','Complete',()=>toggleDone(q));
+    const bDel = mkBtn('삭제','Delete',async()=>{ await deleteQuestDB(q.id); state.quests = state.quests.filter(x=>x.id!==q.id); log(`Deleted: ${q.text}`); render(); });
+    actions.append(bDo,bDone,bDel);
+
+    row.onclick = ()=> state.meta.selected = q.id;
+    row.append(badge,title,actions);
+    els.list.append(row);
+  });
+
+  if(!todayItems.length) els.list.innerHTML = `<div class="small">오늘 퀘스트가 없습니다. 위 입력창에서 추가하세요.</div>`;
+}
+function renderStats(){
+  const xp100 = state.meta.xp % 100;
+  els.xp.textContent = xp100;
+  els.level.textContent = state.meta.level;
+  els.coins.textContent = state.meta.coins;
+  const xpPct = Math.min(100, Math.floor(xp100));
+  els.xpbar.style.width = xpPct + '%';
+  els.xpPct.textContent = xpPct + '%';
+
+  const today = todayKey();
+  const todayItems = state.quests.filter(q => q.date === today);
+  const doneCount = todayItems.filter(q=>q.done).length;
+  const dailyPct = todayItems.length ? Math.floor(doneCount / todayItems.length * 100) : 0;
+  els.dailybar.style.width = dailyPct + '%';
+  els.dailyPct.textContent = dailyPct + '%';
+  els.streak.textContent = `Streak ${state.meta.streak} day`;
+}
+function renderStore(){
+  els.store.innerHTML='';
+  state.rewards.forEach(item=>{
+    const wrap = document.createElement('div'); wrap.className='storeItem';
+    wrap.innerHTML = `<div class="name">${item.name}</div><div class="cost">${item.cost} 코인</div>`;
+    const buy = document.createElement('button'); buy.className='buy'; buy.textContent='BUY';
+    buy.onclick = ()=> buyReward(item);
+
+    const row = document.createElement('div'); row.className='miniRow';
+    const edit = document.createElement('button'); edit.className='mini'; edit.textContent='수정'; edit.onclick = ()=> editReward(item);
+    const del = document.createElement('button'); del.className='mini'; del.textContent='삭제'; del.onclick = ()=> deleteReward(item.id);
+    row.append(edit,del);
+
+    wrap.append(buy,row);
+    els.store.append(wrap);
+  });
+}
+function mkBtn(txt, title, on){
+  const d=document.createElement('div'); d.className='iconbtn'; d.textContent=txt; d.title=title; d.onclick=on; return d;
+}
+
+/* 이벤트(원본 유지, DB 연동으로 연결) */
+els.add.onclick = async ()=>{ await addQuest(els.input.value); els.input.value=''; els.input.focus(); };
+els.input.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); els.add.click(); } });
+
+els.rewardAdd.onclick = async ()=>{
+  await addReward(els.rewardName.value, els.rewardCost.value);
+  els.rewardName.value=''; els.rewardCost.value=''; els.rewardName.focus();
+};
+
+els.resetToday.onclick = resetToday;
+els.resetAll.onclick = resetAll;
+
+/* 토스트/보상 */
+function showBuyToast(){ els.buyToast.classList.add('show'); setTimeout(()=>els.buyToast.classList.remove('show'), 1600); }
+
+/* 초기 날짜/UI */
+document.addEventListener('keydown',(e)=>{ if(e.key==='Escape' && els.modal.classList.contains('show')) els.rCancel.click(); });
+els.today.textContent = new Date().toLocaleDateString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit',weekday:'short'});
+
+/* 시작: 인증 후 데이터 로드 */
+ensureAuthAndLoad();
+</script>
+
+
 </body>
 </html>
