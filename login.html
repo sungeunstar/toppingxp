@@ -434,18 +434,17 @@ requestAnimationFrame(loop);
 </script>
 </script>
 
-<!-- Supabase SDK -->
-<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 
-<!-- Supabase 클라이언트 직접 초기화 -->
-<script>
-  const SUPABASE_URL  = "https://mgpxqmqvlbjfywbbsiwt.supabase.co"; // 본인 프로젝트 URL
-  const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1ncHhxbXF2bGJqZnl3YmJzaXd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI3NDc3OTYsImV4cCI6MjA3ODMyMzc5Nn0.dMKOkI0Vsty6ZMOxJmfF4IAPmkKF4kPhRhjCLH0dxEk"; // Supabase anon key
-  window.sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
-  console.log("[supabase] client ready:", !!window.sb);
-</script>
+  <!-- Supabase SDK -->
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 
-
+  <!-- Supabase 클라이언트 직접 초기화 -->
+  <script>
+    const SUPABASE_URL  = "https://mgpxqmqvlbjfywbbsiwt.supabase.co"; // 본인 프로젝트 URL
+    const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1ncHhxbXF2bGJqZnl3YmJzaXd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI3NDc3OTYsImV4cCI6MjA3ODMyMzc5Nn0.dMKOkI0Vsty6ZMOxJmfF4IAPmkKF4kPhRhjCLH0dxEk"; // Supabase anon key
+    window.sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+    console.log("[supabase] client ready:", !!window.sb);
+  </script>
 
 </body>
 </html>
