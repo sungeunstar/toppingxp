@@ -133,10 +133,6 @@ body{
 <div id="toast" class="toast"><span id="toastMsg"></span></div>
 
 <script>
-/* ===== Supabase ===== */
-const SUPABASE_URL = "https://mgpxqmqvlbjfywbbsiwt.supabase.co";   // ← 실제 값으로 교체
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1ncHhxbXF2bGJqZnl3YmJzaXd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI3NDc3OTYsImV4cCI6MjA3ODMyMzc5Nn0.dMKOkI0Vsty6ZMOxJmfF4IAPmkKF4kPhRhjCLH0dxEk";          // ← 실제 값으로 교체
-const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 /* ===== El refs ===== */
 const $ = id => document.getElementById(id);
@@ -268,5 +264,8 @@ document.getElementById('google')?.addEventListener('click', async ()=>{
 });
 */
 </script>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="js/supabase.js"></script>
+
 </body>
 </html>
