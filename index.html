@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>ToppingXP — Quests</title>
+<style>
+:root{
+  --bg:#0a0f0a; --grid:#142714; --g:#79ff79; --g-weak:#36c436; --g-deep:#1c7a1c;
+  --scan:rgba(121,255,121,.06);
+  --glow:0 0 10px rgba(121,255,121,.5),0 0 18px rgba(121,255,121,.25);
+  --btn-bg:#0a140a; --btn-bg-hover:#0f1d0f;
+  --text-soft:#b6ffb6; --text-hover:#d4f77c;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; background:radial-gradient(1100px 700px at 50% 50%, #0b160b 0%, var(--bg) 60%);
+  color:var(--g); font-family: ui-monospace, Menlo, Consolas, monospace; letter-spacing:.2px; font-size:16px;
+}
+.app{position:relative; height:100%; display:grid; grid-template-columns: 1.15fr .85fr; gap:2px}
+.panel{
+  position:relative; padding:18px 16px;
+  background:
+   linear-gradient(0deg, transparent 23px, var(--grid) 24px),
+   linear-gradient(90deg, transparent 23px, var(--grid) 24px);
+  background-size:24px 24px;
+  border:1px solid var(--g-deep);
+  box-shadow:inset 0 0 0 2px rgba(28,122,28,.2);
+}
+.app.crt::after{
+  content:""; position:absolute; inset:0;
+  background:repeating-linear-gradient(0deg,var(--scan) 0 2px, transparent 2px 4px);
+  mix-blend-mode:screen; pointer-events:none;
+  animation:scan 6s linear infinite, flicker 2.8s steps(60) infinite;
+}
+@keyframes scan{0%{opacity:.25}50%{opacity:.18}100%{opacity:.25}}
+@keyframes flicker{50%{filter:brightness(1.04)}}
+
+.h1{font-size:20px; margin:0 0 2px; text-shadow:var(--glow); font-weight:800}
+.sub{color:var(--g-weak); margin:0 0 12px; font-size:14px}
+.date{font-size:12px; color:#a6ffa6; margin-bottom:10px}
+
+.inputRow{display:flex; gap:10px; margin:10px 0 12px}
+.input{
+  flex:1; padding:12px 12px; border:2px solid var(--g-deep); background:#0a130a; color:var(--g);
+  box-shadow:inset 0 0 0 2px rgba(28,122,28,.18); font-size:15px
+}
+.btn{
+  padding:12px 14px; border:2px solid var(--g); background:var(--btn-bg); color:var(--text-soft);
+  font-weight:800; cursor:pointer; box-shadow:var(--glow); line-height:1; min-width:68px; text-align:center
+}
+.btn:hover,.btn:focus{background:var(--btn-bg-hover); color:var(--text-hover); outline:none}
+
+.list{display:flex; flex-direction:column; gap:10px}
+.card{
+  border:2px solid var(--g-deep); background:rgba(0,0,0,.08); padding:10px 12px;
+  display:grid; grid-template-columns:auto 1fr auto; gap:10px; align-items:center;
+  box-shadow:inset 0 0 0 2px rgba(28,122,28,.15);
+}
+.badge{font-size:12px; padding:3px 8px; border:2px solid var(--g-deep)}
+.title{overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:15px}
+.row{display:flex; gap:8px; align-items:center}
+.iconbtn{
+  border:2px solid var(--g-deep); padding:7px 9px; cursor:pointer; background:#0b130b; color:var(--text-soft);
+  transition:transform .02s, background .15s
+}
+.iconbtn:hover{background:#122012}
+.iconbtn:active{transform:translateY(1px)}
+.done .title{text-decoration:line-through; opacity:.75}
+.done{border-color:var(--g)}
+
+.rightGrid{display:grid; grid-template-rows:auto auto 1fr auto; gap:14px; height:100%}
+.box{
+  border:2px solid var(--g-deep); padding:12px; box-shadow:inset 0 0 0 2px rgba(29,122,29,.18);
+}
+.statTop{display:flex; justify-content:space-between; gap:10px; align-items:center; margin-bottom:8px}
+.kebab{position:relative}
+.kebabBtn{
+  border:2px solid var(--g-deep); background:#0b130b; color:var(--text-soft);
+  padding:8px 10px; cursor:pointer; font-weight:800;
+}
+.kebabBtn:hover{background:#122012}
+.kebabMenu{
+  position:absolute; right:0; top:40px; min-width:160px; display:none;
+  background:#0a130a; border:2px solid var(--g-deep); box-shadow:var(--glow); z-index:20;
+}
+.kebabMenu.show{display:block}
+.kebabMenu button{
+  width:100%; text-align:left; padding:10px 12px; background:transparent; border:0; color:var(--text-soft); cursor:pointer;
+}
+.kebabMenu button:hover{background:#122012; color:var(--text-hover)}
+
+.small{font-size:12px; color:var(--g-weak)}
+.statGrid{display:grid; grid-template-columns:repeat(3,1fr); gap:10px}
+.slab{display:grid; place-items:center; min-height:62px; font-weight:800; font-size:15px}
+
+.bars{display:grid; gap:10px}
+.bar{position:relative; border:2px solid var(--g-deep); height:26px; box-shadow:inset 0 0 0 2px rgba(29,122,29,.18)}
+.bar>span{position:absolute; inset:0 auto 0 0; width:0; background:linear-gradient(90deg, rgba(121,255,121,.55), rgba(121,255,121,.9))}
+.barlabel{position:absolute; inset:0; display:flex; justify-content:space-between; align-items:center; padding:0 10px; font-weight:800}
+
+.storeTop{display:grid; grid-template-columns:1fr auto auto; gap:10px; align-items:center; margin-bottom:8px}
+.storeTop .input{padding:10px}
+.storeGrid{display:grid; grid-template-columns:repeat(3,1fr); gap:10px}
+.storeItem{border:2px solid var(--g-deep); padding:10px; display:grid; gap:10px; text-align:center;
+  box-shadow:inset 0 0 0 2px rgba(29,122,29,.18)}
+.storeItem .name{font-weight:800}
+.storeItem .cost{font-weight:800}
+.miniRow{display:flex; gap:6px; justify-content:center}
+.mini{border:2px solid var(--g-deep); background:#0b130b; color:var(--text-soft); padding:6px 8px; cursor:pointer; font-size:12px}
+.mini:hover{background:#122012}
+.storeItem .buy{border:2px solid var(--g); padding:8px 10px; cursor:pointer; background:var(--btn-bg); color:var(--text-soft); font-weight:800}
+.storeItem .buy:hover{background:var(--btn-bg-hover); color:var(--text-hover)}
+
+.flash{animation:flash .6s ease}
+@keyframes flash{0%{box-shadow:0 0 0 0 rgba(121,255,121,0)}60%{box-shadow:0 0 18px 6px rgba(121,255,121,.35)}100%{box-shadow:0 0 0 0 rgba(121,255,121,0)}}
+
+/* 초기화 축하 오버레이 */
+#seasonOverlay{
+  position:fixed; inset:0; display:none; align-items:center; justify-content:center;
+  background:radial-gradient(ellipse at center, rgba(160,255,160,.15), rgba(0,0,0,.7) 70%);
+  z-index:9999; pointer-events:none;
+}
+#seasonOverlay.show{display:flex; animation:fadeOut 1.8s ease forwards 1.2s}
+#seasonOverlay .msg{
+  color:#d6ffd6; font-size:28px; font-weight:900; letter-spacing:.6px; text-shadow:var(--glow);
+  animation:punch .6s ease;
+}
+@keyframes punch{0%{transform:scale(.7); opacity:.0}60%{transform:scale(1.1); opacity:1}100%{transform:scale(1)}}
+@keyframes fadeOut{to{opacity:0}}
+
+/* 파티클 */
+.particle{
+  position:fixed; width:6px; height:6px; border:2px solid #9bff9b; border-radius:50%;
+  box-shadow:0 0 8px rgba(155,255,155,.7); z-index:9999; pointer-events:none;
+  animation:fall 1.6s ease-in forwards;
+}
+@keyframes fall{0%{transform:translateY(-20px) scale(1); opacity:1}100%{transform:translateY(90vh) scale(.7); opacity:0}}
+
+/* 토스트(하단 오른쪽) */
+.toastWrap{
+  position:fixed; bottom:22px; right:22px; display:grid; gap:10px; z-index:9998;
+}
+.toast{
+  min-width:320px; max-width:520px;
+  background:#0b130b; color:var(--g);
+  border:2px solid var(--g-deep); box-shadow:var(--glow);
+  padding:16px; display:grid; gap:10px; animation:pop .2s ease;
+}
+.toast .title{font-weight:900; text-shadow:var(--glow)}
+.toast .actions{display:flex; gap:8px; justify-content:flex-end}
+@keyframes pop{from{transform:translateY(8px); opacity:0}to{transform:translateY(0); opacity:1}}
+
+/* 회고 모달(가운데) */
+.modal{position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,.45); z-index:9999}
+.modal.show{display:flex}
+.modalCard{width:min(520px,92%); background:#091109; color:var(--g); border:2px solid var(--g-deep); box-shadow:var(--glow); padding:16px; display:grid; gap:12px}
+.modalCard textarea,.modalCard input{width:100%; padding:10px; border:2px solid var(--g-deep); background:rgba(0,0,0,.15); color:var(--g)}
+.modalBtns{display:flex; gap:8px; justify-content:flex-end}
+
+/* 모바일 */
+@media(max-width:980px){
+  .app{grid-template-columns:1fr}
+  .storeGrid{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+<div class="app crt" id="app">
+  <div id="seasonOverlay"><div class="msg">새 시즌이 시작되었습니다!</div></div>
+
+  <!-- LEFT -->
+  <section class="panel">
+    <div class="h1">Quests</div>
+    <div class="date" id="today"></div>
+    <p class="sub">한 줄 퀘스트 입력 후 <b>Enter</b> 또는 <b>추가</b> 버튼으로 등록. 모두 완료하면 회고 작성 안내가 뜹니다.</p>
+
+    <div class="inputRow">
+      <input id="input" class="input" placeholder="예) 고객 인터뷰 일정 확정 메일 보내기" />
+      <button id="add" class="btn">추가</button>
+    </div>
+
+    <div id="list" class="list" aria-live="polite"></div>
+  </section>
+
+  <!-- RIGHT -->
+  <section class="panel">
+    <div class="h1">Status</div>
+
+    <div class="rightGrid">
+      <div class="box">
+        <div class="statTop">
+          <div class="small">진행 현황</div>
+          <div class="kebab">
+            <button class="kebabBtn" id="kebabBtn" aria-haspopup="true" aria-expanded="false">⋯</button>
+            <div class="kebabMenu" id="kebabMenu" role="menu">
+              <button id="resetToday" role="menuitem">오늘 리셋</button>
+              <button id="resetAll" role="menuitem">전체 리셋</button>
+            </div>
+          </div>
+        </div>
+        <div class="statGrid">
+          <div class="slab"><div>LEVEL&nbsp;<span id="level">1</span></div></div>
+          <div class="slab"><div>XP&nbsp;<span id="xp">0</span>/100</div></div>
+          <div class="slab"><div>COINS&nbsp;<span id="coins">0</span></div></div>
+        </div>
+      </div>
+
+      <div class="box">
+        <div class="bars">
+          <div class="bar"><span id="xpbar"></span><div class="barlabel"><span>XP</span><span id="xpPct">0%</span></div></div>
+          <div class="bar"><span id="dailybar"></span><div class="barlabel"><span>DAILY</span><span id="dailyPct">0%</span></div></div>
+        </div>
+        <div class="small" id="streak" style="margin-top:6px">Streak 0 day</div>
+      </div>
+
+      <div class="box" id="logbox">
+        <div class="h1" style="font-size:18px">Activity Log</div>
+        <div class="small" id="log">아직 기록 없음</div>
+      </div>
+
+      <div class="box">
+        <div class="h1" style="font-size:18px">Reward Store</div>
+        <div class="storeTop">
+          <input id="rewardName" class="input" placeholder="리워드 이름 (예: 산책 20분)" />
+          <input id="rewardCost" class="input" inputmode="numeric" placeholder="코인" style="max-width:120px" />
+          <button id="rewardAdd" class="btn">추가</button>
+        </div>
+        <div class="storeGrid" id="store"></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- 토스트 컨테이너 -->
+<div class="toastWrap" id="toastWrap" aria-live="polite"></div>
+
+<!-- 회고 입력 모달 -->
+<div class="modal" id="retroModal" role="dialog" aria-modal="true" aria-labelledby="retroTitle">
+  <div class="modalCard">
+    <div class="h1" id="retroTitle">오늘의 회고</div>
+    <input id="rDone" placeholder="✅ 오늘 끝낸 일 한 줄" />
+    <textarea id="rFeel" rows="3" placeholder="💭 느낀 점"></textarea>
+    <input id="rNext" placeholder="🔁 내일 이어갈 포인트" />
+    <div class="modalBtns">
+      <button id="rCancel" class="btn">나중에</button>
+      <button id="rSave" class="btn">저장</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* storage helpers */
+const LS = key => ({ get:() => JSON.parse(localStorage.getItem(key)||'null'), set:v => localStorage.setItem(key,JSON.stringify(v)) });
+const store = { quests:LS('quests'), meta:LS('meta'), retro:LS('retro'), rewards:LS('rewards') };
+const todayKey = () => new Date().toISOString().slice(0,10);
+
+/* defaults */
+const defaults = [
+  { id:'coffee', name:'핸드드립 커피 1잔', cost:80 },
+  { id:'video', name:'영상 30분 감상', cost:60 },
+  { id:'walk',  name:'산책 20분', cost:40 },
+  { id:'game',  name:'게임 30분', cost:90 },
+  { id:'book',  name:'책 구입 1만원', cost:500 },
+  { id:'treat', name:'맛있는 간식', cost:120 }
+];
+
+/* state */
+const state = {
+  quests: store.quests.get() || [],
+  meta: store.meta.get() || { xp:0, level:1, coins:0, streak:0, lastClear:null, selected:null, stats:{} },
+  retro: store.retro.get() || {},
+  rewards: store.rewards.get() || defaults.slice()
+};
+if(!state.meta.stats[todayKey()]) state.meta.stats[todayKey()] = { total:0, done:0 };
+
+/* els */
+const $ = id => document.getElementById(id);
+const els = {
+  today: $('today'),
+  list: $('list'),
+  input: $('input'),
+  add: $('add'),
+  xp: $('xp'),
+  level: $('level'),
+  coins: $('coins'),
+  xpbar: $('xpbar'),
+  xpPct: $('xpPct'),
+  dailybar: $('dailybar'),
+  dailyPct: $('dailyPct'),
+  log: $('log'),
+  logbox: $('logbox'),
+  streak: $('streak'),
+  store: $('store'),
+  toastWrap: $('toastWrap'),
+  modal: $('retroModal'),
+  rDone: $('rDone'),
+  rFeel: $('rFeel'),
+  rNext: $('rNext'),
+  rSave: $('rSave'),
+  rCancel: $('rCancel'),
+  rewardName: $('rewardName'),
+  rewardCost: $('rewardCost'),
+  rewardAdd: $('rewardAdd'),
+  kebabBtn: $('kebabBtn'),
+  kebabMenu: $('kebabMenu'),
+  resetToday: $('resetToday'),
+  resetAll: $('resetAll'),
+  overlay: $('seasonOverlay')
+};
+
+/* audio */
+function blip(freq=880,ms=120){
+  try{
+    const ac = new (window.AudioContext||window.webkitAudioContext)();
+    const o = ac.createOscillator(); const g = ac.createGain();
+    o.type='square'; o.frequency.value=freq; o.connect(g); g.connect(ac.destination);
+    o.start(); g.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + ms/1000); setTimeout(()=>ac.close(), ms+80);
+  }catch(e){}
+}
+
+/* helpers */
+function save(){ store.quests.set(state.quests); store.meta.set(state.meta); store.retro.set(state.retro); store.rewards.set(state.rewards); }
+function log(msg){
+  const now = new Date();
+  const line = `[${now.toTimeString().slice(0,5)}] ${msg}`;
+  const prev = els.log.textContent === '아직 기록 없음' ? '' : els.log.textContent + '\n';
+  els.log.textContent = prev + line;
+  els.logbox.classList.add('flash'); setTimeout(()=>els.logbox.classList.remove('flash'),600);
+}
+
+/* toast */
+function toast({title='',body='',actionLabel=null,cancelLabel=null,onAction=null,timeout=2200}){
+  const t = document.createElement('div'); t.className='toast';
+  t.innerHTML = `<div class="title">${title}</div>${body?`<div>${body.replace(/\n/g,'<br>')}</div>`:''}${actionLabel?`<div class="actions"></div>`:''}`;
+  if(actionLabel){
+    const actions = t.querySelector('.actions');
+    const ok = document.createElement('button'); ok.className='btn'; ok.textContent=actionLabel;
+    ok.onclick = ()=>{ onAction && onAction(); wrap.remove(); };
+    const cancel = document.createElement('button'); cancel.className='btn'; cancel.textContent= cancelLabel || '닫기';
+    cancel.onclick = ()=> wrap.remove();
+    actions.append(cancel,ok);
+  }
+  const wrap = document.createElement('div'); wrap.appendChild(t);
+  els.toastWrap.appendChild(wrap);
+  if(!actionLabel){ setTimeout(()=>wrap.remove(), timeout); }
+}
+
+/* XP/LEVEL */
+function gainXP(n=10){
+  const before = state.meta.xp % 100;
+  state.meta.xp += n;
+  state.meta.coins += n;
+  if((state.meta.xp % 100) < before){ state.meta.level += 1; log(`Level Up! → ${state.meta.level}`); blip(1200,150); }
+  else blip(980,110);
+}
+
+/* daily sweep: remove old quests automatically */
+function pruneOldQuests(){
+  const today = todayKey();
+  const beforeLen = state.quests.length;
+  state.quests = state.quests.filter(q => q.date === today);
+  if(beforeLen !== state.quests.length){
+    log('지난 퀘스트 자동 정리');
+    save();
+  }
+}
+
+/* quests */
+function addQuest(text){
+  const t = text.trim(); if(!t) return;
+  const q = { id: crypto.randomUUID(), text:t, date: todayKey(), doing:false, done:false, rewarded:false, createdAt: Date.now() };
+  state.quests.unshift(q);
+  state.meta.stats[todayKey()].total++;
+  state.meta.selected = q.id;
+  log(`Added: ${t}`);
+  save(); render();
+}
+function toggleDone(q){
+  if(q.done){
+    // 재오픈 가능하되, 보상은 이미 지급되었으면 다시 지급 금지
+    q.done=false; q.doing=false; log(`Reopened: ${q.text}`);
+  }else{
+    q.done=true; q.doing=false;
+    if(!q.rewarded){
+      q.rewarded = true; // 1회만
+      gainXP(10); log(`Completed: ${q.text} (+10 XP)`);
+    }else{
+      log(`Completed: ${q.text} (보상 이미 지급됨)`);
+      blip(600,90);
+    }
+  }
+
+  const today = todayKey();
+  const todayItems = state.quests.filter(x=>x.date===today);
+  const allDone = todayItems.length>0 && todayItems.every(x=>x.done);
+  if(allDone && state.meta.lastClear !== today){
+    state.meta.streak += 1; state.meta.lastClear = today;
+    log(`All quests cleared! Streak +1 → ${state.meta.streak}`);
+    if(!state.retro[today]){
+      toast({
+        title:'회고록을 여시겠습니까?',
+        body:'오늘의 회고를 기록해두면 내일이 더 쉬워집니다.',
+        actionLabel:'열기',
+        cancelLabel:'나중에',
+        onAction: openRetro
+      });
+    }
+  }
+  save(); render();
+}
+
+/* rewards */
+function addReward(name, cost){
+  const n = name.trim();
+  const c = Number(cost);
+  if(!n || !Number.isFinite(c) || c<=0){ blip(250,160); return; }
+  state.rewards.unshift({ id: crypto.randomUUID(), name:n, cost:Math.floor(c) });
+  log(`Reward 추가: ${n} (${Math.floor(c)} 코인)`); save(); renderStore();
+}
+function buyReward(r){
+  if(state.meta.coins < r.cost){
+    toast({ title:'코인이 부족합니다', body:`필요: ${r.cost} / 보유: ${state.meta.coins}` });
+    blip(220,160); return;
+  }
+  state.meta.coins -= r.cost;
+  log(`Reward 사용: ${r.name} (-${r.cost} 코인)`); blip(700,150);
+  save(); renderStats(); renderStore();
+  toast({ title:'보상 구매 완료!', body:'즐기세요!' });
+}
+function editReward(r){
+  const n = prompt('리워드 이름', r.name); if(n===null) return;
+  const c = prompt('필요 코인', r.cost); if(c===null) return;
+  const cost = Number(c);
+  if(!n.trim() || !Number.isFinite(cost) || cost<=0){ blip(250,160); return; }
+  r.name = n.trim(); r.cost = Math.floor(cost);
+  log(`Reward 수정: ${r.name} (${r.cost} 코인)`); save(); renderStore();
+}
+function deleteReward(id){
+  state.rewards = state.rewards.filter(x=>x.id!==id);
+  log('Reward 삭제 완료'); save(); renderStore();
+}
+
+/* kebab (점 메뉴) */
+function toggleKebab(show){
+  const willShow = typeof show==='boolean' ? show : !els.kebabMenu.classList.contains('show');
+  els.kebabMenu.classList.toggle('show', willShow);
+  els.kebabBtn.setAttribute('aria-expanded', willShow ? 'true' : 'false');
+}
+document.addEventListener('click', (e)=>{
+  if(e.target===els.kebabBtn){ toggleKebab(); return; }
+  if(!els.kebabMenu.contains(e.target)){ toggleKebab(false); }
+});
+
+/* reset */
+function resetToday(){
+  if(!confirm('오늘 퀘스트를 모두 초기화할까요?')) return;
+  const t = todayKey();
+  state.quests = state.quests.filter(q=>q.date!==t);
+  delete state.retro[t];
+  state.meta.stats[t] = { total:0, done:0 };
+  state.meta.selected = null;
+  save(); render(); log('오늘 데이터 초기화 완료');
+  celebrateReset(false);
+}
+function resetAll(){
+  if(!confirm('정말 모든 데이터를 완전히 초기화할까요? (XP / LEVEL 포함)')) return;
+  localStorage.clear();
+  state.quests = [];
+  state.meta = { xp:0, level:1, coins:0, streak:0, lastClear:null, selected:null, stats:{} };
+  state.retro = {};
+  state.rewards = defaults.slice();
+  save(); render();
+  log('전체 초기화 완료 — XP, 레벨, 코인, 스트릭 모두 리셋되었습니다.');
+  blip(500,200);
+  celebrateReset(true);
+}
+
+/* 초기화 축하 연출 */
+function celebrateReset(full=true){
+  try{
+    els.overlay.classList.remove('show'); void els.overlay.offsetWidth;
+    els.overlay.querySelector('.msg').textContent = full ? '새 시즌이 시작되었습니다!' : '오늘이 새로 시작되었습니다!';
+    els.overlay.classList.add('show');
+    for(let i=0;i<22;i++){
+      const p=document.createElement('div'); p.className='particle';
+      const x=Math.random()*95+2; const delay=Math.random()*0.6;
+      p.style.left = x+'vw'; p.style.top='-10px'; p.style.animationDelay=delay+'s';
+      document.body.appendChild(p);
+      setTimeout(()=>p.remove(), 2000);
+    }
+  }catch(e){}
+}
+
+/* render */
+function render(){
+  els.today.textContent = new Date().toLocaleDateString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit',weekday:'short'});
+  renderQuests(); renderStats(); renderStore();
+}
+function renderQuests(){
+  els.list.innerHTML = '';
+  const today = todayKey();
+  const todayItems = state.quests.filter(q => q.date === today);
+  state.meta.stats[today].total = todayItems.length;
+  let doneCount = 0;
+
+  todayItems.forEach(q=>{
+    if(q.done) doneCount++;
+    const row = document.createElement('div');
+    row.className = 'card' + (q.done ? ' done' : '') + (state.meta.selected===q.id ? ' flash' : '');
+    row.tabIndex = 0;
+
+    const badge = document.createElement('div'); badge.className='badge'; badge.textContent = q.done ? 'DONE' : (q.doing?'DOING':'TODO');
+    const title = document.createElement('div'); title.className='title'; title.textContent=q.text;
+
+    const actions = document.createElement('div'); actions.className='row';
+    const bDo = mkBtn('진행','Doing',()=>{q.doing=true; q.done=false; log(`Started: ${q.text}`); save(); render();});
+    const bDone = mkBtn('완료','Complete',()=>toggleDone(q));
+    const bDel = mkBtn('삭제','Delete',()=>{ state.quests = state.quests.filter(x=>x.id!==q.id); log(`Deleted: ${q.text}`); save(); render(); });
+    actions.append(bDo,bDone,bDel);
+
+    row.onclick = ()=> state.meta.selected = q.id;
+    row.append(badge,title,actions);
+    els.list.append(row);
+  });
+
+  state.meta.stats[today].done = doneCount;
+
+  if(!todayItems.length) els.list.innerHTML = `<div class="small">오늘 퀘스트가 없습니다. 위 입력창에서 추가하세요.</div>`;
+}
+function renderStats(){
+  const xp100 = state.meta.xp % 100;
+  els.xp.textContent = xp100;
+  els.level.textContent = state.meta.level;
+  els.coins.textContent = state.meta.coins;
+  const xpPct = Math.min(100, Math.floor(xp100));
+  els.xpbar.style.width = xpPct + '%';
+  els.xpPct.textContent = xpPct + '%';
+
+  const today = todayKey();
+  const todayItems = state.quests.filter(q => q.date === today);
+  const doneCount = todayItems.filter(q=>q.done).length;
+  const dailyPct = todayItems.length ? Math.floor(doneCount / todayItems.length * 100) : 0;
+  els.dailybar.style.width = dailyPct + '%';
+  els.dailyPct.textContent = dailyPct + '%';
+  els.streak.textContent = `Streak ${state.meta.streak} day`;
+}
+function renderStore(){
+  els.store.innerHTML='';
+  state.rewards.forEach(item=>{
+    const wrap = document.createElement('div'); wrap.className='storeItem';
+    wrap.innerHTML = `<div class="name">${item.name}</div><div class="cost">${item.cost} 코인</div>`;
+    const buy = document.createElement('button'); buy.className='buy'; buy.textContent='BUY';
+    buy.onclick = ()=> buyReward(item);
+
+    const row = document.createElement('div'); row.className='miniRow';
+    const edit = document.createElement('button'); edit.className='mini'; edit.textContent='수정'; edit.onclick = ()=> editReward(item);
+    const del = document.createElement('button'); del.className='mini'; del.textContent='삭제'; del.onclick = ()=> deleteReward(item.id);
+    row.append(edit,del);
+
+    wrap.append(buy,row);
+    els.store.append(wrap);
+  });
+}
+function mkBtn(txt, title, on){
+  const d=document.createElement('div'); d.className='iconbtn'; d.textContent=txt; d.title=title; d.onclick=on; return d;
+}
+
+/* 입력 이벤트 */
+els.add.onclick = ()=>{ addQuest(els.input.value); els.input.value=''; els.input.focus(); };
+els.input.addEventListener('keydown',e=>{
+  if(e.key==='Enter'){ e.preventDefault(); els.add.click(); } // Enter로 등록
+});
+els.rewardAdd.onclick = ()=>{
+  addReward(els.rewardName.value, els.rewardCost.value);
+  els.rewardName.value=''; els.rewardCost.value='';
+  els.rewardName.focus();
+};
+els.kebabBtn.onclick = ()=> toggleKebab();
+
+/* 회고 모달 */
+function openRetro(){
+  els.modal.classList.add('show');
+  els.rDone.value=''; els.rFeel.value=''; els.rNext.value='';
+  setTimeout(()=>els.rDone.focus(),10);
+}
+function closeRetro(){ els.modal.classList.remove('show'); }
+els.rCancel.onclick = ()=> closeRetro();
+els.rSave.onclick = ()=>{
+  const date = todayKey();
+  state.retro[date] = { done:els.rDone.value.trim(), feel:els.rFeel.value.trim(), next:els.rNext.value.trim(), ts:Date.now() };
+  log(`Retrospect saved for ${date}`);
+  save(); closeRetro();
+};
+document.addEventListener('keydown',(e)=>{ if(e.key==='Escape' && els.modal.classList.contains('show')) closeRetro(); });
+
+/* init */
+document.addEventListener('click', (e)=>{
+  if(!els.kebabMenu.contains(e.target) && e.target!==els.kebabBtn){ toggleKebab(false); }
+});
+els.today.textContent = new Date().toLocaleDateString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit',weekday:'short'});
+
+/* 첫 로드 시: 지난 날짜 퀘스트 자동 삭제 */
+pruneOldQuests();
+render();
+</script>
+</body>
+</html>
+~
