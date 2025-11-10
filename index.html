@@ -17,6 +17,26 @@
     console.log("[supabase] client ready:", !!window.sb);
   </script>
   <style>
+
+        <!-- ② 모바일 가로길이 제한 -->
+      @media (max-width: 980px){
+        .app{ grid-template-columns: 1fr; }
+        .panel{ padding:16px 12px; }
+        .statGrid{ grid-template-columns: 1fr; }
+        .storeGrid{ grid-template-columns: 1fr 1fr; }
+        .storeTop{ grid-template-columns: 1fr 1fr; }
+      }
+      @media (max-width: 420px){
+        body{ font-size:15px; }
+        .h1{ font-size:18px; }
+        .panel{ padding:14px 10px; }
+        .card{ grid-template-columns: 1fr; gap:8px; }
+        .storeGrid{ grid-template-columns: 1fr; }
+        .storeTop{ grid-template-columns: 1fr; gap:8px; }
+        .kebabMenu{ max-width:92vw; right:0; }
+      }
+
+
     :root{
       --bg:#0a0f0a; --grid:#142714; --g:#79ff79; --g-weak:#36c436; --g-deep:#1c7a1c;
       --scan:rgba(121,255,121,.06);
