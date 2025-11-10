@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+    <link rel="preload" as="image" href="https://mgpxqmqvlbjfywbbsiwt.supabase.co/storage/v1/object/public/images/level-up-bg.png">
+
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>ToppingXP — Login</title>
@@ -28,11 +30,12 @@ body{
 body::before{
   content:"";
   position:fixed; inset:0;
-  background-image: url("https://i.ibb.co/jkRx69N7/level-up-bg-jpg.png"); /* <- 경로만 바꿔 */
+  background-image: url("https://mgpxqmqvlbjfywbbsiwt.supabase.co/storage/v1/object/public/images/level-up-bg.png");
   background-size:cover; background-position:center; background-repeat:no-repeat;
   filter: saturate(1.1) contrast(1.02);
   z-index:-2;
 }
+
 /* 어둡게/비네팅 오버레이 */
 body::after{
   content:"";
