@@ -1,113 +1,272 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>ToppingXP — Login</title>
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <style>
 :root{
   --bg:#0a0f0a; --grid:#142714; --g:#79ff79; --g-weak:#36c436; --g-deep:#1c7a1c;
-  --scan:rgba(121,255,121,.06); --text-soft:#b6ffb6; --btn-bg:#0a140a; --btn-bg-hover:#0f1d0f;
+  --scan:rgba(121,255,121,.06);
+  --glow:0 0 10px rgba(121,255,121,.5),0 0 18px rgba(121,255,121,.25);
+  --btn-bg:#0a140a; --btn-bg-hover:#0f1d0f;
+  --text-soft:#b6ffb6; --text-hover:#d4f77c;
+  --danger:#ff7272; --ok:#9bffa4;
 }
 *{box-sizing:border-box}
+html,body{height:100%}
 body{
-  margin:0; height:100vh; display:grid; place-items:center;
-  background:radial-gradient(1000px 600px at 50% 50%, #0b160b 0%, var(--bg) 70%);
-  color:var(--g); font-family:ui-monospace,Menlo,Consolas,monospace; letter-spacing:.2px;
+  margin:0; background:radial-gradient(1100px 700px at 50% 50%, #0b160b 0%, var(--bg) 60%);
+  color:var(--g); font-family:ui-monospace, Menlo, Consolas, monospace; letter-spacing:.2px;
 }
-.loginBox{
-  width:min(420px,90%); background:#0b130b; border:2px solid var(--g-deep);
-  padding:24px 20px; box-shadow:0 0 18px rgba(121,255,121,.25) inset; text-align:center;
+.wrap{min-height:100%; display:grid; place-items:center}
+.card{
+  width:min(520px,92%); padding:18px; border:1px solid var(--g-deep);
+  box-shadow:inset 0 0 0 2px rgba(28,122,28,.2); background:
+    linear-gradient(0deg, transparent 23px, var(--grid) 24px),
+    linear-gradient(90deg, transparent 23px, var(--grid) 24px);
+  background-size:24px 24px;
 }
-h1{font-size:22px;margin:0 0 14px;text-shadow:0 0 10px rgba(121,255,121,.6);}
-.sub{font-size:13px;color:var(--text-soft);margin-bottom:20px}
-input{
-  width:100%;padding:12px;border:2px solid var(--g-deep);
-  background:#081108;color:var(--g);margin-bottom:10px;font-size:15px;
-}
-button{
-  width:100%;padding:12px;border:2px solid var(--g);
-  background:var(--btn-bg);color:var(--text-soft);font-weight:800;
-  cursor:pointer;transition:.15s;background:var(--btn-bg);
-}
-button:hover{background:var(--btn-bg-hover);color:#d4f77c}
-.msg{font-size:13px;color:var(--text-soft);min-height:18px;margin-top:8px}
+.h1{font-size:22px; font-weight:900; margin:0 0 6px; text-shadow:var(--glow)}
+.sub{color:var(--g-weak); margin:0 0 14px; font-size:14px}
 
-/* 모달 */
-.modalBack{
-  position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;place-items:center;
+.row{display:grid; gap:10px; margin:12px 0}
+.input{
+  width:100%; padding:12px; border:2px solid var(--g-deep); background:#0a130a; color:var(--g);
+  box-shadow:inset 0 0 0 2px rgba(28,122,28,.18); font-size:15px
 }
-.modalBack.show{display:grid}
-.modal{
-  width:min(420px,90%);background:#0b130b;border:2px solid var(--g-deep);
-  padding:22px 18px;box-shadow:0 0 14px rgba(121,255,121,.3) inset;display:grid;gap:10px;
+.input[disabled]{opacity:.6}
+.btn{
+  padding:12px 14px; border:2px solid var(--g); background:var(--btn-bg); color:var(--text-soft);
+  font-weight:800; cursor:pointer; box-shadow:var(--glow); line-height:1; text-align:center
 }
-.modal h2{margin:0 0 8px;text-shadow:0 0 8px rgba(121,255,121,.4);}
-.close{all:unset;float:right;cursor:pointer;color:var(--text-soft)}
+.btn:hover{background:var(--btn-bg-hover); color:var(--text-hover)}
+.btn[disabled]{opacity:.6; cursor:not-allowed}
+
+.help{display:flex; justify-content:space-between; align-items:center; margin-top:8px; font-size:13px; color:var(--text-soft)}
+.link{color:var(--text-hover); text-decoration:underline; cursor:pointer}
+
+.msg{margin-top:10px; font-size:13px}
+.msg.ok{color:var(--ok)}
+.msg.err{color:var(--danger)}
+
+.pw-wrap{position:relative}
+.togglePw{
+  position:absolute; right:10px; top:50%; transform:translateY(-50%);
+  font-size:12px; border:2px solid var(--g-deep); padding:3px 6px; background:#0b130b; color:var(--text-soft); cursor:pointer;
+}
+.togglePw:hover{background:#122012}
+
+/* signup modal */
+.modal{position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,.45)}
+.modal.show{display:flex}
+.modalCard{
+  width:min(540px,92%); background:#091109; color:var(--g); border:2px solid var(--g-deep); box-shadow:var(--glow);
+  padding:16px; display:grid; gap:12px
+}
+.modalHead{display:flex; justify-content:space-between; align-items:center}
+.modalBtns{display:flex; gap:8px; justify-content:flex-end}
+
+/* toast (bottom-right) */
+.toast{
+  position:fixed; right:22px; bottom:22px; z-index:7000; display:none; min-width:320px;
+  background:#091109; color:var(--g); border:2px solid var(--g-deep); box-shadow:var(--glow); padding:14px 16px;
+}
+.toast.show{display:block; animation:toastIn .18s ease}
+@keyframes toastIn{from{transform:translateY(6px); opacity:0}to{transform:translateY(0); opacity:1}}
 </style>
 </head>
 <body>
-<div class="loginBox">
-  <h1>ToppingXP</h1>
-  <div class="sub">로그인 후 당신의 퀘스트를 관리하세요.</div>
+<div class="wrap">
+  <div class="card">
+    <div class="h1">ToppingXP</div>
+    <p class="sub">로그인 후 퀘스트와 회고 데이터를 저장/동기화합니다.</p>
 
-  <input id="email" type="email" placeholder="이메일"/>
-  <input id="pw" type="password" placeholder="비밀번호"/>
-  <button id="loginBtn">로그인</button>
-  <button id="signupOpenBtn" style="margin-top:10px;border-color:var(--g-weak);color:var(--g-weak)">회원가입</button>
-  <div id="msg" class="msg"></div>
-</div>
-
-<div class="modalBack" id="signupModal">
-  <div class="modal">
-    <button class="close" id="closeModal">✕</button>
-    <h2>회원가입</h2>
-    <input id="su-email" type="email" placeholder="이메일"/>
-    <input id="su-nick" type="text" placeholder="닉네임"/>
-    <input id="su-pw" type="password" placeholder="비밀번호 (6자 이상)"/>
-    <input id="su-pw2" type="password" placeholder="비밀번호 확인"/>
-    <button id="signupBtn">회원가입 완료</button>
-    <div id="su-msg" class="msg"></div>
+    <div class="row">
+      <input id="email" class="input" placeholder="이메일" autocomplete="email" />
+      <div class="pw-wrap">
+        <input id="password" class="input" type="password" placeholder="비밀번호" autocomplete="current-password" />
+        <button id="togglePw" class="togglePw" type="button">보기</button>
+      </div>
+      <button id="signin" class="btn">로그인</button>
+      <div class="help">
+        <span>계정이 없나요?</span>
+        <span id="openSignup" class="link">회원가입</span>
+      </div>
+      <!-- 선택: 소셜 로그인 추가하려면 아래 주석 해제
+      <button id="google" class="btn" type="button">Google로 로그인</button>
+      -->
+      <div id="loginMsg" class="msg"></div>
+    </div>
   </div>
 </div>
 
+<!-- Signup Modal -->
+<div id="signupModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="signupTitle">
+  <div class="modalCard">
+    <div class="modalHead">
+      <div class="h1" id="signupTitle" style="font-size:18px">회원가입</div>
+      <span id="closeSignup" class="link">닫기</span>
+    </div>
+    <div class="sub">이메일 인증이 설정된 프로젝트라면, 메일함에서 인증 링크를 확인하세요.</div>
+    <div class="row">
+      <input id="su_name" class="input" placeholder="표시 이름 (예: Alex)" />
+      <input id="su_email" class="input" placeholder="이메일" autocomplete="email" />
+      <div class="pw-wrap">
+        <input id="su_pw" class="input" type="password" placeholder="비밀번호 (최소 6자)" autocomplete="new-password" />
+        <button id="togglePw2" class="togglePw" type="button">보기</button>
+      </div>
+      <div class="pw-wrap">
+        <input id="su_pw2" class="input" type="password" placeholder="비밀번호 확인" autocomplete="new-password" />
+        <button id="togglePw3" class="togglePw" type="button">보기</button>
+      </div>
+    </div>
+    <div class="modalBtns">
+      <button id="signupBtn" class="btn">가입하기</button>
+    </div>
+    <div id="signupMsg" class="msg"></div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast"><span id="toastMsg"></span></div>
+
 <script>
-const SUPABASE_URL = "https://mgpxqmqvlbjfywbbsiwt.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1ncHhxbXF2bGJqZnl3YmJzaXd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI3NDc3OTYsImV4cCI6MjA3ODMyMzc5Nn0.dMKOkI0Vsty6ZMOxJmfF4IAPmkKF4kPhRhjCLH0dxEk";
-const supabase = supabasejs.createClient(SUPABASE_URL, SUPABASE_KEY);
-const $ = (id)=>document.getElementById(id);
+/* ===== Supabase ===== */
+const SUPABASE_URL = "https://mgpxqmqvlbjfywbbsiwt.supabase.co";   // ← 실제 값으로 교체
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1ncHhxbXF2bGJqZnl3YmJzaXd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI3NDc3OTYsImV4cCI6MjA3ODMyMzc5Nn0.dMKOkI0Vsty6ZMOxJmfF4IAPmkKF4kPhRhjCLH0dxEk";          // ← 실제 값으로 교체
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-const msg = $('msg');
-const suMsg = $('su-msg');
-const modal = $('signupModal');
-
-$('signupOpenBtn').onclick = ()=> modal.classList.add('show');
-$('closeModal').onclick = ()=> modal.classList.remove('show');
-
-/* 로그인 */
-$('loginBtn').onclick = async ()=>{
-  msg.textContent='';
-  const email=$('email').value.trim(), pw=$('pw').value;
-  if(!email || !pw){msg.textContent='이메일/비밀번호를 입력하세요';return;}
-  const { data, error } = await supabase.auth.signInWithPassword({email,password:pw});
-  if(error){ msg.textContent = error.message; return; }
-  location.href = "index.html"; // 로그인 성공 → 메인으로
+/* ===== El refs ===== */
+const $ = id => document.getElementById(id);
+const els = {
+  email:$('email'), password:$('password'), signin:$('signin'),
+  togglePw:$('togglePw'), loginMsg:$('loginMsg'),
+  openSignup:$('openSignup'), closeSignup:$('closeSignup'),
+  modal:$('signupModal'),
+  su_name:$('su_name'), su_email:$('su_email'),
+  su_pw:$('su_pw'), su_pw2:$('su_pw2'),
+  togglePw2:$('togglePw2'), togglePw3:$('togglePw3'),
+  signupBtn:$('signupBtn'), signupMsg:$('signupMsg'),
+  toast:$('toast'), toastMsg:$('toastMsg')
 };
 
-/* 회원가입 */
-$('signupBtn').onclick = async ()=>{
-  suMsg.textContent='';
-  const email=$('su-email').value.trim(), pw=$('su-pw').value, pw2=$('su-pw2').value, nick=$('su-nick').value.trim();
-  if(!email || !pw || !pw2){suMsg.textContent='모든 필드를 입력하세요';return;}
-  if(pw!==pw2){suMsg.textContent='비밀번호가 일치하지 않습니다';return;}
-  const { data, error } = await supabase.auth.signUp({email,password:pw});
-  if(error){suMsg.textContent=error.message;return;}
-  const uid=data.user?.id;
-  if(uid && nick){ await supabase.from('profiles').upsert({id:uid,display_name:nick}); }
-  suMsg.textContent='회원가입 완료! 로그인해주세요.';
-  setTimeout(()=>modal.classList.remove('show'),1200);
+/* ===== Utils ===== */
+function showMsg(el, text, ok=false){
+  el.textContent = text;
+  el.className = 'msg ' + (ok ? 'ok' : 'err');
+}
+function toast(text){
+  els.toastMsg.textContent = text;
+  els.toast.classList.add('show');
+  setTimeout(()=>els.toast.classList.remove('show'), 1800);
+}
+function setLoading(is){
+  els.signin.disabled = is;
+  els.signupBtn.disabled = is;
+  els.email.disabled = is; els.password.disabled = is;
+  els.su_email.disabled = is; els.su_pw.disabled = is; els.su_pw2.disabled = is; els.su_name.disabled = is;
+}
+
+/* ===== Session guard: already logged-in → index.html ===== */
+(async function boot(){
+  const { data:{ user } } = await sb.auth.getUser();
+  if(user){ location.href = "index.html"; return; }
+})();
+
+/* ===== Login ===== */
+els.togglePw.onclick = ()=>{
+  const t = els.password.type === 'password' ? 'text' : 'password';
+  els.password.type = t; els.togglePw.textContent = t==='text' ? '숨기기' : '보기';
 };
+els.signin.onclick = async ()=>{
+  els.loginMsg.textContent = '';
+  const email = els.email.value.trim();
+  const pw = els.password.value;
+  if(!email || !pw){ showMsg(els.loginMsg,'이메일과 비밀번호를 입력하세요'); return; }
+  try{
+    setLoading(true);
+    const { error } = await sb.auth.signInWithPassword({ email, password: pw });
+    if(error){ showMsg(els.loginMsg, error.message); }
+    else { toast('로그인 성공'); location.href = "index.html"; }
+  }catch(e){
+    showMsg(els.loginMsg, e.message||'로그인 실패');
+  }finally{ setLoading(false); }
+};
+els.email.addEventListener('keydown', e=>{ if(e.key==='Enter') els.signin.click(); });
+els.password.addEventListener('keydown', e=>{ if(e.key==='Enter') els.signin.click(); });
+
+/* ===== Signup (modal) ===== */
+function openSignup(){ els.modal.classList.add('show'); }
+function closeSignup(){ els.modal.classList.remove('show'); els.signupMsg.textContent=''; }
+els.openSignup.onclick = openSignup;
+els.closeSignup.onclick = closeSignup;
+
+[els.togglePw2, els.togglePw3].forEach((btn, i)=>{
+  btn.onclick = ()=>{
+    const input = i===0 ? els.su_pw : els.su_pw2;
+    const t = input.type === 'password' ? 'text' : 'password';
+    input.type = t; btn.textContent = t==='text' ? '숨기기' : '보기';
+  };
+});
+
+els.signupBtn.onclick = async ()=>{
+  els.signupMsg.textContent = '';
+  const name = els.su_name.value.trim();
+  const email = els.su_email.value.trim();
+  const pw = els.su_pw.value, pw2 = els.su_pw2.value;
+  if(!email || !pw || !pw2){ showMsg(els.signupMsg, '필드를 모두 입력하세요'); return; }
+  if(pw.length < 6){ showMsg(els.signupMsg, '비밀번호는 최소 6자'); return; }
+  if(pw !== pw2){ showMsg(els.signupMsg, '비밀번호가 일치하지 않습니다'); return; }
+
+  try{
+    setLoading(true);
+    const { data, error } = await sb.auth.signUp({
+      email, password: pw,
+      options:{ data:{ display_name: name||null } }
+    });
+    if(error){ showMsg(els.signupMsg, error.message); return; }
+
+    // 이메일 확인 필요 여부 안내
+    const needsConfirm = !data.session; // 이메일 확인을 켜둔 경우 session이 없음
+    // profiles 테이블에 표시이름 저장 (세션 없으면 저장 보류)
+    if(data.user){
+      try{
+        // 세션이 있으면 바로 upsert, 없으면 스킵
+        const uid = data.user.id;
+        if(data.session){
+          await sb.from('profiles').upsert({ id: uid, display_name: name||email.split('@')[0] });
+        }
+      }catch(e){}
+    }
+
+    if(needsConfirm){
+      showMsg(els.signupMsg, '가입 완료. 이메일 인증 후 로그인하세요.', true);
+      toast('인증 메일을 확인하세요');
+    }else{
+      showMsg(els.signupMsg, '가입 및 로그인 완료', true);
+      toast('환영합니다!');
+      location.href = "index.html";
+    }
+    setTimeout(()=>closeSignup(), needsConfirm? 1600 : 600);
+  }catch(e){
+    showMsg(els.signupMsg, e.message||'가입 실패');
+  }finally{ setLoading(false); }
+};
+
+['su_email','su_pw','su_pw2','su_name'].forEach(id=>{
+  $(id).addEventListener('keydown', e=>{ if(e.key==='Enter') els.signupBtn.click(); });
+});
+
+/* ===== Optional: Google OAuth =====
+document.getElementById('google')?.addEventListener('click', async ()=>{
+  setLoading(true);
+  const { error } = await sb.auth.signInWithOAuth({ provider:'google', options:{ redirectTo: location.origin + '/index.html' }});
+  setLoading(false);
+  if(error) toast('구글 로그인 실패: '+error.message);
+});
+*/
 </script>
 </body>
 </html>

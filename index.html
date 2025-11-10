@@ -1,170 +1,170 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ToppingXP — Quests</title>
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>ToppingXP — Quests</title>
-<style>
-:root{
-  --bg:#0a0f0a; --grid:#142714; --g:#79ff79; --g-weak:#36c436; --g-deep:#1c7a1c;
-  --scan:rgba(121,255,121,.06);
-  --glow:0 0 10px rgba(121,255,121,.5),0 0 18px rgba(121,255,121,.25);
-  --btn-bg:#0a140a; --btn-bg-hover:#0f1d0f;
-  --text-soft:#b6ffb6; --text-hover:#d4f77c;
-}
-*{box-sizing:border-box}
-html,body{height:100%}
-body{
-  margin:0; background:radial-gradient(1100px 700px at 50% 50%, #0b160b 0%, var(--bg) 60%);
-  color:var(--g); font-family: ui-monospace, Menlo, Consolas, monospace; letter-spacing:.2px; font-size:16px;
-}
-.app{position:relative; height:100%; display:grid; grid-template-columns: 1.15fr .85fr; gap:2px}
-.panel{
-  position:relative; padding:18px 16px;
-  background:
-   linear-gradient(0deg, transparent 23px, var(--grid) 24px),
-   linear-gradient(90deg, transparent 23px, var(--grid) 24px);
-  background-size:24px 24px;
-  border:1px solid var(--g-deep);
-  box-shadow:inset 0 0 0 2px rgba(28,122,28,.2);
-}
-.app.crt::after{
-  content:""; position:absolute; inset:0;
-  background:repeating-linear-gradient(0deg,var(--scan) 0 2px, transparent 2px 4px);
-  mix-blend-mode:screen; pointer-events:none;
-  animation:scan 6s linear infinite, flicker 2.8s steps(60) infinite;
-}
-@keyframes scan{0%{opacity:.25}50%{opacity:.18}100%{opacity:.25}}
-@keyframes flicker{50%{filter:brightness(1.04)}}
+  <style>
+    :root{
+      --bg:#0a0f0a; --grid:#142714; --g:#79ff79; --g-weak:#36c436; --g-deep:#1c7a1c;
+      --scan:rgba(121,255,121,.06);
+      --glow:0 0 10px rgba(121,255,121,.5),0 0 18px rgba(121,255,121,.25);
+      --btn-bg:#0a140a; --btn-bg-hover:#0f1d0f;
+      --text-soft:#b6ffb6; --text-hover:#d4f77c;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; background:radial-gradient(1100px 700px at 50% 50%, #0b160b 0%, var(--bg) 60%);
+      color:var(--g); font-family: ui-monospace, Menlo, Consolas, monospace; letter-spacing:.2px; font-size:16px;
+    }
+    .app{position:relative; height:100%; display:grid; grid-template-columns: 1.15fr .85fr; gap:2px}
+    .panel{
+      position:relative; padding:18px 16px;
+      background:
+       linear-gradient(0deg, transparent 23px, var(--grid) 24px),
+       linear-gradient(90deg, transparent 23px, var(--grid) 24px);
+      background-size:24px 24px;
+      border:1px solid var(--g-deep);
+      box-shadow:inset 0 0 0 2px rgba(28,122,28,.2);
+    }
+    .app.crt::after{
+      content:""; position:absolute; inset:0;
+      background:repeating-linear-gradient(0deg,var(--scan) 0 2px, transparent 2px 4px);
+      mix-blend-mode:screen; pointer-events:none;
+      animation:scan 6s linear infinite, flicker 2.8s steps(60) infinite;
+    }
+    @keyframes scan{0%{opacity:.25}50%{opacity:.18}100%{opacity:.25}}
+    @keyframes flicker{50%{filter:brightness(1.04)}}
 
-.h1{font-size:20px; margin:0 0 2px; text-shadow:var(--glow); font-weight:800}
-.sub{color:var(--g-weak); margin:0 0 12px; font-size:14px}
-.date{font-size:12px; color:#a6ffa6; margin-bottom:10px}
+    .h1{font-size:20px; margin:0 0 2px; text-shadow:var(--glow); font-weight:800}
+    .sub{color:var(--g-weak); margin:0 0 12px; font-size:14px}
+    .date{font-size:12px; color:#a6ffa6; margin-bottom:10px}
 
-.inputRow{display:flex; gap:10px; margin:10px 0 12px}
-.input{
-  flex:1; padding:12px 12px; border:2px solid var(--g-deep); background:#0a130a; color:var(--g);
-  box-shadow:inset 0 0 0 2px rgba(28,122,28,.18); font-size:15px
-}
-.btn{
-  padding:12px 14px; border:2px solid var(--g); background:var(--btn-bg); color:var(--text-soft);
-  font-weight:800; cursor:pointer; box-shadow:var(--glow); line-height:1; min-width:68px; text-align:center
-}
-.btn:hover,.btn:focus{background:var(--btn-bg-hover); color:var(--text-hover); outline:none}
+    .inputRow{display:flex; gap:10px; margin:10px 0 12px}
+    .input{
+      flex:1; padding:12px 12px; border:2px solid var(--g-deep); background:#0a130a; color:var(--g);
+      box-shadow:inset 0 0 0 2px rgba(28,122,28,.18); font-size:15px
+    }
+    .btn{
+      padding:12px 14px; border:2px solid var(--g); background:var(--btn-bg); color:var(--text-soft);
+      font-weight:800; cursor:pointer; box-shadow:var(--glow); line-height:1; min-width:68px; text-align:center
+    }
+    .btn:hover,.btn:focus{background:var(--btn-bg-hover); color:var(--text-hover); outline:none}
 
-.list{display:flex; flex-direction:column; gap:10px; min-height:140px}
-.card{
-  border:2px solid var(--g-deep); background:rgba(0,0,0,.08); padding:10px 12px;
-  display:grid; grid-template-columns:auto 1fr auto; gap:10px; align-items:center;
-  box-shadow:inset 0 0 0 2px rgba(28,122,28,.15);
-}
-.badge{font-size:12px; padding:3px 8px; border:2px solid var(--g-deep)}
-.title{overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:15px}
-.row{display:flex; gap:8px; align-items:center}
-.iconbtn{
-  border:2px solid var(--g-deep); padding:7px 9px; cursor:pointer; background:#0b130b; color:var(--text-soft);
-  transition:transform .02s, background .15s
-}
-.iconbtn:hover{background:#122012}
-.iconbtn:active{transform:translateY(1px)}
-.done .title{text-decoration:line-through; opacity:.75}
-.done{border-color:var(--g)}
+    .list{display:flex; flex-direction:column; gap:10px; min-height:140px}
+    .card{
+      border:2px solid var(--g-deep); background:rgba(0,0,0,.08); padding:10px 12px;
+      display:grid; grid-template-columns:auto 1fr auto; gap:10px; align-items:center;
+      box-shadow:inset 0 0 0 2px rgba(28,122,28,.15);
+    }
+    .badge{font-size:12px; padding:3px 8px; border:2px solid var(--g-deep)}
+    .title{overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:15px}
+    .row{display:flex; gap:8px; align-items:center}
+    .iconbtn{
+      border:2px solid var(--g-deep); padding:7px 9px; cursor:pointer; background:#0b130b; color:var(--text-soft);
+      transition:transform .02s, background .15s
+    }
+    .iconbtn:hover{background:#122012}
+    .iconbtn:active{transform:translateY(1px)}
+    .done .title{text-decoration:line-through; opacity:.75}
+    .done{border-color:var(--g)}
 
-.rightGrid{display:grid; grid-template-rows:auto auto 1fr auto; gap:14px; height:100%}
-.box{
-  border:2px solid var(--g-deep); padding:12px; box-shadow:inset 0 0 0 2px rgba(29,122,29,.18);
-}
-.statTop{display:flex; justify-content:space-between; gap:10px; align-items:center; margin-bottom:8px}
-.kebab{position:relative; z-index:5000}
-.kebabBtn{
-  border:2px solid var(--g-deep); background:#0b130b; color:var(--text-soft);
-  padding:8px 10px; cursor:pointer; font-weight:800;
-}
-.kebabBtn:hover{background:#122012}
-.kebabMenu{
-  position:absolute; right:0; top:40px; min-width:160px; display:none;
-  background:#0a130a; border:2px solid var(--g-deep); box-shadow:var(--glow); z-index:6000;
-}
-.kebabMenu.show{display:block}
-.kebabMenu button{
-  width:100%; text-align:left; padding:10px 12px; background:transparent; border:0; color:var(--text-soft); cursor:pointer;
-}
-.kebabMenu button:hover{background:#122012; color:var(--text-hover)}
+    .rightGrid{display:grid; grid-template-rows:auto auto 1fr auto; gap:14px; height:100%}
+    .box{
+      border:2px solid var(--g-deep); padding:12px; box-shadow:inset 0 0 0 2px rgba(29,122,29,.18);
+    }
+    .statTop{display:flex; justify-content:space-between; gap:10px; align-items:center; margin-bottom:8px}
+    .kebab{position:relative; z-index:5000}
+    .kebabBtn{
+      border:2px solid var(--g-deep); background:#0b130b; color:var(--text-soft);
+      padding:8px 10px; cursor:pointer; font-weight:800;
+    }
+    .kebabBtn:hover{background:#122012}
+    .kebabMenu{
+      position:absolute; right:0; top:40px; min-width:160px; display:none;
+      background:#0a130a; border:2px solid var(--g-deep); box-shadow:var(--glow); z-index:6000;
+    }
+    .kebabMenu.show{display:block}
+    .kebabMenu button{
+      width:100%; text-align:left; padding:10px 12px; background:transparent; border:0; color:var(--text-soft); cursor:pointer;
+    }
+    .kebabMenu button:hover{background:#122012; color:var(--text-hover)}
 
-.small{font-size:12px; color:var(--g-weak)}
-.statGrid{display:grid; grid-template-columns:repeat(3,1fr); gap:10px}
-.slab{display:grid; place-items:center; min-height:62px; font-weight:800; font-size:15px}
+    .small{font-size:12px; color:var(--g-weak)}
+    .statGrid{display:grid; grid-template-columns:repeat(3,1fr); gap:10px}
+    .slab{display:grid; place-items:center; min-height:62px; font-weight:800; font-size:15px}
 
-.bars{display:grid; gap:10px}
-.bar{position:relative; border:2px solid var(--g-deep); height:26px; box-shadow:inset 0 0 0 2px rgba(29,122,29,.18)}
-.bar>span{position:absolute; inset:0 auto 0 0; width:0; background:linear-gradient(90deg, rgba(121,255,121,.55), rgba(121,255,121,.9))}
-.barlabel{position:absolute; inset:0; display:flex; justify-content:space-between; align-items:center; padding:0 10px; font-weight:800}
+    .bars{display:grid; gap:10px}
+    .bar{position:relative; border:2px solid var(--g-deep); height:26px; box-shadow:inset 0 0 0 2px rgba(29,122,29,.18)}
+    .bar>span{position:absolute; inset:0 auto 0 0; width:0; background:linear-gradient(90deg, rgba(121,255,121,.55), rgba(121,255,121,.9))}
+    .barlabel{position:absolute; inset:0; display:flex; justify-content:space-between; align-items:center; padding:0 10px; font-weight:800}
 
-.storeTop{display:grid; grid-template-columns:1fr auto auto; gap:10px; align-items:center; margin-bottom:8px}
-.storeTop .input{padding:10px}
-.storeGrid{display:grid; grid-template-columns:repeat(3,1fr); gap:10px}
-.storeItem{border:2px solid var(--g-deep); padding:10px; display:grid; gap:10px; text-align:center;
-  box-shadow:inset 0 0 0 2px rgba(29,122,29,.18)}
-.storeItem .name{font-weight:800}
-.storeItem .cost{font-weight:800}
-.miniRow{display:flex; gap:6px; justify-content:center}
-.mini{border:2px solid var(--g-deep); background:#0b130b; color:var(--text-soft); padding:6px 8px; cursor:pointer; font-size:12px}
-.mini:hover{background:#122012}
-.storeItem .buy{border:2px solid var(--g); padding:8px 10px; cursor:pointer; background:var(--btn-bg); color:var(--text-soft); font-weight:800}
-.storeItem .buy:hover{background:var(--btn-bg-hover); color:var(--text-hover)}
+    .storeTop{display:grid; grid-template-columns:1fr auto auto; gap:10px; align-items:center; margin-bottom:8px}
+    .storeTop .input{padding:10px}
+    .storeGrid{display:grid; grid-template-columns:repeat(3,1fr); gap:10px}
+    .storeItem{border:2px solid var(--g-deep); padding:10px; display:grid; gap:10px; text-align:center;
+      box-shadow:inset 0 0 0 2px rgba(29,122,29,.18)}
+    .storeItem .name{font-weight:800}
+    .storeItem .cost{font-weight:800}
+    .miniRow{display:flex; gap:6px; justify-content:center}
+    .mini{border:2px solid var(--g-deep); background:#0b130b; color:var(--text-soft); padding:6px 8px; cursor:pointer; font-size:12px}
+    .mini:hover{background:#122012}
+    .storeItem .buy{border:2px solid var(--g); padding:8px 10px; cursor:pointer; background:var(--btn-bg); color:var(--text-soft); font-weight:800}
+    .storeItem .buy:hover{background:var(--btn-bg-hover); color:var(--text-hover)}
 
-.flash{animation:flash .6s ease}
-@keyframes flash{0%{box-shadow:0 0 0 0 rgba(121,255,121,0)}60%{box-shadow:0 0 18px 6px rgba(121,255,121,.35)}100%{box-shadow:0 0 0 0 rgba(121,255,121,0)}}
+    .flash{animation:flash .6s ease}
+    @keyframes flash{0%{box-shadow:0 0 0 0 rgba(121,255,121,0)}60%{box-shadow:0 0 18px 6px rgba(121,255,121,.35)}100%{box-shadow:0 0 0 0 rgba(121,255,121,0)}}
 
-/* 회고 모달 (버튼 클릭 시에만 열림) */
-.modal{position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,.45)}
-.modal.show{display:flex}
-.modalCard{width:min(520px,92%); background:#091109; color:var(--g); border:2px solid var(--g-deep); box-shadow:var(--glow); padding:16px; display:grid; gap:12px}
-.modalCard textarea,.modalCard input{width:100%; padding:10px; border:2px solid var(--g-deep); background:rgba(0,0,0,.15); color:var(--g)}
-.modalBtns{display:flex; gap:8px; justify-content:flex-end}
+    /* 회고 모달 */
+    .modal{position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,.45)}
+    .modal.show{display:flex}
+    .modalCard{width:min(520px,92%); background:#091109; color:var(--g); border:2px solid var(--g-deep); box-shadow:var(--glow); padding:16px; display:grid; gap:12px}
+    .modalCard textarea,.modalCard input{width:100%; padding:10px; border:2px solid var(--g-deep); background:rgba(0,0,0,.15); color:var(--g)}
+    .modalBtns{display:flex; gap:8px; justify-content:flex-end}
 
-/* 오른쪽 하단 토스트 */
-.toast{
-  position:fixed; right:22px; bottom:22px; z-index:7000;
-  display:none; min-width:320px;
-  background:#091109; color:var(--g);
-  border:2px solid var(--g-deep); box-shadow:var(--glow);
-  padding:14px 16px;
-}
-.toast.show{ display:block; animation:toastIn .18s ease }
-.toast .tmsg{ font-weight:800; margin-bottom:6px }
-.toast .tdesc{ font-size:13px; color:var(--text-soft); margin-bottom:10px }
-.toast .tbtns{ display:flex; gap:8px; justify-content:flex-end }
-@keyframes toastIn{ from{ transform:translateY(6px); opacity:0 } to{ transform:translateY(0); opacity:1 } }
+    /* 오른쪽 하단 토스트 */
+    .toast{
+      position:fixed; right:22px; bottom:22px; z-index:7000;
+      display:none; min-width:320px;
+      background:#091109; color:var(--g);
+      border:2px solid var(--g-deep); box-shadow:var(--glow);
+      padding:14px 16px;
+    }
+    .toast.show{ display:block; animation:toastIn .18s ease }
+    .toast .tmsg{ font-weight:800; margin-bottom:6px }
+    .toast .tdesc{ font-size:13px; color:var(--text-soft); margin-bottom:10px }
+    .toast .tbtns{ display:flex; gap:8px; justify-content:flex-end }
+    @keyframes toastIn{ from{ transform:translateY(6px); opacity:0 } to{ transform:translateY(0); opacity:1 } }
 
-/* 초기화 축하 오버레이 */
-#seasonOverlay{
-  position:fixed; inset:0; display:none; align-items:center; justify-content:center;
-  background:radial-gradient(ellipse at center, rgba(160,255,160,.15), rgba(0,0,0,.7) 70%);
-  z-index:9999; pointer-events:none;
-}
-#seasonOverlay.show{display:flex; animation:fadeOut 1.8s ease forwards 1.2s}
-#seasonOverlay .msg{
-  color:#d6ffd6; font-size:28px; font-weight:900; letter-spacing:.6px; text-shadow:var(--glow);
-  animation:punch .6s ease;
-}
-@keyframes punch{0%{transform:scale(.7); opacity:.0}60%{transform:scale(1.1); opacity:1}100%{transform:scale(1)}}
-@keyframes fadeOut{to{opacity:0}}
+    /* 초기화 축하 오버레이 */
+    #seasonOverlay{
+      position:fixed; inset:0; display:none; align-items:center; justify-content:center;
+      background:radial-gradient(ellipse at center, rgba(160,255,160,.15), rgba(0,0,0,.7) 70%);
+      z-index:9999; pointer-events:none;
+    }
+    #seasonOverlay.show{display:flex; animation:fadeOut 1.8s ease forwards 1.2s}
+    #seasonOverlay .msg{
+      color:#d6ffd6; font-size:28px; font-weight:900; letter-spacing:.6px; text-shadow:var(--glow);
+      animation:punch .6s ease;
+    }
+    @keyframes punch{0%{transform:scale(.7); opacity:.0}60%{transform:scale(1.1); opacity:1}100%{transform:scale(1)}}
+    @keyframes fadeOut{to{opacity:0}}
 
-/* 파티클 */
-.particle{
-  position:fixed; width:6px; height:6px; border:2px solid #9bff9b; border-radius:50%;
-  box-shadow:0 0 8px rgba(155,255,155,.7); z-index:9999; pointer-events:none;
-  animation:fall 1.6s ease-in forwards;
-}
-@keyframes fall{0%{transform:translateY(-20px) scale(1); opacity:1}100%{transform:translateY(90vh) scale(.7); opacity:0}}
+    /* 파티클 */
+    .particle{
+      position:fixed; width:6px; height:6px; border:2px solid #9bff9b; border-radius:50%;
+      box-shadow:0 0 8px rgba(155,255,155,.7); z-index:9999; pointer-events:none;
+      animation:fall 1.6s ease-in forwards;
+    }
+    @keyframes fall{0%{transform:translateY(-20px) scale(1); opacity:1}100%{transform:translateY(90vh) scale(.7); opacity:0}}
 
-@media(max-width:980px){
-  .app{grid-template-columns:1fr}
-  .storeGrid{grid-template-columns:1fr 1fr}
-}
-</style>
+    @media(max-width:980px){
+      .app{grid-template-columns:1fr}
+      .storeGrid{grid-template-columns:1fr 1fr}
+    }
+  </style>
 </head>
 <body>
 <div class="app crt" id="app">
@@ -235,7 +235,7 @@ body{
   </section>
 </div>
 
-<!-- Retrospect Modal (버튼 눌렀을 때만 열림) -->
+<!-- Retrospect Modal -->
 <div class="modal" id="retroModal" role="dialog" aria-modal="true" aria-labelledby="retroTitle">
   <div class="modalCard">
     <div class="h1" id="retroTitle">오늘의 회고</div>
@@ -249,7 +249,7 @@ body{
   </div>
 </div>
 
-<!-- 오른쪽 하단 안내 토스트 -->
+<!-- Right-bottom toast -->
 <div id="retroToast" class="toast" role="status" aria-live="polite">
   <div class="tmsg" id="toastTitle">완료했습니다!</div>
   <div class="tdesc">회고록을 여시겠어요?</div>
@@ -266,34 +266,40 @@ body{
 </div>
 
 <script>
-/* storage helpers */
-const LS = key => ({ get:() => JSON.parse(localStorage.getItem(key)||'null'), set:v => localStorage.setItem(key,JSON.stringify(v)) });
-const store = { quests:LS('quests'), meta:LS('meta'), retro:LS('retro'), rewards:LS('rewards') };
-const todayKey = () => new Date().toISOString().slice(0,10);
+/* =========================
+   0) Supabase 설정
+========================= */
+const SUPABASE_URL = "https://mgpxqmqvlbjfywbbsiwt.supabase.co";      /* ← 실제 값으로 교체 */
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1ncHhxbXF2bGJqZnl3YmJzaXd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI3NDc3OTYsImV4cCI6MjA3ODMyMzc5Nn0.dMKOkI0Vsty6ZMOxJmfF4IAPmkKF4kPhRhjCLH0dxEk";             /* ← 실제 값으로 교체 */
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-/* defaults */
+/* =========================
+   1) 유틸/상태/엘리먼트
+========================= */
+const todayKey = () => new Date().toISOString().slice(0,10);
+const $ = (id) => document.getElementById(id);
+
 const defaults = [
-  { id:'coffee', name:'핸드드립 커피 1잔', cost:80 },
-  { id:'video', name:'영상 30분 감상', cost:60 },
-  { id:'walk',  name:'산책 20분', cost:40 },
-  { id:'game',  name:'게임 30분', cost:90 },
-  { id:'book',  name:'책 구입 1만원', cost:500 },
-  { id:'treat', name:'맛있는 간식', cost:120 }
+  { name:'핸드드립 커피 1잔', cost:80 },
+  { name:'영상 30분 감상',   cost:60 },
+  { name:'산책 20분',       cost:40 },
+  { name:'게임 30분',       cost:90 },
+  { name:'책 구입 1만원',   cost:500 },
+  { name:'맛있는 간식',     cost:120 }
 ];
 
-/* state */
 const state = {
-  quests: store.quests.get() || [],
-  meta: store.meta.get() || { xp:0, level:1, coins:0, streak:0, lastClear:null, selected:null, stats:{} },
-  retro: store.retro.get() || {},
-  rewards: store.rewards.get() || defaults.slice()
+  user: null,
+  profileName: null,
+  meta: { xp:0, level:1, coins:0, streak:0, lastClear:null, selected:null, stats:{} },
+  quests: [],
+  rewards: [],
+  retro: {}
 };
-if(!state.meta.stats[todayKey()]) state.meta.stats[todayKey()] = { total:0, done:0 };
 
-/* els */
-const $ = id => document.getElementById(id);
 const els = {
   today: $('today'),
+  greet: $('greet'),
   list: $('list'),
   input: $('input'),
   add: $('add'),
@@ -323,7 +329,6 @@ const els = {
   resetToday: $('resetToday'),
   resetAll: $('resetAll'),
   overlay: $('seasonOverlay'),
-  // toasts
   retroToast: $('retroToast'),
   toastTitle: $('toastTitle'),
   tOpen: $('tOpen'),
@@ -331,405 +336,7 @@ const els = {
   buyToast: $('buyToast')
 };
 
-/* audio */
-function blip(freq=880,ms=120){
-  try{
-    const ac = new (window.AudioContext||window.webkitAudioContext)();
-    const o = ac.createOscillator(); const g = ac.createGain();
-    o.type='square'; o.frequency.value=freq; o.connect(g); g.connect(ac.destination);
-    o.start(); g.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + ms/1000); setTimeout(()=>ac.close(), ms+80);
-  }catch(e){}
-}
-
-/* helpers */
-function save(){ store.quests.set(state.quests); store.meta.set(state.meta); store.retro.set(state.retro); store.rewards.set(state.rewards); }
-function log(msg){
-  const now = new Date();
-  const line = `[${now.toTimeString().slice(0,5)}] ${msg}`;
-  const prev = els.log.textContent === '아직 기록 없음' ? '' : els.log.textContent + ' ';
-  els.log.textContent = prev + line;
-  els.logbox.classList.add('flash'); setTimeout(()=>els.logbox.classList.remove('flash'),600);
-}
-function gainXP(n=10){
-  const before = state.meta.xp % 100;
-  state.meta.xp += n;
-  state.meta.coins += n;
-  if((state.meta.xp % 100) < before){ state.meta.level += 1; log(`Level Up! → ${state.meta.level}`); blip(1200,150); }
-  else blip(980,110);
-}
-
-/* prune yesterday data (keep only today quests visible) */
-function pruneOldQuests(){
-  const t = todayKey();
-  const before = state.quests.length;
-  state.quests = state.quests.filter(q=>q.date===t);
-  if(before !== state.quests.length) log('지난 날짜 퀘스트가 정리되었습니다.');
-  if(!state.meta.stats[t]) state.meta.stats[t] = { total:0, done:0 };
-}
-
-/* quests */
-function addQuest(text){
-  const t = text.trim(); if(!t) return;
-  const q = { id: crypto.randomUUID(), text:t, date: todayKey(), doing:false, done:false, rewarded:false, createdAt: Date.now() };
-  state.quests.unshift(q);
-  state.meta.stats[todayKey()].total++;
-  state.meta.selected = q.id;
-  log(`Added: ${t}`);
-  save(); render();
-}
-function showRetroToast(message){
-  els.toastTitle.textContent = message || '완료했습니다!';
-  els.retroToast.classList.add('show');
-}
-function hideRetroToast(){ els.retroToast.classList.remove('show'); }
-
-function toggleDone(q){
-  if(q.done){
-    q.done=false; log(`Reopened: ${q.text}`);
-  }else{
-    q.done=true; q.doing=false;
-    if(!q.rewarded){ q.rewarded=true; gainXP(10); }
-    log(`Completed: ${q.text} (+10 XP once)`);
-    // ✅ 모달 자동 오픈 금지: 오른쪽 토스트만 띄움
-    showRetroToast(`‘${q.text}’ 완료!`);
-  }
-  const today = todayKey();
-  const todayItems = state.quests.filter(x=>x.date===today);
-  const allDone = todayItems.length>0 && todayItems.every(x=>x.done);
-  if(allDone && state.meta.lastClear !== today){
-    state.meta.streak += 1; state.meta.lastClear = today;
-    log(`All quests cleared! Streak +1 → ${state.meta.streak}`);
-    // 전부 완료해도 모달은 자동 오픈하지 않음 (요청사항)
-  }
-  save(); render();
-}
-
-/* rewards */
-function addReward(name, cost){
-  const n = name.trim();
-  const c = Number(cost);
-  if(!n || !Number.isFinite(c) || c<=0){ blip(250,160); return; }
-  state.rewards.unshift({ id: crypto.randomUUID(), name:n, cost:Math.floor(c) });
-  log(`Reward 추가: ${n} (${Math.floor(c)} 코인)`); save(); renderStore();
-}
-function showBuyToast(){ els.buyToast.classList.add('show'); setTimeout(()=>els.buyToast.classList.remove('show'), 1600); }
-function buyReward(r){
-  if(state.meta.coins < r.cost){ log(`코인이 부족합니다 (${r.name})`); blip(220,160); return; }
-  state.meta.coins -= r.cost; log(`Reward 사용: ${r.name} (-${r.cost} 코인)`); blip(700,150);
-  showBuyToast();
-  save(); renderStats(); renderStore();
-}
-function editReward(r){
-  const n = prompt('리워드 이름', r.name); if(n===null) return;
-  const c = prompt('필요 코인', r.cost); if(c===null) return;
-  const cost = Number(c);
-  if(!n.trim() || !Number.isFinite(cost) || cost<=0){ blip(250,160); return; }
-  r.name = n.trim(); r.cost = Math.floor(cost);
-  log(`Reward 수정: ${r.name} (${r.cost} 코인)`); save(); renderStore();
-}
-function deleteReward(id){
-  state.rewards = state.rewards.filter(x=>x.id!==id);
-  log('Reward 삭제 완료'); save(); renderStore();
-}
-
-/* kebab (점 메뉴) */
-function toggleKebab(show){
-  const willShow = typeof show==='boolean' ? show : !els.kebabMenu.classList.contains('show');
-  els.kebabMenu.classList.toggle('show', willShow);
-  els.kebabBtn.setAttribute('aria-expanded', willShow ? 'true' : 'false');
-}
-els.kebabBtn.addEventListener('click',(e)=>{ e.stopPropagation(); toggleKebab(); });
-document.addEventListener('click',(e)=>{
-  if(!els.kebab.contains(e.target)) toggleKebab(false);
-});
-
-/* reset */
-function resetToday(){
-  if(!confirm('오늘 퀘스트를 모두 초기화할까요?')) return;
-  const t = todayKey();
-  state.quests = state.quests.filter(q=>q.date!==t);
-  delete state.retro[t];
-  state.meta.stats[t] = { total:0, done:0 };
-  state.meta.selected = null;
-  save(); render(); log('오늘 데이터 초기화 완료');
-  celebrateReset(false);
-}
-function resetAll(){
-  if(!confirm('정말 모든 데이터를 완전히 초기화할까요? (XP / LEVEL 포함)')) return;
-
-  localStorage.clear();
-
-  state.quests = [];
-  state.meta = {
-    xp: 0,
-    level: 1,
-    coins: 0,
-    streak: 0,
-    lastClear: null,
-    selected: null,
-    stats: {}
-  };
-  state.retro = {};
-  state.rewards = defaults.slice();
-
-  save(); render();
-  log('전체 초기화 완료 — XP, 레벨, 코인, 스트릭 모두 리셋되었습니다.');
-  blip(500,200);
-  celebrateReset(true);
-}
-
-/* 초기화 축하 연출 */
-function celebrateReset(full=true){
-  try{
-    els.overlay.classList.remove('show'); void els.overlay.offsetWidth;
-    els.overlay.querySelector('.msg').textContent = full ? '새 시즌이 시작되었습니다!' : '새로운 하루가 시작되었네요! 오늘의 퀘스트를 추가해보세요!';
-    els.overlay.classList.add('show');
-    for(let i=0;i<22;i++){
-      const p=document.createElement('div'); p.className='particle';
-      const x=Math.random()*95+2; const delay=Math.random()*0.6;
-      p.style.left = x+'vw'; p.style.top='-10px'; p.style.animationDelay=delay+'s';
-      document.body.appendChild(p);
-      setTimeout(()=>p.remove(), 2000);
-    }
-  }catch(e){}
-}
-
-/* render */
-function render(){
-  els.today.textContent = new Date().toLocaleDateString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit',weekday:'short'});
-  renderQuests(); renderStats(); renderStore();
-}
-function renderQuests(){
-  els.list.innerHTML = '';
-  const today = todayKey();
-  const todayItems = state.quests.filter(q => q.date === today);
-  state.meta.stats[today].total = todayItems.length;
-  let doneCount = 0;
-
-  todayItems.forEach(q=>{
-    if(q.done) doneCount++;
-    const row = document.createElement('div');
-    row.className = 'card' + (q.done ? ' done' : '') + (state.meta.selected===q.id ? ' flash' : '');
-    row.tabIndex = 0;
-
-    const badge = document.createElement('div'); badge.className='badge'; badge.textContent = q.done ? 'DONE' : (q.doing?'DOING':'TODO');
-    const title = document.createElement('div'); title.className='title'; title.textContent=q.text;
-
-    const actions = document.createElement('div'); actions.className='row';
-    const bDo = mkBtn('진행','Doing',()=>{q.doing=true; q.done=false; log(`Started: ${q.text}`); save(); render();});
-    const bDone = mkBtn('완료','Complete',()=>toggleDone(q));
-    const bDel = mkBtn('삭제','Delete',()=>{ state.quests = state.quests.filter(x=>x.id!==q.id); log(`Deleted: ${q.text}`); save(); render(); });
-    actions.append(bDo,bDone,bDel);
-
-    row.onclick = ()=> state.meta.selected = q.id;
-    row.append(badge,title,actions);
-    els.list.append(row);
-  });
-
-  state.meta.stats[today].done = doneCount;
-
-  if(!todayItems.length) els.list.innerHTML = `<div class="small">오늘 퀘스트가 없습니다. 위 입력창에서 추가하세요.</div>`;
-}
-function renderStats(){
-  const xp100 = state.meta.xp % 100;
-  els.xp.textContent = xp100;
-  els.level.textContent = state.meta.level;
-  els.coins.textContent = state.meta.coins;
-  const xpPct = Math.min(100, Math.floor(xp100));
-  els.xpbar.style.width = xpPct + '%';
-  els.xpPct.textContent = xpPct + '%';
-
-  const today = todayKey();
-  const todayItems = state.quests.filter(q => q.date === today);
-  const doneCount = todayItems.filter(q=>q.done).length;
-  const dailyPct = todayItems.length ? Math.floor(doneCount / todayItems.length * 100) : 0;
-  els.dailybar.style.width = dailyPct + '%';
-  els.dailyPct.textContent = dailyPct + '%';
-  els.streak.textContent = `Streak ${state.meta.streak} day`;
-}
-function renderStore(){
-  els.store.innerHTML='';
-  state.rewards.forEach(item=>{
-    const wrap = document.createElement('div'); wrap.className='storeItem';
-    wrap.innerHTML = `<div class="name">${item.name}</div><div class="cost">${item.cost} 코인</div>`;
-    const buy = document.createElement('button'); buy.className='buy'; buy.textContent='BUY';
-    buy.onclick = ()=> buyReward(item);
-
-    const row = document.createElement('div'); row.className='miniRow';
-    const edit = document.createElement('button'); edit.className='mini'; edit.textContent='수정'; edit.onclick = ()=> editReward(item);
-    const del = document.createElement('button'); del.className='mini'; del.textContent='삭제'; del.onclick = ()=> deleteReward(item.id);
-    row.append(edit,del);
-
-    wrap.append(buy,row);
-    els.store.append(wrap);
-  });
-}
-function mkBtn(txt, title, on){
-  const d=document.createElement('div'); d.className='iconbtn'; d.textContent=txt; d.title=title; d.onclick=on; return d;
-}
-
-/* events */
-els.add.onclick = ()=>{ addQuest(els.input.value); els.input.value=''; els.input.focus(); };
-els.input.addEventListener('keydown',e=>{
-  if(e.key==='Enter'){ e.preventDefault(); els.add.click(); }
-});
-els.rewardAdd.onclick = ()=>{
-  addReward(els.rewardName.value, els.rewardCost.value);
-  els.rewardName.value=''; els.rewardCost.value='';
-  els.rewardName.focus();
-};
-
-/* 회고 모달/토스트 */
-function openRetro(){
-  els.modal.classList.add('show');
-  els.rDone.value=''; els.rFeel.value=''; els.rNext.value='';
-  setTimeout(()=>els.rDone.focus(),10);
-}
-function closeRetro(){ els.modal.classList.remove('show'); }
-els.rCancel.onclick = ()=> closeRetro();
-els.rSave.onclick = ()=>{
-  const date = todayKey();
-  state.retro[date] = { done:els.rDone.value.trim(), feel:els.rFeel.value.trim(), next:els.rNext.value.trim(), ts:Date.now() };
-  log(`Retrospect saved for ${date}`);
-  save(); closeRetro();
-};
-els.tOpen.onclick  = ()=>{ hideRetroToast(); openRetro(); };
-els.tLater.onclick = ()=> hideRetroToast();
-
-/* kebab actions */
-els.resetToday.onclick = resetToday;
-els.resetAll.onclick = resetAll;
-
-/* init */
-document.addEventListener('keydown',(e)=>{ if(e.key==='Escape' && els.modal.classList.contains('show')) closeRetro(); });
-els.today.textContent = new Date().toLocaleDateString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit',weekday:'short'});
-
-/* 첫 로드: 지난 날짜 퀘스트 자동 정리 */
-pruneOldQuests();
-render();
-
-
-</script>
-
-<!-- ✅ 로그인 인증 확인 코드 -->
-<script type="module">
-  import { createClient } from "https://unpkg.com/@supabase/supabase-js@2";
-
-  const supabase = createClient("https://YOUR-PROJECT.supabase.co", "YOUR-ANON-KEY");
-
-  async function loadUser() {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      // 로그인 안 된 상태면 로그인 페이지로 보냄
-      window.location.href = "login.html";
-      return;
-    }
-
-    // 프로필 테이블에서 닉네임 불러오기
-    const { data, error } = await supabase.from("profiles").select("*").eq("id", user.id).single();
-    const name = data?.display_name || user.email.split("@")[0];
-
-    // 날짜 밑에 인사 문구 추가
-    const greetEl = document.createElement("div");
-    greetEl.className = "sub";
-    greetEl.textContent = `${name}님 안녕하세요, 오늘도 즐거운 레벨업 되세요 :)`;
-    document.getElementById("today").after(greetEl);
-  }
-
-  loadUser();
-</script>
-<script>
-/* =========================
-   0) Supabase 설정
-========================= */
-const SUPABASE_URL = "https://YOUR-PROJECT.supabase.co";   // ← 교체
-const SUPABASE_ANON_KEY = "YOUR-ANON-PUBLIC-KEY";          // ← 교체
-const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-/* =========================
-   1) DB 스키마 (한 번만 실행)
-   - 아래 SQL을 Supabase SQL Editor에서 이미 실행했다고 가정
-   quests(user_id, text, date, doing, done, rewarded)
-   rewards(user_id, name, cost)
-   retros(user_id, done, feel, next)
-   meta(user_id, xp, level, coins, streak, last_clear)
-========================= */
-// meta 테이블 예시
-// create table if not exists public.meta (
-//   user_id uuid primary key references auth.users(id) on delete cascade,
-//   xp int default 0, level int default 1, coins int default 0,
-//   streak int default 0, last_clear date
-// );
-// alter table public.meta enable row level security;
-// create policy "meta_self_select" on public.meta for select using (auth.uid() = user_id);
-// create policy "meta_self_upsert" on public.meta for insert with check (auth.uid() = user_id);
-// create policy "meta_self_update" on public.meta for update using (auth.uid() = user_id);
-
-/* =========================
-   2) 헬퍼/상태
-========================= */
-const todayKey = () => new Date().toISOString().slice(0,10);
-const $ = (id) => document.getElementById(id);
-
-const defaults = [
-  { id:'coffee', name:'핸드드립 커피 1잔', cost:80 },
-  { id:'video',  name:'영상 30분 감상',   cost:60 },
-  { id:'walk',   name:'산책 20분',       cost:40 },
-  { id:'game',   name:'게임 30분',       cost:90 },
-  { id:'book',   name:'책 구입 1만원',   cost:500 },
-  { id:'treat',  name:'맛있는 간식',     cost:120 }
-];
-
-const state = {
-  user: null,
-  profile: null,     // profiles.display_name
-  meta: { xp:0, level:1, coins:0, streak:0, lastClear:null, selected:null, stats:{} },
-  quests: [],        // 오늘 것만 메모리에 둠
-  rewards: [],       // 내 리워드
-  retro: {}          // { [date]: {done, feel, next, ts} } — 오늘 저장 후 메모리에만 들고 있음
-};
-
-/* 기존 엘리먼트 참조 (원본 코드의 ids 유지) */
-const els = {
-  today: $('today'),
-  list: $('list'),
-  input: $('input'),
-  add: $('add'),
-  xp: $('xp'),
-  level: $('level'),
-  coins: $('coins'),
-  xpbar: $('xpbar'),
-  xpPct: $('xpPct'),
-  dailybar: $('dailybar'),
-  dailyPct: $('dailyPct'),
-  log: $('log'),
-  logbox: $('logbox'),
-  streak: $('streak'),
-  store: $('store'),
-  modal: $('retroModal'),
-  rDone: $('rDone'),
-  rFeel: $('rFeel'),
-  rNext: $('rNext'),
-  rSave: $('rSave'),
-  rCancel: $('rCancel'),
-  rewardName: $('rewardName'),
-  rewardCost: $('rewardCost'),
-  rewardAdd: $('rewardAdd'),
-  kebab: document.getElementById('kebab'),
-  kebabBtn: $('kebabBtn'),
-  kebabMenu: $('kebabMenu'),
-  resetToday: $('resetToday'),
-  resetAll: $('resetAll'),
-  overlay: $('seasonOverlay'),
-  retroToast: $('retroToast'),
-  toastTitle: $('toastTitle'),
-  tOpen: $('tOpen'),
-  tLater: $('tLater'),
-  buyToast: $('buyToast'),
-  greet: document.getElementById('greet')
-};
-
-/* 사운드/작은 유틸 */
+/* 사운드/로그 */
 function blip(freq=880,ms=120){
   try{
     const ac=new (window.AudioContext||window.webkitAudioContext)();
@@ -747,34 +354,35 @@ function log(msg){
 }
 
 /* =========================
-   3) 인증/프로필/메타 로드
+   2) 인증 → 프로필/메타/데이터 로드
 ========================= */
 async function ensureAuthAndLoad(){
-  // 3-1) 인증 확인
   const { data:{ user } } = await sb.auth.getUser();
   if(!user){ location.href = "login.html"; return; }
   state.user = user;
 
-  // 3-2) 프로필(닉네임)
+  // 닉네임
   const { data: prof } = await sb.from('profiles').select('display_name').eq('id', user.id).maybeSingle();
-  state.profile = prof || null;
-  const name = state.profile?.display_name || user.email?.split('@')[0] || '사용자';
-  if(els.greet) els.greet.textContent = `${name}님 안녕하세요 오늘도 즐거운 레벨업 되세요 :)`;
+  state.profileName = (prof && prof.display_name) || (user.email ? user.email.split('@')[0] : '사용자');
+  els.greet.textContent = `${state.profileName}님 안녕하세요 오늘도 즐거운 레벨업 되세요 :)`;
 
-  // 3-3) 메타 로드(없으면 생성)
+  // 메타
   let { data: meta } = await sb.from('meta').select('*').eq('user_id', user.id).maybeSingle();
   if(!meta){
     await sb.from('meta').insert({ user_id:user.id, xp:0, level:1, coins:0, streak:0, last_clear:null });
     meta = { xp:0, level:1, coins:0, streak:0, last_clear:null };
   }
-  state.meta.xp = meta.xp||0; state.meta.level=meta.level||1; state.meta.coins=meta.coins||0;
-  state.meta.streak = meta.streak||0; state.meta.lastClear = meta.last_clear;
-  if(!state.meta.stats[todayKey()]) state.meta.stats[todayKey()] = { total:0, done:0 };
+  state.meta.xp = meta.xp||0;
+  state.meta.level = meta.level||1;
+  state.meta.coins = meta.coins||0;
+  state.meta.streak = meta.streak||0;
+  state.meta.lastClear = meta.last_clear;
+  state.meta.stats[todayKey()] ||= { total:0, done:0 };
 
-  // 3-4) 오늘 퀘스트/리워드 로드
   await Promise.all([loadTodayQuests(), loadRewards()]);
   render();
 }
+
 async function saveMeta(){
   await sb.from('meta').upsert({
     user_id: state.user.id,
@@ -787,21 +395,26 @@ async function saveMeta(){
 }
 
 /* =========================
-   4) DB: 퀘스트/리워드/회고 CRUD
+   3) DB CRUD
 ========================= */
 async function loadTodayQuests(){
   const { data, error } = await sb.from('quests')
-    .select('*').eq('user_id', state.user.id).eq('date', todayKey())
+    .select('*')
+    .eq('user_id', state.user.id)
+    .eq('date', todayKey())
     .order('created_at', { ascending:false });
   if(error){ console.error(error); return; }
   state.quests = data || [];
-  state.meta.stats[todayKey()].total = state.quests.length;
-  state.meta.stats[todayKey()].done = state.quests.filter(q=>q.done).length;
+  state.meta.stats[todayKey()] = {
+    total: state.quests.length,
+    done: state.quests.filter(q=>q.done).length
+  };
 }
-
 async function addQuestDB(text){
-  const q = { user_id: state.user.id, text, date: todayKey(), doing:false, done:false, rewarded:false };
-  const { data, error } = await sb.from('quests').insert(q).select().single();
+  const { data, error } = await sb.from('quests')
+    .insert({ user_id:state.user.id, text, date:todayKey(), doing:false, done:false, rewarded:false })
+    .select()
+    .single();
   if(error){ console.error(error); return null; }
   return data;
 }
@@ -815,19 +428,23 @@ async function deleteQuestDB(id){
 }
 
 async function loadRewards(){
-  const { data, error } = await sb.from('rewards').select('*').eq('user_id', state.user.id).order('created_at', {ascending:false});
+  const { data, error } = await sb.from('rewards')
+    .select('*')
+    .eq('user_id', state.user.id)
+    .order('created_at',{ascending:false});
   if(error){ console.error(error); return; }
-  state.rewards = (data && data.length) ? data : [];
-  // 최초 유저면 기본 리워드 채워주기
+  state.rewards = data || [];
   if(!state.rewards.length){
-    const rows = defaults.map(d=>({ user_id: state.user.id, name: d.name, cost: d.cost }));
+    const rows = defaults.map(d=>({ user_id:state.user.id, name:d.name, cost:d.cost }));
     await sb.from('rewards').insert(rows);
     const { data:newRows } = await sb.from('rewards').select('*').eq('user_id', state.user.id).order('created_at',{ascending:false});
     state.rewards = newRows || [];
   }
 }
 async function addRewardDB(name, cost){
-  const { data, error } = await sb.from('rewards').insert({ user_id:state.user.id, name, cost:Math.floor(cost) }).select().single();
+  const { data, error } = await sb.from('rewards')
+    .insert({ user_id:state.user.id, name, cost:Math.floor(cost) })
+    .select().single();
   if(error){ console.error(error); return null; }
   return data;
 }
@@ -846,7 +463,7 @@ async function insertRetro(done, feel, next){
 }
 
 /* =========================
-   5) 기존 로직을 Supabase에 맞게 수정
+   4) 비즈 로직
 ========================= */
 function gainXP(n=10){
   const before = state.meta.xp % 100;
@@ -863,7 +480,7 @@ function showRetroToast(message){
 }
 function hideRetroToast(){ els.retroToast.classList.remove('show'); }
 
-/* 퀘스트 추가/표시/완료 */
+/* 퀘스트 */
 async function addQuest(text){
   const t = text.trim(); if(!t) return;
   const row = await addQuestDB(t);
@@ -881,12 +498,8 @@ async function toggleDone(q){
     log(`Reopened: ${q.text}`);
   }else{
     q.done = true; q.doing = false;
-    let patch = { done:true, doing:false };
-    if(!q.rewarded){
-      q.rewarded = true;
-      patch.rewarded = true;
-      gainXP(10);
-    }
+    const patch = { done:true, doing:false };
+    if(!q.rewarded){ q.rewarded = true; patch.rewarded = true; gainXP(10); }
     await updateQuestDB(q.id, patch);
     log(`Completed: ${q.text} (+10 XP once)`);
     showRetroToast(`‘${q.text}’ 완료!`);
@@ -907,13 +520,13 @@ async function toggleDone(q){
 
 /* 리워드 */
 async function addReward(name, cost){
-  const n = name.trim(); const c = Number(cost);
+  const n=name.trim(), c=Number(cost);
   if(!n || !Number.isFinite(c) || c<=0){ blip(250,160); return; }
-  const row = await addRewardDB(n, c);
-  if(!row) return;
+  const row = await addRewardDB(n, c); if(!row) return;
   state.rewards.unshift(row);
   log(`Reward 추가: ${row.name} (${row.cost} 코인)`); renderStore();
 }
+function showBuyToast(){ els.buyToast.classList.add('show'); setTimeout(()=>els.buyToast.classList.remove('show'), 1600); }
 async function buyReward(r){
   if(state.meta.coins < r.cost){ log(`코인이 부족합니다 (${r.name})`); blip(220,160); return; }
   state.meta.coins -= r.cost; await saveMeta();
@@ -934,42 +547,34 @@ async function deleteReward(id){
   log('Reward 삭제 완료'); renderStore();
 }
 
-/* 회고 모달/저장 */
+/* 회고 모달 */
 function openRetro(){
   els.modal.classList.add('show');
   els.rDone.value=''; els.rFeel.value=''; els.rNext.value='';
   setTimeout(()=>els.rDone.focus(),10);
 }
 function closeRetro(){ els.modal.classList.remove('show'); }
-els.rCancel.onclick = ()=> closeRetro();
-els.rSave.onclick = async ()=>{
-  const date = todayKey();
-  const obj = { done:els.rDone.value.trim(), feel:els.rFeel.value.trim(), next:els.rNext.value.trim(), ts:Date.now() };
-  state.retro[date] = obj;
-  await insertRetro(obj.done, obj.feel, obj.next);
-  log(`Retrospect saved for ${date}`);
-  closeRetro();
-};
-els.tOpen.onclick  = ()=>{ hideRetroToast(); openRetro(); };
-els.tLater.onclick = ()=> hideRetroToast();
 
-/* kebab (점 메뉴) */
+/* 케밥 메뉴 */
 function toggleKebab(show){
   const willShow = typeof show==='boolean' ? show : !els.kebabMenu.classList.contains('show');
   els.kebabMenu.classList.toggle('show', willShow);
   els.kebabBtn.setAttribute('aria-expanded', willShow ? 'true' : 'false');
 }
-els.kebabBtn.addEventListener('click',(e)=>{ e.stopPropagation(); toggleKebab(); });
-document.addEventListener('click',(e)=>{ if(!els.kebab.contains(e.target)) toggleKebab(false); });
 
 /* 리셋 */
 async function resetToday(){
   if(!confirm('오늘 퀘스트를 모두 초기화할까요?')) return;
   const t = todayKey();
-  // 오늘 퀘스트 삭제
-  await sb.from('quests').delete().eq('user_id', state.user.id).eq('date', t);
-  // 오늘 회고 삭제
-  await sb.from('retros').delete().eq('user_id', state.user.id).gte('created_at', t).lt('created_at', t+'T23:59:59.999Z');
+  const tomorrow = new Date(t+'T00:00:00.000Z'); tomorrow.setUTCDate(tomorrow.getUTCDate()+1);
+  const next = tomorrow.toISOString().slice(0,10);
+
+  await Promise.all([
+    sb.from('quests').delete().eq('user_id', state.user.id).eq('date', t),
+    sb.from('retros').delete()
+      .eq('user_id', state.user.id)
+      .gte('created_at', t).lt('created_at', next)
+  ]);
 
   state.quests = state.quests.filter(q=>q.date!==t);
   delete state.retro[t];
@@ -995,7 +600,7 @@ async function resetAll(){
   celebrateReset(true);
 }
 
-/* 초기화 축하 연출 (원본 유지) */
+/* 초기화 축하 연출 */
 function celebrateReset(full=true){
   try{
     els.overlay.classList.remove('show'); void els.overlay.offsetWidth;
@@ -1010,7 +615,9 @@ function celebrateReset(full=true){
   }catch(e){}
 }
 
-/* 렌더링 (원본 구조 유지) */
+/* =========================
+   5) 렌더링
+========================= */
 function render(){
   els.today.textContent = new Date().toLocaleDateString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit',weekday:'short'});
   renderQuests(); renderStats(); renderStore();
@@ -1082,29 +689,40 @@ function mkBtn(txt, title, on){
   const d=document.createElement('div'); d.className='iconbtn'; d.textContent=txt; d.title=title; d.onclick=on; return d;
 }
 
-/* 이벤트(원본 유지, DB 연동으로 연결) */
+/* =========================
+   6) 이벤트 바인딩
+========================= */
 els.add.onclick = async ()=>{ await addQuest(els.input.value); els.input.value=''; els.input.focus(); };
 els.input.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); els.add.click(); } });
 
-els.rewardAdd.onclick = async ()=>{
-  await addReward(els.rewardName.value, els.rewardCost.value);
-  els.rewardName.value=''; els.rewardCost.value=''; els.rewardName.focus();
-};
+els.rewardAdd.onclick = async ()=>{ await addReward(els.rewardName.value, els.rewardCost.value); els.rewardName.value=''; els.rewardCost.value=''; els.rewardName.focus(); };
+
+els.kebabBtn.addEventListener('click',(e)=>{ e.stopPropagation(); toggleKebab(); });
+document.addEventListener('click',(e)=>{ if(!els.kebab.contains(e.target)) toggleKebab(false); });
 
 els.resetToday.onclick = resetToday;
 els.resetAll.onclick = resetAll;
 
-/* 토스트/보상 */
-function showBuyToast(){ els.buyToast.classList.add('show'); setTimeout(()=>els.buyToast.classList.remove('show'), 1600); }
+function closeRetro(){ els.modal.classList.remove('show'); }
+els.rCancel.onclick = ()=> closeRetro();
+els.rSave.onclick = async ()=>{
+  const date = todayKey();
+  const obj = { done:els.rDone.value.trim(), feel:els.rFeel.value.trim(), next:els.rNext.value.trim(), ts:Date.now() };
+  state.retro[date] = obj;
+  await insertRetro(obj.done, obj.feel, obj.next);
+  log(`Retrospect saved for ${date}`);
+  closeRetro();
+};
+els.tOpen.onclick  = ()=>{ hideRetroToast(); openRetro(); };
+els.tLater.onclick = ()=> hideRetroToast();
 
-/* 초기 날짜/UI */
-document.addEventListener('keydown',(e)=>{ if(e.key==='Escape' && els.modal.classList.contains('show')) els.rCancel.click(); });
+document.addEventListener('keydown',(e)=>{ if(e.key==='Escape' && els.modal.classList.contains('show')) closeRetro(); });
+
+/* =========================
+   7) 시작
+========================= */
 els.today.textContent = new Date().toLocaleDateString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit',weekday:'short'});
-
-/* 시작: 인증 후 데이터 로드 */
 ensureAuthAndLoad();
 </script>
-
-
 </body>
 </html>
