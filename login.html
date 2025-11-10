@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <link rel="preload" as="image" href="https://mgpxqmqvlbjfywbbsiwt.supabase.co/storage/v1/object/public/images/level-up-bg.png">
-
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>ToppingXP — Login</title>
@@ -23,41 +21,36 @@
 html,body{height:100%}
 body{
   margin:0; color:var(--g); font-family:ui-monospace, Menlo, Consolas, monospace; letter-spacing:.2px;
-  /* 기본 배경 (이미지 로드 전) */
   background: radial-gradient(1100px 700px at 50% 50%, #0b160b 0%, var(--bg) 60%);
-}
-/* 배경 이미지 레이어 */
-body::before{
-  content:"";
-  position:fixed; inset:0;
-  background-image: url("https://mgpxqmqvlbjfywbbsiwt.supabase.co/storage/v1/object/public/images/level-up-bg.png");
-  background-size:cover; background-position:center; background-repeat:no-repeat;
-  filter: saturate(1.1) contrast(1.02);
-  z-index:-2;
+  overflow:hidden; /* 모바일 bounce 방지 */
 }
 
-/* 어둡게/비네팅 오버레이 */
-body::after{
-  content:"";
-  position:fixed; inset:0;
-  background:
-    radial-gradient(1200px 800px at 50% 40%, rgba(0,0,0,.25), rgba(0,0,0,.6) 60%, rgba(0,0,0,.85) 100%),
-    linear-gradient(0deg, transparent 23px, rgba(0,0,0,.25) 24px),
-    linear-gradient(90deg, transparent 23px, rgba(0,0,0,.25) 24px);
-  background-size: auto, 24px 24px, 24px 24px;
-  z-index:-1;
+/* CRT 스캔 느낌 */
+.app.crt::after{
+  content:""; position:fixed; inset:0; pointer-events:none;
+  background: repeating-linear-gradient(0deg, rgba(121,255,121,.04) 0 2px, transparent 2px 4px);
+  mix-blend-mode:screen; animation:scan 6s linear infinite, flicker 2.8s steps(60) infinite;
 }
-.wrap{min-height:100vh; display:grid; place-items:center; padding:24px}
+@keyframes scan{0%{opacity:.25}50%{opacity:.18}100%{opacity:.25}}
+@keyframes flicker{50%{filter:brightness(1.03)}}
 
-/* 글래스 카드 */
+/* 레이아웃 */
+.app{position:relative; min-height:100dvh;}
+#gameWrap{position:fixed; inset:0; z-index:-1;}
+#game{display:block; width:100vw; height:100vh}
+
+/* 로그인 카드 */
+.center{
+  position:relative; width:100%; height:100%;
+  display:grid; place-items:center; padding:24px;
+}
 .card{
   width:min(520px,92%); padding:20px 18px;
   background: rgba(8,18,8,.55);
   border:1px solid rgba(28,122,28,.55);
   box-shadow: 0 10px 30px rgba(0,0,0,.45), inset 0 0 0 2px rgba(28,122,28,.15);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  border-radius: 10px;
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  border-radius:10px;
 }
 .h1{font-size:22px; font-weight:900; margin:0 0 6px; text-shadow:var(--glow)}
 .sub{color:#a7ffa7; margin:0 0 14px; font-size:14px}
@@ -76,10 +69,8 @@ body::after{
 .btn[disabled]{opacity:.6; cursor:not-allowed}
 .help{display:flex; justify-content:space-between; align-items:center; margin-top:8px; font-size:13px; color:var(--text-soft)}
 .link{color:var(--text-hover); text-decoration:underline; cursor:pointer}
-
 .msg{margin-top:10px; font-size:13px}
-.msg.ok{color:var(--ok)}
-.msg.err{color:var(--danger)}
+.msg.ok{color:var(--ok)} .msg.err{color:var(--danger)}
 
 .pw-wrap{position:relative}
 .togglePw{
@@ -93,52 +84,61 @@ body::after{
 .modal{position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,.45)}
 .modal.show{display:flex}
 .modalCard{
-  width:min(540px,92%);
-  background: rgba(9,17,9,.7);
-  border:2px solid rgba(28,122,28,.6);
-  box-shadow:var(--glow);
-  padding:16px; display:grid; gap:12px;
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  border-radius:10px;
+  width:min(540px,92%); background: rgba(9,17,9,.7);
+  border:2px solid rgba(28,122,28,.6); box-shadow:var(--glow); padding:16px; display:grid; gap:12px;
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); border-radius:10px;
 }
 .modalHead{display:flex; justify-content:space-between; align-items:center}
 .modalBtns{display:flex; gap:8px; justify-content:flex-end}
 
-/* 토스트 */
-.toast{
-  position:fixed; right:22px; bottom:22px; z-index:7000; display:none; min-width:320px;
-  background:rgba(9,17,9,.9); color:var(--g); border:2px solid var(--g-deep); box-shadow:var(--glow); padding:14px 16px; border-radius:10px;
+/* 모바일 가상 버튼 */
+.pad{
+  position:fixed; left:14px; bottom:14px; display:flex; gap:10px; z-index:10;
+  filter: drop-shadow(0 0 12px rgba(121,255,121,.18));
 }
-.toast.show{display:block; animation:toastIn .18s ease}
-@keyframes toastIn{from{transform:translateY(6px); opacity:0}to{transform:translateY(0); opacity:1}}
+.pad button{
+  border:2px solid var(--g-deep); background:#0b130b; color:var(--text-soft); padding:10px 14px; border-radius:10px; font-weight:800;
+}
+.pad button:active{transform:translateY(1px)}
 
-/* 모션 민감 사용자 배려 */
+/* 접근성: 모션 줄이기 */
 @media (prefers-reduced-motion: reduce){
-  body::before{filter:none}
-  .toast.show{animation:none}
+  .app.crt::after{animation:none}
 }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="card">
-    <div class="h1">ToppingXP</div>
-    <p class="sub">로그인 후 퀘스트와 회고 데이터를 저장/동기화합니다.</p>
+<div class="app crt">
+  <!-- 게임(픽셀 배경 + 캐릭터) -->
+  <div id="gameWrap"><canvas id="game"></canvas></div>
 
-    <div class="row">
-      <input id="email" class="input" placeholder="이메일" autocomplete="email" />
-      <div class="pw-wrap">
-        <input id="password" class="input" type="password" placeholder="비밀번호" autocomplete="current-password" />
-        <button id="togglePw" class="togglePw" type="button">보기</button>
+  <!-- 로그인 카드 -->
+  <div class="center">
+    <div class="card">
+      <div class="h1">ToppingXP</div>
+      <p class="sub">로그인 후 퀘스트와 회고 데이터를 저장/동기화합니다.</p>
+
+      <div class="row">
+        <input id="email" class="input" placeholder="이메일" autocomplete="email" />
+        <div class="pw-wrap">
+          <input id="password" class="input" type="password" placeholder="비밀번호" autocomplete="current-password" />
+          <button id="togglePw" class="togglePw" type="button">보기</button>
+        </div>
+        <button id="signin" class="btn">로그인</button>
+        <div class="help">
+          <span>계정이 없나요?</span>
+          <span id="openSignup" class="link">회원가입</span>
+        </div>
+        <div id="loginMsg" class="msg"></div>
       </div>
-      <button id="signin" class="btn">로그인</button>
-      <div class="help">
-        <span>계정이 없나요?</span>
-        <span id="openSignup" class="link">회원가입</span>
-      </div>
-      <div id="loginMsg" class="msg"></div>
     </div>
+  </div>
+
+  <!-- 모바일 조작 버튼 -->
+  <div class="pad" aria-hidden="true">
+    <button id="btnLeft">←</button>
+    <button id="btnJump">⤒</button>
+    <button id="btnRight">→</button>
   </div>
 </div>
 
@@ -169,11 +169,8 @@ body::after{
   </div>
 </div>
 
-<!-- Toast -->
-<div id="toast" class="toast"><span id="toastMsg"></span></div>
-
 <script>
-/* ===== El refs ===== */
+/* ===== 로그인 로직 (Supabase) ===== */
 const $ = id => document.getElementById(id);
 const els = {
   email:$('email'), password:$('password'), signin:$('signin'),
@@ -184,101 +181,223 @@ const els = {
   su_pw:$('su_pw'), su_pw2:$('su_pw2'),
   togglePw2:$('togglePw2'), togglePw3:$('togglePw3'),
   signupBtn:$('signupBtn'), signupMsg:$('signupMsg'),
-  toast:$('toast'), toastMsg:$('toastMsg')
 };
-
-/* ===== Utils ===== */
-function showMsg(el, text, ok=false){ el.textContent=text; el.className='msg ' + (ok?'ok':'err'); }
-function toast(text){ els.toastMsg.textContent=text; els.toast.classList.add('show'); setTimeout(()=>els.toast.classList.remove('show'), 1800); }
+function showMsg(el, text, ok=false){ el.textContent=text; el.className='msg '+(ok?'ok':'err'); }
 function setLoading(is){
-  els.signin.disabled=is; els.signupBtn.disabled=is;
-  [els.email,els.password,els.su_email,els.su_pw,els.su_pw2,els.su_name].forEach(i=>i&&(i.disabled=is));
+  [els.signin, els.signupBtn, els.email, els.password, els.su_email, els.su_pw, els.su_pw2, els.su_name].forEach(n=>n&&(n.disabled=is));
 }
-
-/* ===== Session guard ===== */
-(async function boot(){
+(async function guard(){
   const { data:{ user } } = await sb.auth.getUser();
-  if(user){ location.href = "index.html"; }
+  if(user) location.href="index.html";
 })();
 
-/* ===== Login ===== */
-els.togglePw.onclick = ()=>{
-  const t = els.password.type === 'password' ? 'text' : 'password';
-  els.password.type = t; els.togglePw.textContent = t==='text' ? '숨기기' : '보기';
-};
-els.signin.onclick = async ()=>{
+els.togglePw.onclick=()=>{ const t=els.password.type==='password'?'text':'password'; els.password.type=t; els.togglePw.textContent=t==='text'?'숨기기':'보기'; };
+els.signin.onclick=async()=>{
   els.loginMsg.textContent='';
-  const email = els.email.value.trim();
-  const pw = els.password.value;
-  if(!email || !pw){ showMsg(els.loginMsg,'이메일과 비밀번호를 입력하세요'); return; }
+  const email=els.email.value.trim(); const pw=els.password.value;
+  if(!email||!pw){ showMsg(els.loginMsg,'이메일과 비밀번호를 입력하세요'); return; }
   try{
     setLoading(true);
     const { error } = await sb.auth.signInWithPassword({ email, password: pw });
-    if(error){ showMsg(els.loginMsg, error.message); }
-    else { toast('로그인 성공'); location.href = "index.html"; }
-  }catch(e){
-    showMsg(els.loginMsg, e.message||'로그인 실패');
-  }finally{ setLoading(false); }
+    if(error) showMsg(els.loginMsg, error.message);
+    else location.href="index.html";
+  }catch(e){ showMsg(els.loginMsg, e.message||'로그인 실패'); }
+  finally{ setLoading(false); }
 };
-els.email.addEventListener('keydown', e=>{ if(e.key==='Enter') els.signin.click(); });
-els.password.addEventListener('keydown', e=>{ if(e.key==='Enter') els.signin.click(); });
+els.email.addEventListener('keydown',e=>{ if(e.key==='Enter') els.signin.click(); });
+els.password.addEventListener('keydown',e=>{ if(e.key==='Enter') els.signin.click(); });
 
-/* ===== Signup (modal) ===== */
 function openSignup(){ els.modal.classList.add('show'); }
 function closeSignup(){ els.modal.classList.remove('show'); els.signupMsg.textContent=''; }
-els.openSignup.onclick = openSignup;
-els.closeSignup.onclick = closeSignup;
+els.openSignup.onclick=openSignup; els.closeSignup&& (els.closeSignup.onclick=closeSignup);
 
-[els.togglePw2, els.togglePw3].forEach((btn, i)=>{
-  btn.onclick = ()=>{
-    const input = i===0 ? els.su_pw : els.su_pw2;
-    const t = input.type === 'password' ? 'text' : 'password';
-    input.type = t; btn.textContent = t==='text' ? '숨기기' : '보기';
+[els.togglePw2, els.togglePw3].forEach((btn,i)=>{
+  if(!btn) return;
+  btn.onclick=()=>{
+    const input = i===0? els.su_pw : els.su_pw2;
+    const t = input.type==='password'?'text':'password';
+    input.type=t; btn.textContent=t==='text'?'숨기기':'보기';
   };
 });
-
-els.signupBtn.onclick = async ()=>{
+els.signupBtn.onclick=async()=>{
   els.signupMsg.textContent='';
-  const name = els.su_name.value.trim();
-  const email = els.su_email.value.trim();
-  const pw = els.su_pw.value, pw2 = els.su_pw2.value;
-  if(!email || !pw || !pw2){ showMsg(els.signupMsg,'필드를 모두 입력하세요'); return; }
-  if(pw.length < 6){ showMsg(els.signupMsg,'비밀번호는 최소 6자'); return; }
-  if(pw !== pw2){ showMsg(els.signupMsg,'비밀번호가 일치하지 않습니다'); return; }
-
+  const name=els.su_name.value.trim(); const email=els.su_email.value.trim();
+  const pw=els.su_pw.value; const pw2=els.su_pw2.value;
+  if(!email||!pw||!pw2){ showMsg(els.signupMsg,'필드를 모두 입력하세요'); return; }
+  if(pw.length<6){ showMsg(els.signupMsg,'비밀번호는 최소 6자'); return; }
+  if(pw!==pw2){ showMsg(els.signupMsg,'비밀번호가 일치하지 않습니다'); return; }
   try{
     setLoading(true);
-    const { data, error } = await sb.auth.signUp({
-      email, password: pw,
-      options:{ data:{ display_name: name||null } }
-    });
+    const { data, error } = await sb.auth.signUp({ email, password: pw, options:{ data:{ display_name: name||null } } });
     if(error){ showMsg(els.signupMsg, error.message); return; }
-
-    // profiles에 표시이름 저장 (세션이 있으면 즉시)
     if(data.user && data.session){
       await sb.from('profiles').upsert({ id:data.user.id, display_name: name||email.split('@')[0] });
-    }
-
-    const needsConfirm = !data.session;
-    if(needsConfirm){
-      showMsg(els.signupMsg,'가입 완료. 이메일 인증 후 로그인하세요.', true);
-      toast('인증 메일을 확인하세요');
+      location.href="index.html";
     }else{
-      showMsg(els.signupMsg,'가입 및 로그인 완료', true);
-      toast('환영합니다!');
-      location.href = "index.html";
+      showMsg(els.signupMsg,'가입 완료. 이메일 인증 후 로그인하세요.', true);
+      setTimeout(closeSignup, 1200);
     }
-    setTimeout(()=>closeSignup(), needsConfirm?1600:600);
-  }catch(e){
-    showMsg(els.signupMsg, e.message||'가입 실패');
-  }finally{ setLoading(false); }
+  }catch(e){ showMsg(els.signupMsg, e.message||'가입 실패'); }
+  finally{ setLoading(false); }
 };
 
-['su_email','su_pw','su_pw2','su_name'].forEach(id=>{
-  $(id).addEventListener('keydown', e=>{ if(e.key==='Enter') els.signupBtn.click(); });
+/* ===== 도트 게임 레이어 ===== */
+const canvas = $('game'); const ctx = canvas.getContext('2d', { alpha:false });
+const DPR = Math.max(1, Math.min(2, window.devicePixelRatio||1)); // 고해상도 렌더
+let W=0,H=0, GROUND=0;
+
+function resize(){
+  W = Math.floor(window.innerWidth*DPR);
+  H = Math.floor(window.innerHeight*DPR);
+  canvas.width=W; canvas.height=H;
+  canvas.style.width = (W/DPR)+'px';
+  canvas.style.height= (H/DPR)+'px';
+  GROUND = H - 48*DPR; // 바닥 y
+}
+window.addEventListener('resize', resize); resize();
+
+/* 배경 요소 */
+const stars = Array.from({length:80}, () => ({
+  x: Math.random()*W, y: Math.random()*H*0.7, s: (Math.random()*2+1)*DPR, a: Math.random()*0.6+0.2
+}));
+
+/* 캐릭터 (16x16 픽셀 아트) */
+const SCALE = 3*DPR; // 픽셀 확대 비율
+const SPR = [
+  // 간단한 로봇 같은 모양 (16x16) — 0은 투명, 1은 몸, 2는 포인트색
+  "0000011111100000",
+  "0001112222110000",
+  "0011221112211000",
+  "0012211111221000",
+  "0112111111121100",
+  "0111112221111100",
+  "0111111111111100",
+  "0011111111111000",
+  "0001111111110000",
+  "0000111111100000",
+  "0000111011100000",
+  "0001111001110000",
+  "0011100000111000",
+  "0111000000011100",
+  "0110000000001100",
+  "0010000000001000"
+].map(row=>row.split("").map(n=>+n));
+
+const colors = {
+  1: "#78ff78",
+  2: "#1c7a1c"
+};
+
+const player = {
+  x: W*0.65, y: GROUND-16*SCALE, w:16, h:16,
+  vx:0, vy:0, speed: 120*DPR, jump: 320*DPR, onGround:false, dir:1
+};
+
+const keys = { left:false, right:false, jump:false };
+
+/* 입력 처리 */
+window.addEventListener('keydown', e=>{
+  if(['ArrowLeft','a','A'].includes(e.key)) keys.left=true;
+  if(['ArrowRight','d','D'].includes(e.key)) keys.right=true;
+  if([' ','ArrowUp','w','W'].includes(e.key)){ keys.jump=true; e.preventDefault(); }
+});
+window.addEventListener('keyup', e=>{
+  if(['ArrowLeft','a','A'].includes(e.key)) keys.left=false;
+  if(['ArrowRight','d','D'].includes(e.key)) keys.right=false;
+});
+
+$('btnLeft').onpointerdown=()=>keys.left=true;
+$('btnLeft').onpointerup=()=>keys.left=false;
+$('btnRight').onpointerdown=()=>keys.right=true;
+$('btnRight').onpointerup=()=>keys.right=false;
+$('btnJump').onpointerdown=()=>{ keys.jump=true; setTimeout(()=>keys.jump=false, 120); };
+
+/* 물리/업데이트 */
+let last=0, grav=700*DPR, friction=0.86;
+function update(dt){
+  // 이동
+  if(keys.left){ player.vx = -player.speed; player.dir=-1; }
+  else if(keys.right){ player.vx = player.speed; player.dir=1; }
+  else{ player.vx *= friction; if(Math.abs(player.vx)<0.01) player.vx=0; }
+
+  // 점프
+  if(keys.jump && player.onGround){
+    player.vy = -player.jump; player.onGround=false;
+  }
+  // 중력
+  player.vy += grav*dt;
+
+  player.x += player.vx*dt;
+  player.y += player.vy*dt;
+
+  // 경계/바닥
+  const minX = 24*DPR, maxX = W - 24*DPR - player.w*SCALE;
+  if(player.x<minX) player.x=minX;
+  if(player.x>maxX) player.x=maxX;
+
+  const floorY = GROUND - player.h*SCALE;
+  if(player.y >= floorY){ player.y=floorY; player.vy=0; player.onGround=true; }
+}
+
+/* 그리기 */
+function draw(){
+  // 배경
+  ctx.fillStyle = "#0b160b";
+  ctx.fillRect(0,0,W,H);
+
+  // 그리드
+  ctx.strokeStyle = "rgba(20,39,20,.45)";
+  ctx.lineWidth = 1*DPR;
+  for(let x=0;x<W;x+=24*DPR){ ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+  for(let y=0;y<H;y+=24*DPR){ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+
+  // 별
+  stars.forEach(st=>{
+    ctx.globalAlpha = st.a;
+    ctx.fillStyle = "#79ff79";
+    ctx.fillRect(st.x, st.y, st.s, st.s);
+    ctx.globalAlpha = 1;
+  });
+
+  // 바닥 라인
+  ctx.fillStyle = "rgba(121,255,121,.2)";
+  ctx.fillRect(0, GROUND, W, 4*DPR);
+  ctx.fillStyle = "rgba(121,255,121,.08)";
+  ctx.fillRect(0, GROUND+4*DPR, W, 12*DPR);
+
+  // 플레이어 (픽셀 단위로 그림)
+  const px = Math.round(player.x), py = Math.round(player.y);
+  for(let y=0;y<player.h;y++){
+    for(let x=0;x<player.w;x++){
+      const v = SPR[y][ player.dir===1? x : (player.w-1-x) ];
+      if(v===0) continue;
+      ctx.fillStyle = colors[v] || "#79ff79";
+      ctx.fillRect(px + x*SCALE, py + y*SCALE, SCALE, SCALE);
+    }
+  }
+}
+
+/* 루프 */
+function loop(ts){
+  const dt = Math.min(0.033, (ts-last)/1000 || 0.016);
+  last = ts;
+  update(dt);
+  draw();
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+
+/* ===== UX: 카드 입력 포커스 방해하지 않기 ===== */
+['keydown','keyup'].forEach(type=>{
+  document.addEventListener(type, (e)=>{
+    const tag = (e.target.tagName||'').toLowerCase();
+    if(tag==='input' || tag==='textarea' || e.target.isContentEditable) return; // 입력 중엔 게임 입력 무시 X (현재 허용)
+    // 필요 시 여기서 e.preventDefault()로 스크롤 방지 가능
+  }, {passive:true});
 });
 </script>
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script src="js/supabase.js"></script>
+
 </body>
 </html>
