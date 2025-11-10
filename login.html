@@ -11,108 +11,66 @@
 
 <style>
 :root{
-  --bg:#0a0f0a; --grid:#142714; --g:#79ff79; --g-weak:#36c436; --g-deep:#1c7a1c;
+  --bg:#070c10; --g:#7aff7a; --g-deep:#1c7a1c;
   --glow:0 0 10px rgba(121,255,121,.5),0 0 18px rgba(121,255,121,.25);
   --btn-bg:#0a140a; --btn-bg-hover:#0f1d0f;
   --text-soft:#b6ffb6; --text-hover:#d4f77c;
-  --danger:#ff7272; --ok:#9bffa4;
 }
 *{box-sizing:border-box}
 html,body{height:100%}
 body{
-  margin:0; color:var(--g); font-family:ui-monospace, Menlo, Consolas, monospace; letter-spacing:.2px;
-  background: radial-gradient(1100px 700px at 50% 50%, #0b160b 0%, var(--bg) 60%);
-  overflow:hidden; /* 모바일 bounce 방지 */
+  margin:0; overflow:hidden;
+  color:var(--g); font-family:ui-monospace, Menlo, Consolas, monospace;
+  background:#050a0d;
 }
 
-/* CRT 스캔 느낌 */
-.app.crt::after{
-  content:""; position:fixed; inset:0; pointer-events:none;
-  background: repeating-linear-gradient(0deg, rgba(121,255,121,.04) 0 2px, transparent 2px 4px);
-  mix-blend-mode:screen; animation:scan 6s linear infinite, flicker 2.8s steps(60) infinite;
-}
-@keyframes scan{0%{opacity:.25}50%{opacity:.18}100%{opacity:.25}}
-@keyframes flicker{50%{filter:brightness(1.03)}}
-
-/* 레이아웃 */
-.app{position:relative; min-height:100dvh;}
-#gameWrap{position:fixed; inset:0; z-index:-1;}
-#game{display:block; width:100vw; height:100vh}
-
-/* 로그인 카드 */
+/* 로그인 카드 중앙 */
 .center{
-  position:relative; width:100%; height:100%;
-  display:grid; place-items:center; padding:24px;
+  position:fixed; inset:0; display:flex; justify-content:center; align-items:center; z-index:10;
 }
 .card{
-  width:min(520px,92%); padding:20px 18px;
-  background: rgba(8,18,8,.55);
+  width:min(420px,90%); padding:26px 22px;
+  background: rgba(8,18,8,.65);
   border:1px solid rgba(28,122,28,.55);
-  box-shadow: 0 10px 30px rgba(0,0,0,.45), inset 0 0 0 2px rgba(28,122,28,.15);
-  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
-  border-radius:10px;
+  box-shadow:0 0 24px rgba(0,0,0,.55), inset 0 0 0 2px rgba(28,122,28,.15);
+  backdrop-filter: blur(6px); border-radius:10px;
 }
 .h1{font-size:22px; font-weight:900; margin:0 0 6px; text-shadow:var(--glow)}
 .sub{color:#a7ffa7; margin:0 0 14px; font-size:14px}
-
 .row{display:grid; gap:10px; margin:12px 0}
 .input{
   width:100%; padding:12px; border:2px solid var(--g-deep); background:rgba(10,19,10,.85); color:var(--g);
-  box-shadow:inset 0 0 0 2px rgba(28,122,28,.18); font-size:15px; border-radius:8px;
+  font-size:15px; border-radius:8px;
 }
-.input[disabled]{opacity:.6}
 .btn{
   padding:12px 14px; border:2px solid var(--g); background:rgba(10,20,10,.9); color:var(--text-soft);
-  font-weight:800; cursor:pointer; box-shadow:var(--glow); line-height:1; text-align:center; border-radius:8px;
+  font-weight:800; cursor:pointer; box-shadow:var(--glow); border-radius:8px;
 }
 .btn:hover{background:var(--btn-bg-hover); color:var(--text-hover)}
-.btn[disabled]{opacity:.6; cursor:not-allowed}
 .help{display:flex; justify-content:space-between; align-items:center; margin-top:8px; font-size:13px; color:var(--text-soft)}
 .link{color:var(--text-hover); text-decoration:underline; cursor:pointer}
 .msg{margin-top:10px; font-size:13px}
-.msg.ok{color:var(--ok)} .msg.err{color:var(--danger)}
-
-.pw-wrap{position:relative}
-.togglePw{
-  position:absolute; right:10px; top:50%; transform:translateY(-50%);
-  font-size:12px; border:2px solid var(--g-deep); padding:3px 6px; background:#0b130b; color:var(--text-soft); cursor:pointer;
-  border-radius:6px;
-}
-.togglePw:hover{background:#122012}
+.msg.ok{color:#9bffa4} .msg.err{color:#ff7272}
 
 /* 회원가입 모달 */
 .modal{position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,.45)}
 .modal.show{display:flex}
 .modalCard{
   width:min(540px,92%); background: rgba(9,17,9,.7);
-  border:2px solid rgba(28,122,28,.6); box-shadow:var(--glow); padding:16px; display:grid; gap:12px;
-  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); border-radius:10px;
+  border:2px solid rgba(28,122,28,.6); box-shadow:var(--glow);
+  padding:16px; display:grid; gap:12px; backdrop-filter: blur(6px); border-radius:10px;
 }
-.modalHead{display:flex; justify-content:space-between; align-items:center}
 .modalBtns{display:flex; gap:8px; justify-content:flex-end}
 
-/* 모바일 가상 버튼 */
-.pad{
-  position:fixed; left:14px; bottom:14px; display:flex; gap:10px; z-index:10;
-  filter: drop-shadow(0 0 12px rgba(121,255,121,.18));
-}
-.pad button{
-  border:2px solid var(--g-deep); background:#0b130b; color:var(--text-soft); padding:10px 14px; border-radius:10px; font-weight:800;
-}
-.pad button:active{transform:translateY(1px)}
-
-/* 접근성: 모션 줄이기 */
-@media (prefers-reduced-motion: reduce){
-  .app.crt::after{animation:none}
-}
+/* 게임 배경 */
+#gameWrap{position:fixed; inset:0; z-index:0;}
+#game{display:block; width:100vw; height:100vh}
 </style>
 </head>
 <body>
-<div class="app crt">
-  <!-- 게임(픽셀 배경 + 캐릭터) -->
+<div class="app">
   <div id="gameWrap"><canvas id="game"></canvas></div>
 
-  <!-- 로그인 카드 -->
   <div class="center">
     <div class="card">
       <div class="h1">ToppingXP</div>
@@ -120,10 +78,7 @@ body{
 
       <div class="row">
         <input id="email" class="input" placeholder="이메일" autocomplete="email" />
-        <div class="pw-wrap">
-          <input id="password" class="input" type="password" placeholder="비밀번호" autocomplete="current-password" />
-          <button id="togglePw" class="togglePw" type="button">보기</button>
-        </div>
+        <input id="password" class="input" type="password" placeholder="비밀번호" autocomplete="current-password" />
         <button id="signin" class="btn">로그인</button>
         <div class="help">
           <span>계정이 없나요?</span>
@@ -133,271 +88,260 @@ body{
       </div>
     </div>
   </div>
-
-  <!-- 모바일 조작 버튼 -->
-  <div class="pad" aria-hidden="true">
-    <button id="btnLeft">←</button>
-    <button id="btnJump">⤒</button>
-    <button id="btnRight">→</button>
-  </div>
 </div>
 
-<!-- Signup Modal -->
+<!-- 회원가입 모달 -->
 <div id="signupModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="signupTitle">
   <div class="modalCard">
-    <div class="modalHead">
-      <div class="h1" id="signupTitle" style="font-size:18px">회원가입</div>
-      <span id="closeSignup" class="link">닫기</span>
-    </div>
-    <div class="sub">이메일 인증이 설정된 프로젝트라면, 메일함에서 인증 링크를 확인하세요.</div>
+    <div class="h1" id="signupTitle" style="font-size:18px">회원가입</div>
     <div class="row">
-      <input id="su_name" class="input" placeholder="표시 이름 (예: Alex)" />
-      <input id="su_email" class="input" placeholder="이메일" autocomplete="email" />
-      <div class="pw-wrap">
-        <input id="su_pw" class="input" type="password" placeholder="비밀번호 (최소 6자)" autocomplete="new-password" />
-        <button id="togglePw2" class="togglePw" type="button">보기</button>
-      </div>
-      <div class="pw-wrap">
-        <input id="su_pw2" class="input" type="password" placeholder="비밀번호 확인" autocomplete="new-password" />
-        <button id="togglePw3" class="togglePw" type="button">보기</button>
-      </div>
+      <input id="su_name" class="input" placeholder="표시 이름" />
+      <input id="su_email" class="input" placeholder="이메일" />
+      <input id="su_pw" class="input" type="password" placeholder="비밀번호" />
+      <input id="su_pw2" class="input" type="password" placeholder="비밀번호 확인" />
     </div>
     <div class="modalBtns">
       <button id="signupBtn" class="btn">가입하기</button>
+      <button id="closeSignup" class="btn">닫기</button>
     </div>
     <div id="signupMsg" class="msg"></div>
   </div>
 </div>
 
 <script>
-/* ===== 로그인 로직 (Supabase) ===== */
-const $ = id => document.getElementById(id);
-const els = {
+/* ========== 로그인 로직 ========== */
+const $=id=>document.getElementById(id);
+const els={
   email:$('email'), password:$('password'), signin:$('signin'),
-  togglePw:$('togglePw'), loginMsg:$('loginMsg'),
-  openSignup:$('openSignup'), closeSignup:$('closeSignup'),
-  modal:$('signupModal'),
-  su_name:$('su_name'), su_email:$('su_email'),
-  su_pw:$('su_pw'), su_pw2:$('su_pw2'),
-  togglePw2:$('togglePw2'), togglePw3:$('togglePw3'),
-  signupBtn:$('signupBtn'), signupMsg:$('signupMsg'),
+  loginMsg:$('loginMsg'), openSignup:$('openSignup'), signupBtn:$('signupBtn'),
+  su_name:$('su_name'), su_email:$('su_email'), su_pw:$('su_pw'), su_pw2:$('su_pw2'),
+  signupMsg:$('signupMsg'), closeSignup:$('closeSignup'), modal:$('signupModal')
 };
 function showMsg(el, text, ok=false){ el.textContent=text; el.className='msg '+(ok?'ok':'err'); }
-function setLoading(is){
-  [els.signin, els.signupBtn, els.email, els.password, els.su_email, els.su_pw, els.su_pw2, els.su_name].forEach(n=>n&&(n.disabled=is));
-}
-(async function guard(){
-  const { data:{ user } } = await sb.auth.getUser();
-  if(user) location.href="index.html";
-})();
+(async function guard(){const {data:{user}}=await sb.auth.getUser(); if(user)location.href="index.html";})();
 
-els.togglePw.onclick=()=>{ const t=els.password.type==='password'?'text':'password'; els.password.type=t; els.togglePw.textContent=t==='text'?'숨기기':'보기'; };
 els.signin.onclick=async()=>{
   els.loginMsg.textContent='';
-  const email=els.email.value.trim(); const pw=els.password.value;
-  if(!email||!pw){ showMsg(els.loginMsg,'이메일과 비밀번호를 입력하세요'); return; }
-  try{
-    setLoading(true);
-    const { error } = await sb.auth.signInWithPassword({ email, password: pw });
-    if(error) showMsg(els.loginMsg, error.message);
-    else location.href="index.html";
-  }catch(e){ showMsg(els.loginMsg, e.message||'로그인 실패'); }
-  finally{ setLoading(false); }
+  const email=els.email.value.trim(), pw=els.password.value;
+  if(!email||!pw){showMsg(els.loginMsg,'이메일과 비밀번호를 입력하세요');return;}
+  const {error}=await sb.auth.signInWithPassword({email,password:pw});
+  if(error)showMsg(els.loginMsg,error.message);else location.href="index.html";
 };
-els.email.addEventListener('keydown',e=>{ if(e.key==='Enter') els.signin.click(); });
-els.password.addEventListener('keydown',e=>{ if(e.key==='Enter') els.signin.click(); });
-
-function openSignup(){ els.modal.classList.add('show'); }
-function closeSignup(){ els.modal.classList.remove('show'); els.signupMsg.textContent=''; }
-els.openSignup.onclick=openSignup; els.closeSignup&& (els.closeSignup.onclick=closeSignup);
-
-[els.togglePw2, els.togglePw3].forEach((btn,i)=>{
-  if(!btn) return;
-  btn.onclick=()=>{
-    const input = i===0? els.su_pw : els.su_pw2;
-    const t = input.type==='password'?'text':'password';
-    input.type=t; btn.textContent=t==='text'?'숨기기':'보기';
-  };
-});
+els.openSignup.onclick=()=>els.modal.classList.add('show');
+els.closeSignup.onclick=()=>els.modal.classList.remove('show');
 els.signupBtn.onclick=async()=>{
-  els.signupMsg.textContent='';
-  const name=els.su_name.value.trim(); const email=els.su_email.value.trim();
-  const pw=els.su_pw.value; const pw2=els.su_pw2.value;
-  if(!email||!pw||!pw2){ showMsg(els.signupMsg,'필드를 모두 입력하세요'); return; }
-  if(pw.length<6){ showMsg(els.signupMsg,'비밀번호는 최소 6자'); return; }
-  if(pw!==pw2){ showMsg(els.signupMsg,'비밀번호가 일치하지 않습니다'); return; }
-  try{
-    setLoading(true);
-    const { data, error } = await sb.auth.signUp({ email, password: pw, options:{ data:{ display_name: name||null } } });
-    if(error){ showMsg(els.signupMsg, error.message); return; }
-    if(data.user && data.session){
-      await sb.from('profiles').upsert({ id:data.user.id, display_name: name||email.split('@')[0] });
-      location.href="index.html";
-    }else{
-      showMsg(els.signupMsg,'가입 완료. 이메일 인증 후 로그인하세요.', true);
-      setTimeout(closeSignup, 1200);
-    }
-  }catch(e){ showMsg(els.signupMsg, e.message||'가입 실패'); }
-  finally{ setLoading(false); }
+  const name=els.su_name.value.trim(), email=els.su_email.value.trim();
+  const pw=els.su_pw.value, pw2=els.su_pw2.value;
+  if(!email||!pw){showMsg(els.signupMsg,'모두 입력해주세요');return;}
+  if(pw!==pw2){showMsg(els.signupMsg,'비밀번호 불일치');return;}
+  const {data,error}=await sb.auth.signUp({email,password:pw,options:{data:{display_name:name||null}}});
+  if(error)return showMsg(els.signupMsg,error.message);
+  if(data.user)await sb.from('profiles').upsert({id:data.user.id,display_name:name||email.split('@')[0]});
+  showMsg(els.signupMsg,'가입 완료! 로그인해주세요.',true);
+  setTimeout(()=>els.modal.classList.remove('show'),1000);
 };
 
-/* ===== 도트 게임 레이어 ===== */
-const canvas = $('game'); const ctx = canvas.getContext('2d', { alpha:false });
-const DPR = Math.max(1, Math.min(2, window.devicePixelRatio||1)); // 고해상도 렌더
-let W=0,H=0, GROUND=0;
+/* ========== 배경 게임: 동굴 배경 + 바닥 움직임 + 발사 ========== */
 
-function resize(){
-  W = Math.floor(window.innerWidth*DPR);
-  H = Math.floor(window.innerHeight*DPR);
-  canvas.width=W; canvas.height=H;
-  canvas.style.width = (W/DPR)+'px';
-  canvas.style.height= (H/DPR)+'px';
-  GROUND = H - 48*DPR; // 바닥 y
+/* 업로드한 배경 URL로 교체 */
+const BACKGROUND_URL = "https://mgpxqmqvlbjfywbbsiwt.supabase.co/storage/v1/object/public/images/background.png"; /* ← 교체 */
+
+const SPRITES = {
+  stopRight: "https://mgpxqmqvlbjfywbbsiwt.supabase.co/storage/v1/object/public/images/stop-right.png",
+  right:     "https://mgpxqmqvlbjfywbbsiwt.supabase.co/storage/v1/object/public/images/right.png",
+  center:    "https://mgpxqmqvlbjfywbbsiwt.supabase.co/storage/v1/object/public/images/center.png",
+  attack:    "https://mgpxqmqvlbjfywbbsiwt.supabase.co/storage/v1/object/public/images/attack.png",
+  back:      "https://mgpxqmqvlbjfywbbsiwt.supabase.co/storage/v1/object/public/images/back.png",
+  fireSmall: "https://mgpxqmqvlbjfywbbsiwt.supabase.co/storage/v1/object/public/images/small-fire.png",
+  fireBig:   "https://mgpxqmqvlbjfywbbsiwt.supabase.co/storage/v1/object/public/images/fire.png"
+};
+const IDLE_FRAMES=[SPRITES.stopRight];
+const WALK_FRAMES=[SPRITES.right, SPRITES.stopRight];
+
+const EVERY_N_BIG = 3;
+
+const canvas=$('game'), ctx=canvas.getContext('2d',{alpha:false});
+let W=innerWidth,H=innerHeight; canvas.width=W; canvas.height=H;
+addEventListener('resize',()=>{W=innerWidth;H=innerHeight;canvas.width=W;canvas.height=H; recomputeFloor();});
+ctx.imageSmoothingEnabled=false;
+
+function load(url){ const i=new Image(); i.decoding='async'; i.src=url; return i; }
+const BG = load(BACKGROUND_URL);
+const IMGS={
+  idle:IDLE_FRAMES.map(load), walk:WALK_FRAMES.map(load),
+  center:load(SPRITES.center), back:load(SPRITES.back), attack:load(SPRITES.attack),
+  fireSmall:load(SPRITES.fireSmall), fireBig:load(SPRITES.fireBig)
+};
+
+/* 월드/카메라 */
+let floorY = 0;         // 바닥 y 좌표
+let bgScale = 1;        // 배경 스케일
+let bgH = 0, bgW = 0;   // 배경 실제 렌더 크기
+let camX = 0;           // 카메라 x (배경 스크롤)
+const WORLD_SPEED = 0.6; // 카메라 패닝 민감도
+
+function recomputeFloor(){
+  if(!BG.naturalWidth){ floorY = H - 120; return; }
+  // 화면 높이에 배경을 꽉 채우되 비율 유지
+  bgScale = H / BG.naturalHeight;
+  bgW = Math.floor(BG.naturalWidth * bgScale);
+  bgH = Math.floor(BG.naturalHeight * bgScale);
+  // 배경 하단의 ‘돌 바닥’ 영역을 고려해 살짝 위로: 전체 높이의 약 0.14를 바닥 스트립으로 가정
+  const groundStrip = Math.floor(bgH * 0.14);
+  floorY = H - groundStrip - 4; // -4로 캐릭터 발이 딱 닿게
 }
-window.addEventListener('resize', resize); resize();
+BG.onload = recomputeFloor;
+recomputeFloor();
 
-/* 배경 요소 */
-const stars = Array.from({length:80}, () => ({
-  x: Math.random()*W, y: Math.random()*H*0.7, s: (Math.random()*2+1)*DPR, a: Math.random()*0.6+0.2
-}));
-
-/* 캐릭터 (16x16 픽셀 아트) */
-const SCALE = 3*DPR; // 픽셀 확대 비율
-const SPR = [
-  // 간단한 로봇 같은 모양 (16x16) — 0은 투명, 1은 몸, 2는 포인트색
-  "0000011111100000",
-  "0001112222110000",
-  "0011221112211000",
-  "0012211111221000",
-  "0112111111121100",
-  "0111112221111100",
-  "0111111111111100",
-  "0011111111111000",
-  "0001111111110000",
-  "0000111111100000",
-  "0000111011100000",
-  "0001111001110000",
-  "0011100000111000",
-  "0111000000011100",
-  "0110000000001100",
-  "0010000000001000"
-].map(row=>row.split("").map(n=>+n));
-
-const colors = {
-  1: "#78ff78",
-  2: "#1c7a1c"
+/* 플레이어 */
+const player={
+  x: W*0.5, y: 0, w:96, h:96,
+  vx:0, speed: 160,
+  dir:1, pose:'side',
+  animTime:0, animIndex:0,
+  attacking:0
 };
+function placeOnFloor(){ player.y = floorY - player.h; }
+placeOnFloor();
 
-const player = {
-  x: W*0.65, y: GROUND-16*SCALE, w:16, h:16,
-  vx:0, vy:0, speed: 120*DPR, jump: 320*DPR, onGround:false, dir:1
-};
-
-const keys = { left:false, right:false, jump:false };
-
-/* 입력 처리 */
-window.addEventListener('keydown', e=>{
+const keys={left:false,right:false, space:false, up:false, down:false};
+addEventListener('keydown',e=>{
+  if(e.key===' '){
+    const t = document.activeElement.tagName;
+    if(t!=='INPUT' && t!=='TEXTAREA'){ e.preventDefault(); keys.space=true; }
+  }
   if(['ArrowLeft','a','A'].includes(e.key)) keys.left=true;
   if(['ArrowRight','d','D'].includes(e.key)) keys.right=true;
-  if([' ','ArrowUp','w','W'].includes(e.key)){ keys.jump=true; e.preventDefault(); }
+  if(e.key==='ArrowUp') keys.up=true;
+  if(e.key==='ArrowDown') keys.down=true;
 });
-window.addEventListener('keyup', e=>{
+addEventListener('keyup',e=>{
+  if(e.key===' ') keys.space=false;
   if(['ArrowLeft','a','A'].includes(e.key)) keys.left=false;
   if(['ArrowRight','d','D'].includes(e.key)) keys.right=false;
+  if(e.key==='ArrowUp') keys.up=false;
+  if(e.key==='ArrowDown') keys.down=false;
 });
 
-$('btnLeft').onpointerdown=()=>keys.left=true;
-$('btnLeft').onpointerup=()=>keys.left=false;
-$('btnRight').onpointerdown=()=>keys.right=true;
-$('btnRight').onpointerup=()=>keys.right=false;
-$('btnJump').onpointerdown=()=>{ keys.jump=true; setTimeout(()=>keys.jump=false, 120); };
+/* 발사체 */
+const shots=[]; let shotCount=0,lastShot=0;
+function shoot(){
+  const now=performance.now();
+  if(now-lastShot<180) return;
+  lastShot=now; shotCount++;
 
-/* 물리/업데이트 */
-let last=0, grav=700*DPR, friction=0.86;
+  const big = EVERY_N_BIG>0 && (shotCount % EVERY_N_BIG===0);
+  const img = (big && IMGS.fireBig.complete)? IMGS.fireBig : IMGS.fireSmall;
+  const size = big ? 54 : 32;
+  const speed = big ? 520 : 420;
+
+  const startX = player.dir===1 ? (player.x + player.w - 18) : (player.x + 18 - size);
+  shots.push({
+    x:startX, y: player.y + player.h*0.55 - size*0.5,
+    vx: player.dir===1 ? speed : -speed,
+    w:size, h:size, img, life:2200
+  });
+
+  player.attacking = 140;
+}
+
+/* 업데이트 */
+let last=0;
 function update(dt){
-  // 이동
+  // 입력 → 이동
   if(keys.left){ player.vx = -player.speed; player.dir=-1; }
-  else if(keys.right){ player.vx = player.speed; player.dir=1; }
-  else{ player.vx *= friction; if(Math.abs(player.vx)<0.01) player.vx=0; }
+  else if(keys.right){ player.vx =  player.speed; player.dir= 1; }
+  else { player.vx *= 0.84; if(Math.abs(player.vx)<0.5) player.vx=0; }
 
-  // 점프
-  if(keys.jump && player.onGround){
-    player.vy = -player.jump; player.onGround=false;
-  }
-  // 중력
-  player.vy += grav*dt;
+  // 위/아래 포즈
+  if(keys.up) player.pose='back';
+  else if(keys.down) player.pose='front';
+  else player.pose='side';
 
+  if(keys.space) shoot();
+
+  // 위치/카메라
   player.x += player.vx*dt;
-  player.y += player.vy*dt;
+  // 화면 중앙 근처에서 움직이면 카메라 패닝(배경 반복)
+  camX += player.vx * dt * WORLD_SPEED;
 
-  // 경계/바닥
-  const minX = 24*DPR, maxX = W - 24*DPR - player.w*SCALE;
+  // 화면 밖으로 안나가게
+  const minX = 10, maxX = W - player.w - 10;
   if(player.x<minX) player.x=minX;
   if(player.x>maxX) player.x=maxX;
 
-  const floorY = GROUND - player.h*SCALE;
-  if(player.y >= floorY){ player.y=floorY; player.vy=0; player.onGround=true; }
+  if(player.attacking>0) player.attacking -= dt*1000;
+
+  // 애니메이션
+  if(player.pose==='side' && Math.abs(player.vx)>1){
+    player.animTime += dt*1000;
+    if(player.animTime>120){ player.animTime=0; player.animIndex=(player.animIndex+1)%IMGS.walk.length; }
+  }else{ player.animTime=0; player.animIndex=0; }
+
+  // 발사체
+  for(let i=shots.length-1;i>=0;i--){
+    const s=shots[i]; s.x += s.vx*dt; s.life -= dt*1000;
+    if(s.x<-s.w || s.x>W+s.w || s.life<=0) shots.splice(i,1);
+  }
+
+  // 바닥에 붙여두기
+  placeOnFloor();
 }
 
 /* 그리기 */
 function draw(){
-  // 배경
-  ctx.fillStyle = "#0b160b";
-  ctx.fillRect(0,0,W,H);
+  // 배경 타일링(가로 반복)
+  if(BG.complete){
+    const offset = Math.floor((camX*bgScale) % bgW);
+    // 타일 3장 그려 끊김 방지
+    const x0 = -offset - bgW;
+    ctx.drawImage(BG, x0,          0, bgW, bgH);
+    ctx.drawImage(BG, x0 + bgW,    0, bgW, bgH);
+    ctx.drawImage(BG, x0 + bgW*2,  0, bgW, bgH);
+  }else{
+    ctx.fillStyle="#0b0f14"; ctx.fillRect(0,0,W,H);
+  }
 
-  // 그리드
-  ctx.strokeStyle = "rgba(20,39,20,.45)";
-  ctx.lineWidth = 1*DPR;
-  for(let x=0;x<W;x+=24*DPR){ ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
-  for(let y=0;y<H;y+=24*DPR){ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
-
-  // 별
-  stars.forEach(st=>{
-    ctx.globalAlpha = st.a;
-    ctx.fillStyle = "#79ff79";
-    ctx.fillRect(st.x, st.y, st.s, st.s);
-    ctx.globalAlpha = 1;
-  });
-
-  // 바닥 라인
-  ctx.fillStyle = "rgba(121,255,121,.2)";
-  ctx.fillRect(0, GROUND, W, 4*DPR);
-  ctx.fillStyle = "rgba(121,255,121,.08)";
-  ctx.fillRect(0, GROUND+4*DPR, W, 12*DPR);
-
-  // 플레이어 (픽셀 단위로 그림)
-  const px = Math.round(player.x), py = Math.round(player.y);
-  for(let y=0;y<player.h;y++){
-    for(let x=0;x<player.w;x++){
-      const v = SPR[y][ player.dir===1? x : (player.w-1-x) ];
-      if(v===0) continue;
-      ctx.fillStyle = colors[v] || "#79ff79";
-      ctx.fillRect(px + x*SCALE, py + y*SCALE, SCALE, SCALE);
+  // 발사체
+  for(const s of shots){
+    const dx=Math.round(s.x), dy=Math.round(s.y);
+    if(s.img && s.img.complete){
+      if(s.vx>=0) ctx.drawImage(s.img, dx, dy, s.w, s.h);
+      else { ctx.save(); ctx.translate(dx+s.w,0); ctx.scale(-1,1); ctx.drawImage(s.img,0,dy,s.w,s.h); ctx.restore(); }
+    }else{
+      ctx.fillStyle="#ff9a00"; ctx.fillRect(dx,dy,s.w,s.h);
     }
+  }
+
+  // 플레이어 스프라이트 선택
+  let img=null;
+  if(player.pose==='front'){ img=IMGS.center; }
+  else if(player.pose==='back'){ img=IMGS.back; }
+  else{
+    if(player.attacking>0 && IMGS.attack.complete) img=IMGS.attack;
+    else if(Math.abs(player.vx)>1) img=IMGS.walk[player.animIndex]||IMGS.walk[0];
+    else img=IMGS.idle[0];
+  }
+
+  const px=Math.round(player.x), py=Math.round(player.y);
+  if(player.dir===1){
+    if(img && img.complete) ctx.drawImage(img, px, py, player.w, player.h);
+    else { ctx.fillStyle="#8f8"; ctx.fillRect(px,py,player.w,player.h); }
+  }else{
+    ctx.save(); ctx.translate(px+player.w,0); ctx.scale(-1,1);
+    if(img && img.complete) ctx.drawImage(img, 0, py, player.w, player.h);
+    else { ctx.fillStyle="#8f8"; ctx.fillRect(0,py,player.w,player.h); }
+    ctx.restore();
   }
 }
 
 /* 루프 */
 function loop(ts){
-  const dt = Math.min(0.033, (ts-last)/1000 || 0.016);
-  last = ts;
-  update(dt);
-  draw();
+  const dt=Math.min(0.033,(ts-last)/1000||0.016); last=ts;
+  update(dt); draw();
   requestAnimationFrame(loop);
 }
 requestAnimationFrame(loop);
-
-/* ===== UX: 카드 입력 포커스 방해하지 않기 ===== */
-['keydown','keyup'].forEach(type=>{
-  document.addEventListener(type, (e)=>{
-    const tag = (e.target.tagName||'').toLowerCase();
-    if(tag==='input' || tag==='textarea' || e.target.isContentEditable) return; // 입력 중엔 게임 입력 무시 X (현재 허용)
-    // 필요 시 여기서 e.preventDefault()로 스크롤 방지 가능
-  }, {passive:true});
-});
 </script>
-<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-<script src="js/supabase.js"></script>
-
 </body>
 </html>
