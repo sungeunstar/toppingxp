@@ -5,16 +5,17 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>ToppingXP — Login</title>
 
-  <!-- Supabase SDK -->
-  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<!-- Supabase SDK -->
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 
-  <!-- Supabase 클라이언트 직접 초기화 -->
-  <script>
-    const SUPABASE_URL  = "https://mgpxqmqvlbjfywbbsiwt.supabase.co"; // 본인 프로젝트 URL
-    const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1ncHhxbXF2bGJqZnl3YmJzaXd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI3NDc3OTYsImV4cCI6MjA3ODMyMzc5Nn0.dMKOkI0Vsty6ZMOxJmfF4IAPmkKF4kPhRhjCLH0dxEk"; // Supabase anon key
-    window.sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
-    console.log("[supabase] client ready:", !!window.sb);
-  </script>
+<!-- Supabase 클라이언트 직접 초기화 (사용자 키 그대로 사용) -->
+<script>
+  const SUPABASE_URL  = "https://mgpxqmqvlbjfywbbsiwt.supabase.co";
+  const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1ncHhxbXF2bGJqZnl3YmJzaXd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI3NDc3OTYsImV4cCI6MjA3ODMyMzc5Nn0.dMKOkI0Vsty6ZMOxJmfF4IAPmkKF4kPhRhjCLH0dxEk";
+  window.sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+  console.log("[supabase] client ready:", !!window.sb);
+</script>
+
 <style>
 :root{
   --bg:#070c10; --g:#7aff7a; --g-deep:#1c7a1c;
@@ -136,20 +137,13 @@ body{
 </button>
 
 <script>
+/* ===== 배경 음악 토글 ===== */
 const music = document.getElementById('bgm');
 const btn = document.getElementById('musicBtn');
 let playing = false;
-
 btn.onclick = ()=>{
-  if(!playing){
-    music.play();
-    btn.textContent = "⏸ Pause";
-    playing = true;
-  }else{
-    music.pause();
-    btn.textContent = "🎵 Play";
-    playing = false;
-  }
+  if(!playing){ music.play(); btn.textContent="⏸ Pause"; playing=true; }
+  else{ music.pause(); btn.textContent="🎵 Play"; playing=false; }
 };
 </script>
 
@@ -179,15 +173,12 @@ async function doSignin(){
 }
 els.signin.onclick=doSignin;
 ['email','password'].forEach(id=>{
-  $(id).addEventListener('keydown',e=>{
-    if(e.key==='Enter') doSignin();
-  });
+  $(id).addEventListener('keydown',e=>{ if(e.key==='Enter') doSignin(); });
 });
 
 function openSignup(){
   els.modal.classList.add('show');
   els.loginPanel.classList.add('hide');
-  // 포커스 이동
   setTimeout(()=>els.su_name.focus(),0);
 }
 function closeSignup(){
@@ -203,14 +194,27 @@ document.addEventListener('keydown',e=>{
   if(e.key==='Escape' && els.modal.classList.contains('show')) closeSignup();
 });
 
+/* 회원가입: 이미 가입된 이메일이면 로그인으로 전환 */
 els.signupBtn.onclick=async()=>{
   const name=els.su_name.value.trim(), email=els.su_email.value.trim();
   const pw=els.su_pw.value, pw2=els.su_pw2.value;
   if(!name||!email||!pw||!pw2){showMsg(els.signupMsg,'모두 입력해주세요');return;}
   if(pw!==pw2){showMsg(els.signupMsg,'비밀번호가 일치하지 않습니다');return;}
-  const {data,error}=await sb.auth.signUp({email,password:pw,options:{data:{display_name:name}}});
-  if(error)return showMsg(els.signupMsg,error.message);
-  if(data.user)await sb.from('profiles').upsert({id:data.user.id,display_name:name});
+
+  const {data,error}=await sb.auth.signUp({
+    email, password:pw, options:{data:{display_name:name}}
+  });
+
+  if(error){
+    if(/already registered/i.test(error.message)){
+      showMsg(els.signupMsg,'이미 가입된 이메일입니다. 로그인 화면으로 이동합니다.',true);
+      setTimeout(()=>{ closeSignup(); els.email.value=email; els.password.focus(); }, 800);
+      return;
+    }
+    return showMsg(els.signupMsg,error.message);
+  }
+
+  if(data.user) await sb.from('profiles').upsert({id:data.user.id,display_name:name});
   showMsg(els.signupMsg,'가입 완료! 로그인해 주세요.',true);
   setTimeout(()=>{ closeSignup(); }, 900);
 };
@@ -310,7 +314,6 @@ placeOnFloor();
 
 const keys={left:false,right:false, space:false};
 addEventListener('keydown',e=>{
-  // 입력창에 포커스면 게임 키 막기
   const tag = document.activeElement.tagName;
   const typing = tag==='INPUT' || tag==='TEXTAREA';
 
@@ -362,12 +365,10 @@ function shoot(){
 /* 업데이트 */
 let last=0;
 function update(dt){
-  // 이동 + 카메라 패럴랙스
   if(keys.left){ player.vx=-player.speed; player.dir=-1; camX-=player.speed*0.25*dt; }
   else if(keys.right){ player.vx= player.speed; player.dir= 1; camX+=player.speed*0.25*dt; }
   else { player.vx*=0.85; if(Math.abs(player.vx)<0.5) player.vx=0; }
 
-  // 걷기 2프레임 토글
   if(player.pose==='side' && Math.abs(player.vx)>1){
     player.animTimer += dt*1000;
     if(player.animTimer>120){ player.animTimer=0; player.animIndex = 1 - player.animIndex; }
@@ -375,7 +376,6 @@ function update(dt){
     player.animIndex = 0;
   }
 
-  // 발사
   if(keys.space && player.pose==='side') shoot();
 
   player.x += player.vx*dt;
@@ -384,7 +384,6 @@ function update(dt){
   if(player.x>maxX) player.x=maxX;
   if(player.attacking>0) player.attacking -= dt*1000;
 
-  // 투사체
   for(let i=shots.length-1;i>=0;i--){
     const s=shots[i];
     s.x += s.vx*dt;
@@ -397,7 +396,6 @@ function update(dt){
 function draw(){
   drawBGPattern(ctx);
 
-  // 투사체
   for(const s of shots){
     const dx=Math.round(s.x), dy=Math.round(s.y);
     if(s.img && s.img.complete){
@@ -409,7 +407,6 @@ function draw(){
     }else{ ctx.fillStyle="#ff9a00"; ctx.fillRect(dx,dy,s.w,s.h); }
   }
 
-  // 플레이어
   const px=Math.round(player.x), py=Math.round(player.y);
   let img = null;
   if(player.pose==='front' && IMGS.center.complete) img = IMGS.center;
@@ -438,10 +435,6 @@ function loop(ts){
 }
 requestAnimationFrame(loop);
 </script>
-</script>
-
-
-
 
 </body>
 </html>
