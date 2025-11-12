@@ -314,6 +314,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       <div class="small" style="text-align: center; padding: 20px;">로딩 중...</div>
     </div>
     <div class="modalBtns">
+      <button id="retroListWrite" class="btn">회고록 작성</button>
       <button id="retroListClose" class="btn">닫기</button>
     </div>
   </div>
@@ -387,7 +388,8 @@ const els = {
   overlay:$('seasonOverlay'),
   retroToast:$('retroToast'), toastTitle:$('toastTitle'), tOpen:$('tOpen'), tLater:$('tLater'),
   buyToast:$('buyToast'),
-  retroListModal:$('retroListModal'), retroListContent:$('retroListContent'), retroListClose:$('retroListClose'),
+  retroListModal:$('retroListModal'), retroListContent:$('retroListContent'),
+  retroListClose:$('retroListClose'), retroListWrite:$('retroListWrite'),
   retroDetailModal:$('retroDetailModal'), retroDetailTitle:$('retroDetailTitle'),
   retroDetailDate:$('retroDetailDate'), retroDetailContent:$('retroDetailContent'), retroDetailClose:$('retroDetailClose')
 };
@@ -615,10 +617,10 @@ async function openRetroList(){
     item.style.cssText = 'background: var(--btn-bg); border: 1px solid var(--g-deep); border-radius: 6px; padding: 12px 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: border-color 0.2s;';
     item.onmouseenter = () => item.style.borderColor = 'var(--g)';
     item.onmouseleave = () => item.style.borderColor = 'var(--g-deep)';
+    item.onclick = () => openRetroDetail(r);
 
     const textArea = document.createElement('div');
     textArea.style.cssText = 'flex: 1; min-width: 0;';
-    textArea.onclick = () => openRetroDetail(r);
 
     const header = document.createElement('div');
     header.style.cssText = 'color: var(--g-weak); font-size: 13px; margin-bottom: 4px;';
@@ -632,12 +634,6 @@ async function openRetroList(){
 
     const btnArea = document.createElement('div');
     btnArea.style.cssText = 'display: flex; gap: 8px; margin-left: 12px;';
-
-    const detailBtn = document.createElement('button');
-    detailBtn.className = 'btn';
-    detailBtn.textContent = '상세';
-    detailBtn.style.cssText = 'padding: 6px 12px; font-size: 13px;';
-    detailBtn.onclick = (e) => { e.stopPropagation(); openRetroDetail(r); };
 
     const deleteBtn = document.createElement('button');
     deleteBtn.className = 'btn';
@@ -654,7 +650,7 @@ async function openRetroList(){
       }
     };
 
-    btnArea.append(detailBtn, deleteBtn);
+    btnArea.append(deleteBtn);
     item.append(textArea, btnArea);
     els.retroListContent.append(item);
   });
@@ -829,6 +825,7 @@ document.addEventListener('keydown',e=>{
 });
 els.rCancel.onclick = ()=> closeRetro();
 els.retroListClose.onclick = ()=> closeRetroList();
+els.retroListWrite.onclick = ()=>{ closeRetroList(); openRetro(); };
 els.retroDetailClose.onclick = ()=> closeRetroDetail();
 els.rSave.onclick = async ()=>{
   const date=todayKey();
