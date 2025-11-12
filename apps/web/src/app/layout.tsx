@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import DragHandle from '@/components/DragHandle';
 
 export const metadata: Metadata = {
   title: 'ToppingXP',
@@ -15,7 +16,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ko">
-      <body>{children}</body>
+      <body>
+        <DragHandle />
+        {children}
+      </body>
     </html>
   );
 }
