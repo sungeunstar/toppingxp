@@ -34,12 +34,12 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: windows-build
-          path: apps/widget/dist/*.exe
+          path: apps/widget/dist/**/*.exe
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: apps/widget/dist/*.exe
+          files: apps/widget/dist/**/*.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
