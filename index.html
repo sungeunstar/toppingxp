@@ -202,7 +202,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     }
     #electronMenu .menu-submenu-content {
       position: absolute;
-      left: 100%;
+      right: 100%;
       top: 0;
       min-width: 180px;
       background: rgba(10, 19, 10, 0.98);
@@ -211,9 +211,68 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       display: none;
       flex-direction: column;
       backdrop-filter: blur(8px);
+      margin-right: 2px;
     }
     #electronMenu .menu-submenu:hover .menu-submenu-content {
       display: flex;
+    }
+
+    /* First-time tooltip */
+    #electronTooltip {
+      position: fixed;
+      top: 40px;
+      right: 40px;
+      background: rgba(10, 19, 10, 0.98);
+      border: 2px solid var(--g);
+      box-shadow: var(--glow);
+      padding: 16px 20px;
+      border-radius: 8px;
+      z-index: 10002;
+      display: none;
+      max-width: 280px;
+      animation: tooltipPulse 2s ease-in-out infinite;
+    }
+    #electronTooltip.show { display: block; }
+    #electronTooltip::before {
+      content: '';
+      position: absolute;
+      top: -10px;
+      right: 20px;
+      width: 0;
+      height: 0;
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      border-bottom: 10px solid var(--g);
+    }
+    #electronTooltip .tooltip-title {
+      color: var(--g);
+      font-weight: 800;
+      font-size: 15px;
+      margin-bottom: 10px;
+    }
+    #electronTooltip .tooltip-text {
+      color: var(--text-soft);
+      font-size: 13px;
+      line-height: 1.5;
+      margin-bottom: 12px;
+    }
+    #electronTooltip button {
+      width: 100%;
+      padding: 8px;
+      background: var(--btn-bg);
+      border: 2px solid var(--g);
+      color: var(--text-soft);
+      cursor: pointer;
+      font-weight: 800;
+      transition: all 0.2s;
+    }
+    #electronTooltip button:hover {
+      background: var(--btn-bg-hover);
+      color: var(--text-hover);
+    }
+    @keyframes tooltipPulse {
+      0%, 100% { box-shadow: var(--glow); }
+      50% { box-shadow: 0 0 15px rgba(121,255,121,.7), 0 0 25px rgba(121,255,121,.4); }
     }
 
         <!-- ② 모바일 가로길이 제한 -->
@@ -415,7 +474,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   <div class="menu-separator"></div>
   <button id="menuToggleLock">🔒 Lock (Always on Top)</button>
   <div class="menu-submenu">
-    <button>창 크기 조절 ▸</button>
+    <button>창 크기 조절 ◂</button>
     <div class="menu-submenu-content">
       <button id="menuSizeSmall">Small (350 × 500)</button>
       <button id="menuSizeMedium">Medium (400 × 600)</button>
@@ -425,6 +484,17 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   </div>
   <div class="menu-separator"></div>
   <button id="menuLogout">로그아웃</button>
+</div>
+
+<!-- First-time tooltip -->
+<div id="electronTooltip">
+  <div class="tooltip-title">💡 사용 가이드</div>
+  <div class="tooltip-text">
+    • 상단 바를 드래그하여 이동<br>
+    • <strong>☰ 메뉴</strong>에서 모든 설정 가능<br>
+    • 창 크기 조절, 잠금/해제 등
+  </div>
+  <button id="tooltipGotIt">확인했습니다</button>
 </div>
 
 <script>
@@ -437,10 +507,28 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   const menuBtn = document.getElementById('electronMenuBtn');
   const closeBtn = document.getElementById('electronCloseBtn');
   const menu = document.getElementById('electronMenu');
+  const tooltip = document.getElementById('electronTooltip');
+  const tooltipBtn = document.getElementById('tooltipGotIt');
 
   let isLocked = true; // Always on top by default
 
   if(dragBar) dragBar.classList.add('show');
+
+  // Show first-time tooltip
+  const hasSeenTooltip = localStorage.getItem('toppingxp_tooltip_seen');
+  if(!hasSeenTooltip && tooltip){
+    setTimeout(() => {
+      tooltip.classList.add('show');
+    }, 1000);
+  }
+
+  // Hide tooltip
+  if(tooltipBtn){
+    tooltipBtn.onclick = () => {
+      tooltip.classList.remove('show');
+      localStorage.setItem('toppingxp_tooltip_seen', 'true');
+    };
+  }
 
   // Close button
   if(closeBtn){
