@@ -1,0 +1,21 @@
+{
+  "name": "toppingxp",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "dev:web": "npm run dev --workspace=apps/web",
+    "dev:widget": "npm run dev --workspace=apps/widget",
+    "build:web": "npm run build --workspace=apps/web",
+    "build:widget": "npm run build --workspace=apps/widget",
+    "start:widget": "npm run start --workspace=apps/widget"
+  },
+  "devDependencies": {
+    "turbo": "^2.2.0"
+  }
+}
