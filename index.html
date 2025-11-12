@@ -88,30 +88,45 @@ body{
   border:1px solid rgba(28,122,28,.35); border-radius:6px;
 }
 
-/* 오브젝트 HP 바 */
+/* 오브젝트 HP 바 - 픽셀아트 레트로 스타일 */
 .hp-bar-wrap{
   position:fixed; top:200px; left:50%; transform:translateX(-50%);
-  z-index:12; width:min(400px,80%); text-align:center;
+  z-index:12; width:min(420px,85%); text-align:center;
 }
 .hp-bar-wrap .label{
-  font-size:14px; font-weight:800; margin-bottom:6px;
+  font-size:14px; font-weight:800; margin-bottom:8px;
   text-shadow:var(--glow);
+  font-family: 'Courier New', monospace;
+  letter-spacing: 2px;
 }
 .hp-bar{
-  width:100%; height:24px; background:rgba(0,0,0,0.6);
-  border:2px solid var(--g-deep); border-radius:12px;
-  overflow:hidden; position:relative;
+  width:100%; height:32px;
+  background:#000;
+  border:4px solid #7aff7a;
+  box-shadow:inset 0 0 0 2px #000, 0 4px 0 #1c7a1c;
+  position:relative;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
 }
 .hp-fill{
   position:absolute; left:0; top:0; bottom:0;
-  background:linear-gradient(90deg, #ff4444, #ff8844);
-  transition:width 0.3s ease;
-  box-shadow:inset 0 0 10px rgba(255,255,255,0.3);
+  background:repeating-linear-gradient(
+    90deg,
+    #ff3333 0px,
+    #ff3333 4px,
+    #ff5555 4px,
+    #ff5555 8px
+  );
+  transition:width 0.2s steps(10);
+  box-shadow:inset 0 -4px 0 rgba(0,0,0,0.3);
+  image-rendering: pixelated;
 }
 .hp-text{
   position:absolute; inset:0; display:flex; align-items:center;
-  justify-content:center; font-size:13px; font-weight:800;
-  color:#fff; text-shadow:0 1px 2px rgba(0,0,0,0.8);
+  justify-content:center; font-size:14px; font-weight:800;
+  color:#fff; text-shadow:2px 2px 0 #000;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 1px;
 }
 
 /* 폭발 오버레이 */
@@ -212,7 +227,7 @@ setTimeout(() => {
 <script>
 /* ========== 배경/캐릭터 미니게임 ========== */
 
-const BG_URL = "https://mgpxqmqvlbjfywbbsiwt.supabase.co/storage/v1/object/public/images/background.png";
+const BG_URL = "images/background_landing.png";
 
 const SPRITES = {
   stopRight: "https://mgpxqmqvlbjfywbbsiwt.supabase.co/storage/v1/object/public/images/stop-right.png",
@@ -231,6 +246,7 @@ addEventListener('resize',()=>{W=innerWidth;H=innerHeight;canvas.width=W;canvas.
 ctx.imageSmoothingEnabled=false;
 
 const BG = new Image(); BG.decoding="async"; BG.src=BG_URL;
+const BOX_IMG = new Image(); BOX_IMG.decoding="async"; BOX_IMG.src="images/box.png";
 function loadImage(url){const img=new Image(); img.decoding="async"; img.src=url; return img;}
 const IMGS={
   stopRight: loadImage(SPRITES.stopRight),
@@ -351,9 +367,17 @@ function spawnTarget(){
     w: size,
     h: size,
     hp: 100,
-    maxHp: 100
+    maxHp: 100,
+    shakeX: 0,
+    shakeY: 0,
+    shakeTime: 0
   };
   updateHPBar();
+}
+
+function shakeTarget(){
+  if(!target) return;
+  target.shakeTime = 200; // 200ms 흔들림
 }
 
 function updateHPBar(){
@@ -406,6 +430,18 @@ function update(dt){
   if(player.x>maxX) player.x=maxX;
   if(player.attacking>0) player.attacking -= dt*1000;
 
+  // 타겟 흔들림 업데이트
+  if(target && target.shakeTime > 0){
+    target.shakeTime -= dt*1000;
+    const intensity = 5;
+    target.shakeX = (Math.random() - 0.5) * intensity;
+    target.shakeY = (Math.random() - 0.5) * intensity;
+    if(target.shakeTime <= 0){
+      target.shakeX = 0;
+      target.shakeY = 0;
+    }
+  }
+
   // 투사체 업데이트 & 충돌 감지
   for(let i=shots.length-1;i>=0;i--){
     const s=shots[i];
@@ -416,6 +452,7 @@ function update(dt){
     if(gameActive && target && checkCollision(s, target)){
       target.hp -= s.damage;
       updateHPBar();
+      shakeTarget(); // 흔들림 효과
       shots.splice(i,1);
 
       if(target.hp <= 0){
@@ -434,35 +471,32 @@ function draw(){
 
   // 타겟 그리기
   if(target && gameActive){
-    const tx=Math.round(target.x), ty=Math.round(target.y);
+    const tx=Math.round(target.x + target.shakeX);
+    const ty=Math.round(target.y + target.shakeY);
 
     // 박스 그림자
     ctx.fillStyle = 'rgba(0,0,0,0.3)';
     ctx.fillRect(tx+4, ty+4, target.w, target.h);
 
-    // 박스
-    ctx.fillStyle = '#8B4513';
-    ctx.fillRect(tx, ty, target.w, target.h);
+    // 박스 이미지 그리기
+    if(BOX_IMG.complete){
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(BOX_IMG, tx, ty, target.w, target.h);
+    } else {
+      // 이미지 로드 전 폴백
+      ctx.fillStyle = '#8B4513';
+      ctx.fillRect(tx, ty, target.w, target.h);
+      ctx.strokeStyle = '#654321';
+      ctx.lineWidth = 3;
+      ctx.strokeRect(tx, ty, target.w, target.h);
+    }
 
-    // 테두리
-    ctx.strokeStyle = '#654321';
-    ctx.lineWidth = 3;
-    ctx.strokeRect(tx, ty, target.w, target.h);
-
-    // X 표시
-    ctx.strokeStyle = '#ff4444';
-    ctx.lineWidth = 4;
-    ctx.beginPath();
-    ctx.moveTo(tx+20, ty+20);
-    ctx.lineTo(tx+target.w-20, ty+target.h-20);
-    ctx.moveTo(tx+target.w-20, ty+20);
-    ctx.lineTo(tx+20, ty+target.h-20);
-    ctx.stroke();
-
-    // HP 텍스트
-    ctx.fillStyle = '#fff';
-    ctx.font = 'bold 18px monospace';
+    // HP 텍스트 (픽셀 아트 스타일)
+    ctx.fillStyle = '#000';
+    ctx.font = 'bold 16px "Courier New", monospace';
     ctx.textAlign = 'center';
+    ctx.fillText(Math.max(0, target.hp) + ' HP', tx + target.w/2 + 2, ty + target.h/2 + 8);
+    ctx.fillStyle = '#fff';
     ctx.fillText(Math.max(0, target.hp) + ' HP', tx + target.w/2, ty + target.h/2 + 6);
   }
 
