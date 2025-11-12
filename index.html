@@ -1,565 +1,1280 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>ToppingXP — 매일의 목표를 시각적으로 기록하고 성장하세요</title>
 
-<!-- Supabase SDK -->
-<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 
+
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ToppingXP — Quests</title>
+
+
+  <!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-MKLP58H8');</script>
+<!-- End Google Tag Manager -->
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-SGDZ5PHJHC"></script>
 <script>
-  const SUPABASE_URL  = "https://mgpxqmqvlbjfywbbsiwt.supabase.co";
-  const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1ncHhxbXF2bGJqZnl3YmJzaXd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI3NDc3OTYsImV4cCI6MjA3ODMyMzc5Nn0.dMKOkI0Vsty6ZMOxJmfF4IAPmkKF4kPhRhjCLH0dxEk";
-  window.sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-SGDZ5PHJHC');
 </script>
 
-<style>
-@font-face {
-  font-family: 'DNFBitBitv2';
-  src: url('fonts/DNFBitBitv2.ttf') format('truetype'),
-       url('fonts/DNFBitBitv2.woff2') format('woff2'),
-       url('fonts/DNFBitBitv2.woff') format('woff');
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
 
-:root{
-  --bg:#070c10; --g:#7aff7a; --g-deep:#1c7a1c;
-  --glow:0 0 10px rgba(121,255,121,.5),0 0 18px rgba(121,255,121,.25);
-  --btn-bg:#0a140a; --btn-bg-hover:#0f1d0f;
-  --text-soft:#b6ffb6; --text-hover:#d4f77c;
-}
-*{box-sizing:border-box}
-html,body{height:100%}
-body{
-  margin:0; overflow:hidden;
-  color:var(--g); font-family:ui-monospace, Menlo, Consolas, monospace;
-  background: radial-gradient(1000px 700px at 50% 50%, #0b160b 0%, var(--bg) 70%);
-}
+  <!-- ① SDK: 한 번만 로드 -->
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 
-/* 게임 배경 */
-#gameWrap{position:fixed; inset:0; z-index:0;}
-#game{display:block; width:100vw; height:100vh}
+  <!-- ② 클라이언트 즉시 생성: 메인 스크립트보다 먼저 -->
+  <script>
+    const SUPABASE_URL  = "https://mgpxqmqvlbjfywbbsiwt.supabase.co";
+    const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1ncHhxbXF2bGJqZnl3YmJzaXd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI3NDc3OTYsImV4cCI6MjA3ODMyMzc5Nn0.dMKOkI0Vsty6ZMOxJmfF4IAPmkKF4kPhRhjCLH0dxEk";
+    window.sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+    console.log("[supabase] client ready:", !!window.sb);
+  </script>
+  <style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(121, 255, 121, 0.05);
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(121, 255, 121, 0.3);
+      border-radius: 10px;
+      transition: background 0.2s;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(121, 255, 121, 0.5);
+    }
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: rgba(121, 255, 121, 0.3) rgba(121, 255, 121, 0.05);
+    }
 
-/* 상단 카피 */
-.hero{
-  position:fixed; top:80px; left:50%; transform:translateX(-50%);
-  z-index:10; text-align:center; max-width:min(800px,90%);
-  pointer-events:none;
-}
-.hero h1{
-  font-family: 'DNFBitBitv2', 'Courier New', monospace;
-  font-size:clamp(28px, 5vw, 48px); font-weight:400; margin:0 0 16px;
-  text-shadow:var(--glow), 0 2px 8px rgba(0,0,0,0.8);
-  line-height:1.3;
-  image-rendering: pixelated;
-  -webkit-font-smoothing: none;
-}
-.hero p{
-  font-family: 'DNFBitBitv2', 'Courier New', monospace;
-  font-size:clamp(14px, 2.5vw, 18px); color:#b6ffb6; margin:0 0 12px;
-  text-shadow:0 1px 4px rgba(0,0,0,0.9);
-  line-height:1.6;
-  font-weight:400;
-}
+    /* Electron Drag Bar */
+    #electronDragBar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 32px;
+      background: linear-gradient(to bottom, rgba(28,122,28,0.3), transparent);
+      -webkit-app-region: drag;
+      z-index: 10000;
+      cursor: move;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: rgba(121,255,121,0.7);
+      user-select: none;
+    }
+    #electronDragBar.show { display: flex; }
 
-/* 버튼들 */
-.actions{
-  position:fixed; bottom:80px; left:50%; transform:translateX(-50%);
-  z-index:10; display:flex; gap:16px; flex-wrap:wrap; justify-content:center;
-}
-.btn{
-  font-family: 'DNFBitBitv2', 'Courier New', monospace;
-  padding:14px 28px; border:2px solid var(--g); background:rgba(10,20,10,.9);
-  color:var(--text-soft); font-weight:400; cursor:pointer;
-  box-shadow:var(--glow); border-radius:10px; font-size:16px;
-  transition:all 0.2s;
-}
-.btn:hover{background:var(--btn-bg-hover); color:var(--text-hover); transform:translateY(-2px)}
+    /* Hamburger Menu Button */
+    #electronMenuBtn {
+      position: absolute;
+      right: 36px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 24px;
+      height: 20px;
+      border: none;
+      background: transparent;
+      color: rgba(121,255,121,0.8);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      transition: all 0.2s;
+      -webkit-app-region: no-drag;
+      padding: 0;
+    }
+    #electronMenuBtn span {
+      width: 16px;
+      height: 2px;
+      background: rgba(121,255,121,0.8);
+      border-radius: 1px;
+      transition: all 0.2s;
+    }
+    #electronMenuBtn:hover span {
+      background: var(--g);
+      box-shadow: 0 0 4px rgba(121,255,121,0.6);
+    }
 
-/* 상단 우측 메뉴 */
-.nav{
-  position:fixed; top:20px; right:20px; z-index:15;
-  display:flex; gap:12px; align-items:center;
-}
-.nav a, .nav button{
-  font-family: 'DNFBitBitv2', 'Courier New', monospace;
-  padding:10px 18px; border:2px solid rgba(122,255,122,0.6);
-  background:rgba(10,20,10,.85); color:var(--text-soft);
-  text-decoration:none; font-weight:400; font-size:14px;
-  border-radius:8px; cursor:pointer;
-  transition:all 0.2s;
-}
-.nav a:hover, .nav button:hover{
-  background:rgba(15,29,15,.95); color:var(--text-hover);
-  border-color:var(--g);
-}
+    /* Close Button */
+    #electronCloseBtn {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 20px;
+      height: 20px;
+      border: none;
+      background: rgba(121,255,121,0.1);
+      color: rgba(121,255,121,0.8);
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: bold;
+      transition: all 0.2s;
+      -webkit-app-region: no-drag;
+      padding: 0;
+      line-height: 1;
+    }
+    #electronCloseBtn:hover {
+      background: rgba(255,0,0,0.8);
+      color: white;
+    }
 
-/* 키 도움말(좌하단) */
-.hint{
-  font-family: 'DNFBitBitv2', 'Courier New', monospace;
-  position:fixed; left:14px; bottom:12px; z-index:9;
-  font-size:12px; color:#a7ffa7; opacity:.85;
-  background:rgba(0,0,0,.25); padding:6px 8px;
-  border:1px solid rgba(28,122,28,.35); border-radius:6px;
-}
+    /* Electron Menu Dropdown */
+    #electronMenu {
+      position: fixed;
+      top: 32px;
+      right: 8px;
+      min-width: 220px;
+      background: rgba(10, 19, 10, 0.98);
+      border: 2px solid var(--g-deep);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5), var(--glow);
+      z-index: 10001;
+      display: none;
+      flex-direction: column;
+      backdrop-filter: blur(8px);
+      animation: slideDown 0.2s ease;
+    }
+    #electronMenu.show { display: flex; }
 
-/* 오브젝트 HP 바 - 픽셀아트 레트로 스타일 */
-.hp-bar-wrap{
-  position:fixed; top:200px; left:50%; transform:translateX(-50%);
-  z-index:12; width:min(420px,85%); text-align:center;
-}
-.hp-bar-wrap .label{
-  font-family: 'DNFBitBitv2', 'Courier New', monospace;
-  font-size:14px; font-weight:400; margin-bottom:8px;
-  text-shadow:var(--glow);
-  letter-spacing: 2px;
-}
-.hp-bar{
-  width:100%; height:32px;
-  background:#000;
-  border:4px solid #7aff7a;
-  box-shadow:inset 0 0 0 2px #000, 0 4px 0 #1c7a1c;
-  position:relative;
-  image-rendering: pixelated;
-  image-rendering: crisp-edges;
-}
-.hp-fill{
-  position:absolute; left:0; top:0; bottom:0;
-  background:repeating-linear-gradient(
-    90deg,
-    #ff3333 0px,
-    #ff3333 4px,
-    #ff5555 4px,
-    #ff5555 8px
-  );
-  transition:width 0.2s steps(10);
-  box-shadow:inset 0 -4px 0 rgba(0,0,0,0.3);
-  image-rendering: pixelated;
-}
-.hp-text{
-  font-family: 'DNFBitBitv2', 'Courier New', monospace;
-  position:absolute; inset:0; display:flex; align-items:center;
-  justify-content:center; font-size:14px; font-weight:400;
-  color:#fff; text-shadow:2px 2px 0 #000;
-  letter-spacing: 1px;
-}
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
 
-/* 폭발 오버레이 */
-#explosion{
-  position:fixed; inset:0; display:none; align-items:center;
-  justify-content:center; background:rgba(255,100,0,0.3);
-  z-index:20; pointer-events:none;
-}
-#explosion.show{display:flex; animation:explode 0.8s ease}
-@keyframes explode{
-  0%{opacity:0; transform:scale(0.5)}
-  50%{opacity:1; transform:scale(1.2)}
-  100%{opacity:0; transform:scale(1)}
-}
-#explosion .msg{
-  font-family: 'DNFBitBitv2', 'Courier New', monospace;
-  font-size:48px; font-weight:400; color:#fff;
-  text-shadow:0 0 20px rgba(255,100,0,0.8);
-}
+    #electronMenu button {
+      width: 100%;
+      text-align: left;
+      padding: 12px 16px;
+      background: transparent;
+      border: none;
+      color: var(--text-soft);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 14px;
+      transition: all 0.15s;
+      border-bottom: 1px solid rgba(28,122,28,0.3);
+    }
+    #electronMenu button:hover {
+      background: rgba(28,122,28,0.4);
+      color: var(--text-hover);
+    }
+    #electronMenu button:last-child {
+      border-bottom: none;
+    }
+    #electronMenu .menu-separator {
+      height: 1px;
+      background: var(--g-deep);
+      margin: 4px 0;
+    }
+    #electronMenu .menu-submenu {
+      position: relative;
+    }
+    #electronMenu .menu-submenu-content {
+      position: absolute;
+      right: 100%;
+      top: 0;
+      min-width: 180px;
+      background: rgba(10, 19, 10, 0.98);
+      border: 2px solid var(--g-deep);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5), var(--glow);
+      display: none;
+      flex-direction: column;
+      backdrop-filter: blur(8px);
+      margin-right: 2px;
+    }
+    #electronMenu .menu-submenu:hover .menu-submenu-content {
+      display: flex;
+    }
 
-@media(max-width:600px){
-  .hero h1{font-size:24px}
-  .hero p{font-size:13px}
-  .actions{bottom:60px; gap:10px}
-  .btn{padding:12px 20px; font-size:14px}
-}
-</style>
+    /* First-time tooltip */
+    #electronTooltip {
+      position: fixed;
+      top: 40px;
+      right: 40px;
+      background: rgba(10, 19, 10, 0.98);
+      border: 2px solid var(--g);
+      box-shadow: var(--glow);
+      padding: 16px 20px;
+      border-radius: 8px;
+      z-index: 10002;
+      display: none;
+      max-width: 280px;
+      animation: tooltipPulse 2s ease-in-out infinite;
+    }
+    #electronTooltip.show { display: block; }
+    #electronTooltip::before {
+      content: '';
+      position: absolute;
+      top: -10px;
+      right: 20px;
+      width: 0;
+      height: 0;
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      border-bottom: 10px solid var(--g);
+    }
+    #electronTooltip .tooltip-title {
+      color: var(--g);
+      font-weight: 800;
+      font-size: 15px;
+      margin-bottom: 10px;
+    }
+    #electronTooltip .tooltip-text {
+      color: var(--text-soft);
+      font-size: 13px;
+      line-height: 1.5;
+      margin-bottom: 12px;
+    }
+    #electronTooltip button {
+      width: 100%;
+      padding: 8px;
+      background: var(--btn-bg);
+      border: 2px solid var(--g);
+      color: var(--text-soft);
+      cursor: pointer;
+      font-weight: 800;
+      transition: all 0.2s;
+    }
+    #electronTooltip button:hover {
+      background: var(--btn-bg-hover);
+      color: var(--text-hover);
+    }
+    @keyframes tooltipPulse {
+      0%, 100% { box-shadow: var(--glow); }
+      50% { box-shadow: 0 0 15px rgba(121,255,121,.7), 0 0 25px rgba(121,255,121,.4); }
+    }
+
+        <!-- ② 모바일 가로길이 제한 -->
+      @media (max-width: 980px){
+        .app{ grid-template-columns: 1fr; }
+        .panel{ padding:16px 12px; }
+        .statGrid{ grid-template-columns: 1fr; }
+        .storeGrid{ grid-template-columns: 1fr 1fr; }
+        .storeTop{ grid-template-columns: 1fr 1fr; }
+      }
+      @media (max-width: 420px){
+        body{ font-size:15px; }
+        .h1{ font-size:18px; }
+        .panel{ padding:14px 10px; }
+        .card{ grid-template-columns: 1fr; gap:8px; }
+        .storeGrid{ grid-template-columns: 1fr; }
+        .storeTop{ grid-template-columns: 1fr; gap:8px; }
+        .kebabMenu{ max-width:92vw; right:0; }
+      }
+
+
+    :root{
+      --bg:#0a0f0a; --grid:#142714; --g:#79ff79; --g-weak:#36c436; --g-deep:#1c7a1c;
+      --scan:rgba(121,255,121,.06);
+      --glow:0 0 10px rgba(121,255,121,.5),0 0 18px rgba(121,255,121,.25);
+      --btn-bg:#0a140a; --btn-bg-hover:#0f1d0f;
+      --text-soft:#b6ffb6; --text-hover:#d4f77c;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; background:radial-gradient(1100px 700px at 50% 50%, #0b160b 0%, var(--bg) 60%);
+      color:var(--g); font-family: ui-monospace, Menlo, Consolas, monospace; letter-spacing:.2px; font-size:16px;
+    }
+    .app{position:relative; height:100%; display:grid; grid-template-columns: 1.15fr .85fr; gap:2px}
+    .panel{
+      position:relative; padding:18px 16px;
+      background:
+        linear-gradient(0deg, transparent 23px, var(--grid) 24px),
+        linear-gradient(90deg, transparent 23px, var(--grid) 24px);
+      background-size:24px 24px;
+      border:1px solid var(--g-deep);
+      box-shadow:inset 0 0 0 2px rgba(28,122,28,.2);
+    }
+    .app.crt::after{
+      content:""; position:absolute; inset:0;
+      background:repeating-linear-gradient(0deg,var(--scan) 0 2px, transparent 2px 4px);
+      mix-blend-mode:screen; pointer-events:none;
+      animation:scan 6s linear infinite, flicker 2.8s steps(60) infinite;
+    }
+    @keyframes scan{0%{opacity:.25}50%{opacity:.18}100%{opacity:.25}}
+    @keyframes flicker{50%{filter:brightness(1.04)}}
+
+    .h1{font-size:20px; margin:0 0 2px; text-shadow:var(--glow); font-weight:800}
+    .sub{color:var(--g-weak); margin:0 0 12px; font-size:14px}
+    .date{font-size:12px; color:#a6ffa6; margin-bottom:10px}
+
+    .inputRow{display:flex; gap:10px; margin:10px 0 12px}
+    .input{
+      flex:1; padding:12px 12px; border:2px solid var(--g-deep); background:#0a130a; color:var(--g);
+      box-shadow:inset 0 0 0 2px rgba(28,122,28,.18); font-size:15px
+    }
+    .btn{
+      padding:12px 14px; border:2px solid var(--g); background:var(--btn-bg); color:var(--text-soft);
+      font-weight:800; cursor:pointer; box-shadow:var(--glow); line-height:1; min-width:68px; text-align:center
+    }
+    .btn:hover,.btn:focus{background:var(--btn-bg-hover); color:var(--text-hover); outline:none}
+
+    .list{display:flex; flex-direction:column; gap:10px; min-height:140px}
+    .card{
+      border:2px solid var(--g-deep); background:rgba(0,0,0,.08); padding:10px 12px;
+      display:grid; grid-template-columns:auto 1fr auto; gap:10px; align-items:center;
+      box-shadow:inset 0 0 0 2px rgba(28,122,28,.15);
+    }
+    .badge{font-size:12px; padding:3px 8px; border:2px solid var(--g-deep)}
+    .title{overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:15px}
+    .row{display:flex; gap:8px; align-items:center}
+    .iconbtn{
+      border:2px solid var(--g-deep); padding:7px 9px; cursor:pointer; background:#0b130b; color:var(--text-soft);
+      transition:transform .02s, background .15s
+    }
+    .iconbtn:hover{background:#122012}
+    .iconbtn:active{transform:translateY(1px)}
+    .done .title{text-decoration:line-through; opacity:.75}
+    .done{border-color:var(--g)}
+
+    .rightGrid{display:grid; grid-template-rows:auto auto 1fr auto; gap:14px; height:100%}
+    .box{
+      border:2px solid var(--g-deep); padding:12px; box-shadow:inset 0 0 0 2px rgba(29,122,29,.18);
+    }
+    .statTop{display:flex; justify-content:space-between; gap:10px; align-items:center; margin-bottom:8px}
+    .kebab{position:relative; z-index:5000}
+    .kebabBtn{
+      border:2px solid var(--g-deep); background:#0b130b; color:var(--text-soft);
+      padding:8px 10px; cursor:pointer; font-weight:800;
+    }
+    .kebabBtn:hover{background:#122012}
+    .kebabMenu{
+      position:absolute; right:0; top:40px; min-width:190px; display:none;
+      background:#0a130a; border:2px solid var(--g-deep); box-shadow:var(--glow); z-index:6000;
+    }
+    .kebabMenu.show{display:block}
+    .kebabMenu button{
+      width:100%; text-align:left; padding:10px 12px; background:transparent; border:0; color:var(--text-soft); cursor:pointer;
+    }
+    .kebabMenu button:hover{background:#122012; color:var(--text-hover)}
+
+    .small{font-size:12px; color:var(--g-weak)}
+    .statGrid{display:grid; grid-template-columns:repeat(3,1fr); gap:10px}
+    .slab{display:grid; place-items:center; min-height:62px; font-weight:800; font-size:15px}
+
+    .bars{display:grid; gap:10px}
+    .bar{position:relative; border:2px solid var(--g-deep); height:26px; box-shadow:inset 0 0 0 2px rgba(29,122,29,.18)}
+    .bar>span{position:absolute; inset:0 auto 0 0; width:0; background:linear-gradient(90deg, rgba(121,255,121,.55), rgba(121,255,121,.9))}
+    .barlabel{position:absolute; inset:0; display:flex; justify-content:space-between; align-items:center; padding:0 10px; font-weight:800}
+
+    .storeTop{display:grid; grid-template-columns:1fr auto auto; gap:10px; align-items:center; margin-bottom:8px}
+    .storeTop .input{padding:10px}
+    .storeGrid{display:grid; grid-template-columns:repeat(3,1fr); gap:10px}
+    .storeItem{border:2px solid var(--g-deep); padding:10px; display:grid; gap:10px; text-align:center;
+      box-shadow:inset 0 0 0 2px rgba(29,122,29,.18)}
+    .storeItem .name{font-weight:800}
+    .storeItem .cost{font-weight:800}
+    .miniRow{display:flex; gap:6px; justify-content:center}
+    .mini{border:2px solid var(--g-deep); background:#0b130b; color:var(--text-soft); padding:6px 8px; cursor:pointer; font-size:12px}
+    .mini:hover{background:#122012}
+    .storeItem .buy{border:2px solid var(--g); padding:8px 10px; cursor:pointer; background:var(--btn-bg); color:var(--text-soft); font-weight:800}
+    .storeItem .buy:hover{background:var(--btn-bg-hover); color:var(--text-hover)}
+
+    .flash{animation:flash .6s ease}
+    @keyframes flash{0%{box-shadow:0 0 0 0 rgba(121,255,121,0)}60%{box-shadow:0 0 18px 6px rgba(121,255,121,.35)}100%{box-shadow:0 0 0 0 rgba(121,255,121,0)}}
+
+    /* 회고 모달 */
+    .modal{position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,.45)}
+    .modal.show{display:flex}
+    .modalCard{width:min(520px,92%); background:#091109; color:var(--g); border:2px solid var(--g-deep); box-shadow:var(--glow); padding:16px; display:grid; gap:12px}
+    .modalCard textarea,.modalCard input{width:100%; padding:10px; border:2px solid var(--g-deep); background:rgba(0,0,0,.15); color:var(--g)}
+    .modalBtns{display:flex; gap:8px; justify-content:flex-end}
+
+    /* 오른쪽 하단 토스트 */
+    .toast{
+      position:fixed; right:22px; bottom:22px; z-index:7000;
+      display:none; min-width:320px;
+      background:#091109; color:var(--g);
+      border:2px solid var(--g-deep); box-shadow:var(--glow);
+      padding:14px 16px;
+    }
+    .toast.show{ display:block; animation:toastIn .18s ease }
+    .toast .tmsg{ font-weight:800; margin-bottom:6px }
+    .toast .tdesc{ font-size:13px; color:var(--text-soft); margin-bottom:10px }
+    .toast .tbtns{ display:flex; gap:8px; justify-content:flex-end }
+    @keyframes toastIn{ from{ transform:translateY(6px); opacity:0 } to{ transform:translateY(0); opacity:1 } }
+
+    /* 초기화 축하 오버레이 */
+    #seasonOverlay{
+      position:fixed; inset:0; display:none; align-items:center; justify-content:center;
+      background:radial-gradient(ellipse at center, rgba(160,255,160,.15), rgba(0,0,0,.7) 70%);
+      z-index:9999; pointer-events:none;
+    }
+    #seasonOverlay.show{display:flex; animation:fadeOut 1.8s ease forwards 1.2s}
+    #seasonOverlay .msg{
+      color:#d6ffd6; font-size:28px; font-weight:900; letter-spacing:.6px; text-shadow:var(--glow);
+      animation:punch .6s ease;
+    }
+    @keyframes punch{0%{transform:scale(.7); opacity:.0}60%{transform:scale(1.1); opacity:1}100%{transform:scale(1)}}
+    @keyframes fadeOut{to{opacity:0}}
+
+    /* 파티클 */
+    .particle{
+      position:fixed; width:6px; height:6px; border:2px solid #9bff9b; border-radius:50%;
+      box-shadow:0 0 8px rgba(155,255,155,.7); z-index:9999; pointer-events:none;
+      animation:fall 1.6s ease-in forwards;
+    }
+    @keyframes fall{0%{transform:translateY(-20px) scale(1); opacity:1}100%{transform:translateY(90vh) scale(.7); opacity:0}}
+
+    @media(max-width:980px){
+      .app{grid-template-columns:1fr}
+      .storeGrid{grid-template-columns:1fr 1fr}
+    }
+  </style>
 </head>
 <body>
-<div id="gameWrap"><canvas id="game"></canvas></div>
-
-<!-- 상단 카피 -->
-<div class="hero">
-  <h1>매일의 목표를 시각적으로 기록하고 성장하세요.</h1>
-  <p>하루의 루틴과 성취를 한눈에 관리할 수 있는 생산성 앱.<br>
-  웹과 Windows 어디서든 이어서 사용할 수 있습니다.</p>
+<!-- Electron Drag Bar -->
+<div id="electronDragBar">
+  <span>⋮⋮⋮ Drag to move</span>
+  <button id="electronMenuBtn" title="Menu">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+  <button id="electronCloseBtn" title="Close">×</button>
 </div>
 
-<!-- HP 바 -->
-<div class="hp-bar-wrap" id="hpWrap" style="display:none">
-  <div class="label">🎯 타겟을 파괴하세요!</div>
-  <div class="hp-bar">
-    <div class="hp-fill" id="hpFill"></div>
-    <div class="hp-text" id="hpText">100 / 100</div>
+<!-- Electron Menu Dropdown -->
+<div id="electronMenu">
+  <button id="menuViewRetros">회고록 보기</button>
+  <button id="menuGiveUpToday">퀘스트 초기화</button>
+  <button id="menuResetLevel">레벨 초기화</button>
+  <div class="menu-separator"></div>
+  <button id="menuToggleLock">🔒 Lock (Always on Top)</button>
+  <div class="menu-submenu">
+    <button>창 크기 조절 ◂</button>
+    <div class="menu-submenu-content">
+      <button id="menuSizeSmall">Small (350 × 500)</button>
+      <button id="menuSizeMedium">Medium (400 × 600)</button>
+      <button id="menuSizeLarge">Large (500 × 800)</button>
+      <button id="menuSizeXL">Extra Large (600 × 900)</button>
+    </div>
+  </div>
+  <div class="menu-separator"></div>
+  <button id="menuLogout">로그아웃</button>
+</div>
+
+<!-- First-time tooltip -->
+<div id="electronTooltip">
+  <div class="tooltip-title">💡 사용 가이드</div>
+  <div class="tooltip-text">
+    • 상단 바를 드래그하여 이동<br>
+    • <strong>☰ 메뉴</strong>에서 모든 설정 가능<br>
+    • 창 크기 조절, 잠금/해제 등
+  </div>
+  <button id="tooltipGotIt">확인했습니다</button>
+</div>
+
+<script>
+// Electron detection and menu setup
+(function(){
+  const isElectron = navigator.userAgent.toLowerCase().includes('electron');
+  if(!isElectron) return;
+
+  const dragBar = document.getElementById('electronDragBar');
+  const menuBtn = document.getElementById('electronMenuBtn');
+  const closeBtn = document.getElementById('electronCloseBtn');
+  const menu = document.getElementById('electronMenu');
+  const tooltip = document.getElementById('electronTooltip');
+  const tooltipBtn = document.getElementById('tooltipGotIt');
+
+  let isLocked = true; // Always on top by default
+
+  if(dragBar) dragBar.classList.add('show');
+
+  // Show first-time tooltip
+  const hasSeenTooltip = localStorage.getItem('toppingxp_tooltip_seen');
+  if(!hasSeenTooltip && tooltip){
+    setTimeout(() => {
+      tooltip.classList.add('show');
+    }, 1000);
+  }
+
+  // Hide tooltip
+  if(tooltipBtn){
+    tooltipBtn.onclick = () => {
+      tooltip.classList.remove('show');
+      localStorage.setItem('toppingxp_tooltip_seen', 'true');
+    };
+  }
+
+  // Close button
+  if(closeBtn){
+    closeBtn.onclick = (e) => {
+      e.stopPropagation();
+      if(window.electronAPI) window.electronAPI.closeWindow();
+    };
+  }
+
+  // Hamburger menu toggle
+  if(menuBtn){
+    menuBtn.onclick = (e) => {
+      e.stopPropagation();
+      menu.classList.toggle('show');
+    };
+  }
+
+  // Close menu when clicking outside
+  document.addEventListener('click', (e) => {
+    if(menu && !menu.contains(e.target) && e.target !== menuBtn){
+      menu.classList.remove('show');
+    }
+  });
+
+  // Close menu on ESC
+  document.addEventListener('keydown', (e) => {
+    if(e.key === 'Escape' && menu.classList.contains('show')){
+      menu.classList.remove('show');
+    }
+  });
+
+  // Menu actions - connect to existing functions
+  const menuViewRetros = document.getElementById('menuViewRetros');
+  const menuGiveUpToday = document.getElementById('menuGiveUpToday');
+  const menuResetLevel = document.getElementById('menuResetLevel');
+  const menuToggleLock = document.getElementById('menuToggleLock');
+  const menuLogout = document.getElementById('menuLogout');
+  const menuSizeSmall = document.getElementById('menuSizeSmall');
+  const menuSizeMedium = document.getElementById('menuSizeMedium');
+  const menuSizeLarge = document.getElementById('menuSizeLarge');
+  const menuSizeXL = document.getElementById('menuSizeXL');
+
+  // Wait for page to load, then connect to existing functions
+  window.addEventListener('load', () => {
+    if(menuViewRetros){
+      menuViewRetros.onclick = () => {
+        menu.classList.remove('show');
+        if(window.openRetroList) window.openRetroList();
+      };
+    }
+
+    if(menuGiveUpToday){
+      menuGiveUpToday.onclick = () => {
+        menu.classList.remove('show');
+        if(window.resetToday) window.resetToday();
+      };
+    }
+
+    if(menuResetLevel){
+      menuResetLevel.onclick = () => {
+        menu.classList.remove('show');
+        if(window.resetLevel) window.resetLevel();
+      };
+    }
+
+    if(menuLogout){
+      menuLogout.onclick = () => {
+        menu.classList.remove('show');
+        if(window.doLogout) window.doLogout();
+      };
+    }
+  });
+
+  // Lock/Unlock toggle
+  if(menuToggleLock){
+    menuToggleLock.onclick = () => {
+      isLocked = !isLocked;
+      menuToggleLock.textContent = isLocked ? '🔒 Lock (Always on Top)' : '🔓 Unlock (Disable Always on Top)';
+      if(window.electronAPI && window.electronAPI.setAlwaysOnTop){
+        window.electronAPI.setAlwaysOnTop(isLocked);
+      }
+    };
+  }
+
+  // Window size controls
+  if(menuSizeSmall){
+    menuSizeSmall.onclick = () => {
+      menu.classList.remove('show');
+      if(window.electronAPI && window.electronAPI.setWindowSize){
+        window.electronAPI.setWindowSize(350, 500);
+      }
+    };
+  }
+  if(menuSizeMedium){
+    menuSizeMedium.onclick = () => {
+      menu.classList.remove('show');
+      if(window.electronAPI && window.electronAPI.setWindowSize){
+        window.electronAPI.setWindowSize(400, 600);
+      }
+    };
+  }
+  if(menuSizeLarge){
+    menuSizeLarge.onclick = () => {
+      menu.classList.remove('show');
+      if(window.electronAPI && window.electronAPI.setWindowSize){
+        window.electronAPI.setWindowSize(500, 800);
+      }
+    };
+  }
+  if(menuSizeXL){
+    menuSizeXL.onclick = () => {
+      menu.classList.remove('show');
+      if(window.electronAPI && window.electronAPI.setWindowSize){
+        window.electronAPI.setWindowSize(600, 900);
+      }
+    };
+  }
+})();
+</script>
+
+<div class="app crt" id="app">
+  <div id="seasonOverlay"><div class="msg">새 시즌이 시작되었습니다!</div></div>
+
+  <!-- LEFT -->
+  <section class="panel">
+    <div class="h1">Quests</div>
+    <div class="date" id="today"></div>
+    <div class="sub" id="greet"></div>
+
+    <p class="sub">한 줄 퀘스트 입력 후 <b>Enter</b> 또는 <b>추가</b> 버튼으로 등록. 완료할 때마다 오른쪽에 안내가 뜹니다.</p>
+
+    <div class="inputRow">
+      <input id="input" class="input" placeholder="예) 고객 인터뷰 일정 확정 메일 보내기" />
+      <button id="add" class="btn">추가</button>
+    </div>
+
+    <div id="list" class="list" aria-live="polite"></div>
+  </section>
+
+  <!-- RIGHT -->
+  <section class="panel">
+    <div class="h1">Status</div>
+
+    <div class="rightGrid">
+      <div class="box">
+        <div class="statTop">
+          <div class="small">진행 현황</div>
+          <div class="kebab" id="kebab">
+            <button class="kebabBtn" id="kebabBtn" aria-haspopup="true" aria-expanded="false">⋯</button>
+            <div class="kebabMenu" id="kebabMenu" role="menu">
+              <button id="viewRetros" role="menuitem">회고록 보기</button>
+              <button id="giveUpToday" role="menuitem">퀘스트 초기화</button>
+              <button id="resetLevel"  role="menuitem">레벨 초기화</button>
+              <button id="logout"      role="menuitem">로그아웃</button>
+            </div>
+          </div>
+        </div>
+        <div class="statGrid">
+          <div class="slab"><div>LEVEL&nbsp;<span id="level">1</span></div></div>
+          <div class="slab"><div>XP&nbsp;<span id="xp">0</span>/100</div></div>
+          <div class="slab"><div>COINS&nbsp;<span id="coins">0</span></div></div>
+        </div>
+      </div>
+
+      <div class="box">
+        <div class="bars">
+          <div class="bar"><span id="xpbar"></span><div class="barlabel"><span>XP</span><span id="xpPct">0%</span></div></div>
+          <div class="bar"><span id="dailybar"></span><div class="barlabel"><span>DAILY</span><span id="dailyPct">0%</span></div></div>
+        </div>
+        <div class="small" id="streak" style="margin-top:6px">Streak 0 day</div>
+      </div>
+
+      <div class="box" id="logbox">
+        <div class="h1" style="font-size:18px">Activity Log</div>
+        <div class="small" id="log">아직 기록 없음</div>
+      </div>
+
+      <div class="box">
+        <div class="h1" style="font-size:18px">Reward Store</div>
+        <div class="storeTop">
+          <input id="rewardName" class="input" placeholder="리워드 이름 (예: 산책 20분)" />
+          <input id="rewardCost" class="input" inputmode="numeric" placeholder="코인" style="max-width:120px" />
+          <button id="rewardAdd" class="btn">추가</button>
+        </div>
+        <div class="storeGrid" id="store"></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- Retrospect Modal -->
+<div class="modal" id="retroModal" role="dialog" aria-modal="true" aria-labelledby="retroTitle">
+  <div class="modalCard">
+    <div class="h1" id="retroTitle">오늘의 회고</div>
+    <input id="rDone" placeholder="✅ 오늘 끝낸 일 한 줄" />
+    <textarea id="rFeel" rows="3" placeholder="💭 느낀 점"></textarea>
+    <input id="rNext" placeholder="🔁 내일 이어갈 포인트" />
+    <div class="modalBtns">
+      <button id="rCancel" class="btn">나중에</button>
+      <button id="rSave" class="btn">저장</button>
+    </div>
   </div>
 </div>
 
-<!-- 폭발 -->
-<div id="explosion"><div class="msg">💥 DESTROYED!</div></div>
-
-<!-- 상단 우측 메뉴 -->
-<div class="nav">
-  <a href="download.html">Download</a>
-  <button id="musicBtn">🎵</button>
+<!-- Retrospect List Modal -->
+<div class="modal" id="retroListModal" role="dialog" aria-modal="true" aria-labelledby="retroListTitle">
+  <div class="modalCard" style="max-width: 700px; max-height: 80vh; overflow-y: auto;">
+    <div class="h1" id="retroListTitle">회고록</div>
+    <div id="retroListContent" style="margin-top: 16px;">
+      <div class="small" style="text-align: center; padding: 20px;">로딩 중...</div>
+    </div>
+    <div class="modalBtns">
+      <button id="retroListWrite" class="btn">회고록 작성</button>
+      <button id="retroListClose" class="btn">닫기</button>
+    </div>
+  </div>
 </div>
 
-<!-- 하단 액션 버튼 -->
-<div class="actions">
-  <button class="btn" id="startBtn">바로 시작하기</button>
+<!-- Retrospect Detail Modal -->
+<div class="modal" id="retroDetailModal" role="dialog" aria-modal="true" aria-labelledby="retroDetailTitle">
+  <div class="modalCard" style="max-width: 600px;">
+    <div class="h1" id="retroDetailTitle">회고 상세</div>
+    <div id="retroDetailDate" style="color: var(--g-weak); font-size: 14px; margin-top: 8px; margin-bottom: 16px;"></div>
+    <div id="retroDetailContent" style="margin-top: 16px;"></div>
+    <div class="modalBtns">
+      <button id="retroDetailClose" class="btn">닫기</button>
+    </div>
+  </div>
 </div>
 
-<div class="hint">←/→ 이동 · ↑ 등 보이기 · ↓ 정면 보기 · Space 발사</div>
+<!-- Right-bottom toast -->
+<div id="retroToast" class="toast" role="status" aria-live="polite">
+  <div class="tmsg" id="toastTitle">완료했습니다!</div>
+  <div class="tdesc">회고록을 여시겠어요?</div>
+  <div class="tbtns">
+    <button id="tLater" class="btn">나중에</button>
+    <button id="tOpen"  class="btn">열기</button>
+  </div>
+</div>
 
-<!-- 배경 음악 -->
-<audio id="bgm" src="https://mgpxqmqvlbjfywbbsiwt.supabase.co/storage/v1/object/public/music/toppingxp.mp3" loop></audio>
-
-<script>
-/* ===== 배경 음악 토글 ===== */
-const music = document.getElementById('bgm');
-const musicBtn = document.getElementById('musicBtn');
-let playing = false;
-musicBtn.onclick = ()=>{
-  if(!playing){ music.play(); musicBtn.textContent="⏸"; playing=true; }
-  else{ music.pause(); musicBtn.textContent="🎵"; playing=false; }
-};
-</script>
-
-<script>
-/* ===== 버튼 로직 ===== */
-const startBtn = document.getElementById('startBtn');
-const hpWrap = document.getElementById('hpWrap');
-
-// 이미 로그인되어 있으면 앱으로
-(async function guard(){
-  const {data:{user}}=await sb.auth.getUser();
-  if(user) location.href="app.html";
-})();
-
-startBtn.onclick = () => location.href="login.html";
-
-// 페이지 로드 시 자동으로 게임 시작
-setTimeout(() => {
-  hpWrap.style.display = 'block';
-  gameActive = true;
-  spawnTarget();
-}, 500);
-</script>
+<!-- Reward Toast -->
+<div id="buyToast" class="toast" role="status" aria-live="polite" style="bottom:92px">
+  <div class="tmsg">보상 구매 완료!</div>
+  <div class="small">즐기세요!</div>
+</div>
 
 <script>
-/* ========== 배경/캐릭터 미니게임 ========== */
 
-const BG_URL = "images/background_landing.png";
 
-const SPRITES = {
-  stopRight: "https://mgpxqmqvlbjfywbbsiwt.supabase.co/storage/v1/object/public/images/stop-right.png",
-  right:     "https://mgpxqmqvlbjfywbbsiwt.supabase.co/storage/v1/object/public/images/right.png",
-  center:    "https://mgpxqmqvlbjfywbbsiwt.supabase.co/storage/v1/object/public/images/center.png",
-  back:      "https://mgpxqmqvlbjfywbbsiwt.supabase.co/storage/v1/object/public/images/back.png",
-  attack:    "https://mgpxqmqvlbjfywbbsiwt.supabase.co/storage/v1/object/public/images/attack.png",
-  fireSmall: "https://mgpxqmqvlbjfywbbsiwt.supabase.co/storage/v1/object/public/images/small-fire.png",
-  fireBig:   "https://mgpxqmqvlbjfywbbsiwt.supabase.co/storage/v1/object/public/images/fire.png"
-};
-const EVERY_N_BIG = 3;
+/* ===== 1) 유틸/상태/엘리먼트 ===== */
+const todayKey = () => new Date().toISOString().slice(0,10);
+const $ = id => document.getElementById(id);
 
-const canvas=document.getElementById('game'), ctx=canvas.getContext('2d',{alpha:false});
-let W=innerWidth,H=innerHeight; canvas.width=W; canvas.height=H;
-addEventListener('resize',()=>{W=innerWidth;H=innerHeight;canvas.width=W;canvas.height=H; rebuildTile();});
-ctx.imageSmoothingEnabled=false;
+const defaults = [
+  { name:'핸드드립 커피 1잔', cost:80 },
+  { name:'영상 30분 감상',   cost:60 },
+  { name:'산책 20분',       cost:40 },
+  { name:'게임 30분',       cost:90 },
+  { name:'책 구입 1만원',   cost:500 },
+  { name:'맛있는 간식',     cost:120 }
+];
 
-const BG = new Image(); BG.decoding="async"; BG.src=BG_URL;
-const BOX_IMG = new Image(); BOX_IMG.decoding="async"; BOX_IMG.src="images/box.png";
-function loadImage(url){const img=new Image(); img.decoding="async"; img.src=url; return img;}
-const IMGS={
-  stopRight: loadImage(SPRITES.stopRight),
-  right:     loadImage(SPRITES.right),
-  center:    loadImage(SPRITES.center),
-  back:      loadImage(SPRITES.back),
-  attack:    loadImage(SPRITES.attack),
-  fireSmall: loadImage(SPRITES.fireSmall),
-  fireBig:   loadImage(SPRITES.fireBig)
+const state = {
+  user:null,
+  profileName:null,
+  meta:{ xp:0, level:1, coins:0, streak:0, lastClear:null, selected:null, stats:{} },
+  quests:[],
+  rewards:[],
+  retro:{}
 };
 
-let bgScale=1, floorY=H-60, camX=0;
-let tileCan=null, tileCtx=null, tileW=0, tileH=0, bgPattern=null;
+const els = {
+  today:$('today'), greet:$('greet'),
+  list:$('list'), input:$('input'), add:$('add'),
+  xp:$('xp'), level:$('level'), coins:$('coins'),
+  xpbar:$('xpbar'), xpPct:$('xpPct'), dailybar:$('dailybar'), dailyPct:$('dailyPct'),
+  log:$('log'), logbox:$('logbox'), streak:$('streak'),
+  store:$('store'),
+  modal:$('retroModal'), rDone:$('rDone'), rFeel:$('rFeel'), rNext:$('rNext'),
+  rSave:$('rSave'), rCancel:$('rCancel'),
+  rewardName:$('rewardName'), rewardCost:$('rewardCost'), rewardAdd:$('rewardAdd'),
+  kebab:document.getElementById('kebab'), kebabBtn:$('kebabBtn'), kebabMenu:$('kebabMenu'),
+  giveUpToday:$('giveUpToday'), resetLevel:$('resetLevel'), logout:$('logout'), viewRetros:$('viewRetros'),
+  overlay:$('seasonOverlay'),
+  retroToast:$('retroToast'), toastTitle:$('toastTitle'), tOpen:$('tOpen'), tLater:$('tLater'),
+  buyToast:$('buyToast'),
+  retroListModal:$('retroListModal'), retroListContent:$('retroListContent'),
+  retroListClose:$('retroListClose'), retroListWrite:$('retroListWrite'),
+  retroDetailModal:$('retroDetailModal'), retroDetailTitle:$('retroDetailTitle'),
+  retroDetailDate:$('retroDetailDate'), retroDetailContent:$('retroDetailContent'), retroDetailClose:$('retroDetailClose')
+};
 
-function placeOnFloor(){ player.y = floorY - player.h; }
-
-function rebuildTile(){
-  if(!BG.complete) return;
-  bgScale = H / BG.naturalHeight;
-  tileW = Math.ceil(BG.naturalWidth * bgScale);
-  tileH = Math.ceil(BG.naturalHeight * bgScale);
-  tileCan = document.createElement('canvas');
-  tileCan.width  = tileW + 2;
-  tileCan.height = tileH;
-  tileCtx = tileCan.getContext('2d',{alpha:false});
-  tileCtx.imageSmoothingEnabled=false;
-  tileCtx.drawImage(BG, 0, 0, tileW + 1, tileH);
-  bgPattern = ctx.createPattern(tileCan,'repeat-x');
-  const groundStrip = Math.round(tileH * 0.14);
-  floorY = H - groundStrip - 4;
-  placeOnFloor();
+function blip(freq=880,ms=120){
+  try{
+    const ac=new (window.AudioContext||window.webkitAudioContext)();
+    const o=ac.createOscillator(), g=ac.createGain();
+    o.type='square'; o.frequency.value=freq; o.connect(g); g.connect(ac.destination);
+    o.start(); g.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime+ms/1000); setTimeout(()=>ac.close(),ms+80);
+  }catch{}
 }
-BG.onload = () => rebuildTile();
-
-function drawBGPattern(g){
-  if(!bgPattern) return;
-  g.save();
-  g.setTransform(1,0,0,1,0,0);
-  g.imageSmoothingEnabled=false;
-  const raw = camX * bgScale;
-  const off = ((raw % tileW) + tileW) % tileW;
-  g.translate(-Math.round(off), 0);
-  g.fillStyle = bgPattern;
-  g.fillRect(-tileW - 4, 0, W + tileW*3 + 8, H);
-  g.restore();
+function log(msg){
+  const now=new Date();
+  const line=`[${now.toTimeString().slice(0,5)}] ${msg}`;
+  const prev=els.log.textContent==='아직 기록 없음' ? '' : els.log.textContent+' ';
+  els.log.textContent=prev+line;
+  els.logbox.classList.add('flash'); setTimeout(()=>els.logbox.classList.remove('flash'),600);
 }
 
-const player={
-  x: W*0.52, y: H-128, w: 96, h: 96,
-  vx:0, speed: 170,
-  dir: 1,
-  attacking:0,
-  pose: "side",
-  animIndex:0, animTimer:0
-};
-placeOnFloor();
+/* ===== 2) 인증 → 로드 ===== */
+async function ensureAuthAndLoad(){
+  const { data:{ user } } = await sb.auth.getUser();
+  if(!user){ location.href='login.html'; return; }
+  state.user=user;
 
-const keys={left:false,right:false, space:false};
-addEventListener('keydown',e=>{
-  const tag = document.activeElement.tagName;
-  const typing = tag==='INPUT' || tag==='TEXTAREA';
+  // 닉네임: profiles.display_name → user_metadata.display_name → email prefix
+  const { data:prof } = await sb.from('profiles').select('display_name').eq('id', user.id).maybeSingle();
+  const nickname = prof?.display_name || user.user_metadata?.display_name || (user.email? user.email.split('@')[0] : '사용자');
+  state.profileName = nickname;
+  els.greet.textContent = `${nickname}님 안녕하세요 오늘도 즐거운 레벨업 되세요 :)`;
 
-  if(e.key===' '){
-    if(!typing){ e.preventDefault(); keys.space=true; }
+  // 메타
+  let { data:meta } = await sb.from('meta').select('*').eq('user_id', user.id).maybeSingle();
+  if(!meta){
+    await sb.from('meta').insert({ user_id:user.id, xp:0, level:1, coins:0, streak:0, last_clear:null });
+    meta = { xp:0, level:1, coins:0, streak:0, last_clear:null };
   }
-  if(['ArrowLeft','a','A'].includes(e.key) && !typing) keys.left=true;
-  if(['ArrowRight','d','D'].includes(e.key) && !typing) keys.right=true;
+  state.meta.xp = meta.xp||0;
+  state.meta.level = meta.level||1;
+  state.meta.coins = meta.coins||0;
+  state.meta.streak = meta.streak||0;
+  state.meta.lastClear = meta.last_clear;
+  state.meta.stats[todayKey()] ||= { total:0, done:0 };
 
-  if(e.key==='ArrowUp' && !typing){
-    player.pose='back'; player.attacking=0;
+  await Promise.all([loadTodayQuests(), loadRewards()]);
+  render();
+}
+async function saveMeta(){
+  await sb.from('meta').upsert({
+    user_id:state.user.id,
+    xp:state.meta.xp, level:state.meta.level,
+    coins:state.meta.coins, streak:state.meta.streak,
+    last_clear:state.meta.lastClear
+  });
+}
+
+/* ===== 3) DB CRUD ===== */
+async function loadTodayQuests(){
+  const { data, error } = await sb.from('quests')
+    .select('*').eq('user_id', state.user.id).eq('date', todayKey())
+    .order('created_at', { ascending:false });
+  if(error){ console.error(error); return; }
+  state.quests = data||[];
+  state.meta.stats[todayKey()] = {
+    total: state.quests.length,
+    done: state.quests.filter(q=>q.done).length
+  };
+}
+async function addQuestDB(text){
+  const { data, error } = await sb.from('quests')
+    .insert({ user_id:state.user.id, text, date:todayKey(), doing:false, done:false, rewarded:false })
+    .select().single();
+  if(error){ console.error(error); return null; }
+  return data;
+}
+async function updateQuestDB(id, patch){
+  const { error } = await sb.from('quests').update(patch).eq('id', id);
+  if(error) console.error(error);
+}
+async function deleteQuestDB(id){
+  const { error } = await sb.from('quests').delete().eq('id', id);
+  if(error) console.error(error);
+}
+
+async function loadRewards(){
+  const { data, error } = await sb.from('rewards').select('*').eq('user_id', state.user.id).order('created_at',{ascending:false});
+  if(error){ console.error(error); return; }
+  state.rewards = data||[];
+  if(!state.rewards.length){
+    const rows = defaults.map(d=>({ user_id:state.user.id, name:d.name, cost:d.cost }));
+    await sb.from('rewards').insert(rows);
+    const { data:newRows } = await sb.from('rewards').select('*').eq('user_id', state.user.id).order('created_at',{ascending:false});
+    state.rewards = newRows||[];
   }
-  if(e.key==='ArrowDown' && !typing){
-    player.pose='front'; player.attacking=0;
+}
+async function addRewardDB(name, cost){
+  const { data, error } = await sb.from('rewards').insert({ user_id:state.user.id, name, cost:Math.floor(cost) }).select().single();
+  if(error){ console.error(error); return null; }
+  return data;
+}
+async function updateRewardDB(id, patch){
+  const { error } = await sb.from('rewards').update(patch).eq('id', id);
+  if(error) console.error(error);
+}
+async function deleteRewardDB(id){
+  const { error } = await sb.from('rewards').delete().eq('id', id);
+  if(error) console.error(error);
+}
+async function insertRetro(done, feel, next){
+  const { error } = await sb.from('retros').insert({ user_id:state.user.id, done, feel, next });
+  if(error) console.error(error);
+}
+async function loadAllRetros(){
+  const { data, error } = await sb.from('retros')
+    .select('*')
+    .eq('user_id', state.user.id)
+    .order('created_at', { ascending: false });
+  if(error){ console.error(error); return []; }
+  return data || [];
+}
+async function deleteRetroDB(id){
+  const { error } = await sb.from('retros').delete().eq('id', id);
+  if(error){ console.error(error); return false; }
+  return true;
+}
+
+/* ===== 4) 비즈 로직 ===== */
+function gainXP(n=10){
+  const before = state.meta.xp % 100;
+  state.meta.xp += n; state.meta.coins += n;
+  if((state.meta.xp % 100) < before){ state.meta.level += 1; log(`Level Up! → ${state.meta.level}`); blip(1200,150); }
+  else blip(980,110);
+  saveMeta();
+}
+function showRetroToast(message){
+  els.toastTitle.textContent = message || '완료했습니다!';
+  els.retroToast.classList.add('show');
+}
+function hideRetroToast(){ els.retroToast.classList.remove('show'); }
+
+/* 퀘스트 */
+async function addQuest(text){
+  const t=text.trim(); if(!t) return;
+  const row = await addQuestDB(t); if(!row) return;
+  state.quests.unshift(row);
+  state.meta.stats[todayKey()].total++;
+  state.meta.selected = row.id;
+  log(`Added: ${t}`); render();
+}
+async function toggleDone(q){
+  if(q.done){
+    q.done=false; await updateQuestDB(q.id,{done:false,doing:false}); log(`Reopened: ${q.text}`);
+  }else{
+    q.done=true; q.doing=false;
+    const patch={done:true,doing:false};
+    if(!q.rewarded){ q.rewarded=true; patch.rewarded=true; gainXP(10); }
+    await updateQuestDB(q.id, patch);
+    log(`Completed: ${q.text} (+10 XP once)`); showRetroToast(`‘${q.text}’ 완료!`);
   }
-});
-addEventListener('keyup',e=>{
-  if(e.key===' ') keys.space=false;
-  if(['ArrowLeft','a','A'].includes(e.key)) keys.left=false;
-  if(['ArrowRight','d','D'].includes(e.key)) keys.right=false;
-
-  if(e.key==='ArrowUp' || e.key==='ArrowDown'){
-    player.pose='side';
+  const today=todayKey();
+  const items=state.quests.filter(x=>x.date===today);
+  state.meta.stats[today].done = items.filter(x=>x.done).length;
+  const allDone = items.length>0 && items.every(x=>x.done);
+  if(allDone && state.meta.lastClear!==today){
+    state.meta.streak+=1; state.meta.lastClear=today; log(`All quests cleared! Streak +1 → ${state.meta.streak}`); saveMeta();
   }
-});
+  render();
+}
 
-/* 투사체 */
-const shots=[]; let shotCount=0, lastShot=0;
-function shoot(){
-  const now=performance.now();
-  if(now-lastShot<180) return;
-  lastShot=now; shotCount++;
+/* 리워드 */
+async function addReward(name, cost){
+  const n=name.trim(), c=Number(cost);
+  if(!n || !Number.isFinite(c) || c<=0){ blip(250,160); return; }
+  const row=await addRewardDB(n,c); if(!row) return;
+  state.rewards.unshift(row); log(`Reward 추가: ${row.name} (${row.cost} 코인)`); renderStore();
+}
+function showBuyToast(){ els.buyToast.classList.add('show'); setTimeout(()=>els.buyToast.classList.remove('show'),1600); }
+async function buyReward(r){
+  if(state.meta.coins < r.cost){ log(`코인이 부족합니다 (${r.name})`); blip(220,160); return; }
+  state.meta.coins -= r.cost; await saveMeta();
+  log(`Reward 사용: ${r.name} (-${r.cost} 코인)`); blip(700,150);
+  showBuyToast(); renderStats(); renderStore();
+}
+async function editReward(r){
+  const n=prompt('리워드 이름', r.name); if(n===null) return;
+  const c=prompt('필요 코인', r.cost); if(c===null) return;
+  const cost=Number(c); if(!n.trim()||!Number.isFinite(cost)||cost<=0){ blip(250,160); return; }
+  await updateRewardDB(r.id,{name:n.trim(), cost:Math.floor(cost)});
+  r.name=n.trim(); r.cost=Math.floor(cost); log(`Reward 수정: ${r.name} (${r.cost} 코인)`); renderStore();
+}
+async function deleteReward(id){
+  await deleteRewardDB(id);
+  state.rewards = state.rewards.filter(x=>x.id!==id);
+  log('Reward 삭제 완료'); renderStore();
+}
 
-  const big = EVERY_N_BIG>0 && (shotCount % EVERY_N_BIG===0);
-  const img = big && IMGS.fireBig.complete ? IMGS.fireBig : IMGS.fireSmall;
-  const size = big ? 54 : 32;
-  const speed = big ? 530 : 430;
-  const damage = big ? 15 : 10;
+/* 회고 모달 */
+function openRetro(){
+  els.modal.classList.add('show');
+  els.rDone.value=''; els.rFeel.value=''; els.rNext.value='';
+  setTimeout(()=>els.rDone.focus(),10);
+}
+function closeRetro(){ els.modal.classList.remove('show'); }
 
-  const startX = player.dir===1 ? (player.x + player.w - 20) : (player.x + 20 - size);
-  shots.push({
-    x:startX, y: player.y + player.h*0.58 - size*0.5,
-    vx: player.dir===1 ? speed : -speed,
-    w:size, h:size, img, life: 2200, damage
+/* 회고록 목록 */
+async function openRetroList(){
+  els.retroListModal.classList.add('show');
+  els.retroListContent.innerHTML = '<div class="small" style="text-align: center; padding: 20px;">로딩 중...</div>';
+
+  const retros = await loadAllRetros();
+
+  if(!retros || retros.length === 0){
+    els.retroListContent.innerHTML = '<div class="small" style="text-align: center; padding: 20px;">아직 작성된 회고가 없습니다.</div>';
+    return;
+  }
+
+  els.retroListContent.innerHTML = '';
+  retros.forEach(r => {
+    const date = new Date(r.created_at);
+    const dateStr = date.toLocaleDateString('ko-KR', {year:'numeric', month:'2-digit', day:'2-digit', weekday:'short'});
+    const timeStr = date.toLocaleTimeString('ko-KR', {hour:'2-digit', minute:'2-digit'});
+
+    const item = document.createElement('div');
+    item.style.cssText = 'background: var(--btn-bg); border: 1px solid var(--g-deep); border-radius: 6px; padding: 12px 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: border-color 0.2s;';
+    item.onmouseenter = () => item.style.borderColor = 'var(--g)';
+    item.onmouseleave = () => item.style.borderColor = 'var(--g-deep)';
+    item.onclick = () => openRetroDetail(r);
+
+    const textArea = document.createElement('div');
+    textArea.style.cssText = 'flex: 1; min-width: 0;';
+
+    const header = document.createElement('div');
+    header.style.cssText = 'color: var(--g-weak); font-size: 13px; margin-bottom: 4px;';
+    header.textContent = `${dateStr} ${timeStr}`;
+
+    const title = document.createElement('div');
+    title.style.cssText = 'color: var(--g); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;';
+    title.textContent = r.done || '(제목 없음)';
+
+    textArea.append(header, title);
+
+    const btnArea = document.createElement('div');
+    btnArea.style.cssText = 'display: flex; gap: 8px; margin-left: 12px;';
+
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'btn';
+    deleteBtn.textContent = '삭제';
+    deleteBtn.style.cssText = 'padding: 6px 12px; font-size: 13px;';
+    deleteBtn.onclick = async (e) => {
+      e.stopPropagation();
+      if(!confirm('이 회고를 삭제하시겠습니까?')) return;
+      const success = await deleteRetroDB(r.id);
+      if(success){
+        log('회고 삭제 완료');
+        blip(500, 100);
+        openRetroList(); // 목록 새로고침
+      }
+    };
+
+    btnArea.append(deleteBtn);
+    item.append(textArea, btnArea);
+    els.retroListContent.append(item);
+  });
+}
+function closeRetroList(){ els.retroListModal.classList.remove('show'); }
+
+/* 회고록 상세보기 */
+function openRetroDetail(retro){
+  const date = new Date(retro.created_at);
+  const dateStr = date.toLocaleDateString('ko-KR', {year:'numeric', month:'2-digit', day:'2-digit', weekday:'short'});
+  const timeStr = date.toLocaleTimeString('ko-KR', {hour:'2-digit', minute:'2-digit'});
+
+  els.retroDetailDate.textContent = `${dateStr} ${timeStr}`;
+
+  els.retroDetailContent.innerHTML = '';
+
+  const done = document.createElement('div');
+  done.style.cssText = 'margin-bottom: 16px;';
+  done.innerHTML = `<strong style="color: var(--g);">✅ 끝낸 일</strong><div style="margin-top: 8px; padding: 12px; background: var(--btn-bg); border-radius: 4px; border: 1px solid var(--g-deep);">${retro.done || '(없음)'}</div>`;
+
+  const feel = document.createElement('div');
+  feel.style.cssText = 'margin-bottom: 16px;';
+  feel.innerHTML = `<strong style="color: var(--g);">💭 느낀 점</strong><div style="margin-top: 8px; padding: 12px; background: var(--btn-bg); border-radius: 4px; border: 1px solid var(--g-deep); white-space: pre-wrap;">${retro.feel || '(없음)'}</div>`;
+
+  const next = document.createElement('div');
+  next.innerHTML = `<strong style="color: var(--g);">🔁 내일 이어갈 포인트</strong><div style="margin-top: 8px; padding: 12px; background: var(--btn-bg); border-radius: 4px; border: 1px solid var(--g-deep);">${retro.next || '(없음)'}</div>`;
+
+  els.retroDetailContent.append(done, feel, next);
+  els.retroDetailModal.classList.add('show');
+}
+function closeRetroDetail(){ els.retroDetailModal.classList.remove('show'); }
+
+/* 케밥 메뉴 */
+function toggleKebab(show){
+  const willShow = typeof show==='boolean' ? show : !els.kebabMenu.classList.contains('show');
+  els.kebabMenu.classList.toggle('show', willShow);
+  els.kebabBtn.setAttribute('aria-expanded', willShow ? 'true' : 'false');
+}
+async function doLogout(){
+  try{ await sb.auth.signOut(); }catch(e){}
+  location.href='login.html';
+}
+
+/* 리셋 */
+async function resetToday(){
+  if(!confirm('오늘 퀘스트를 정말 포기하시겠습니까?')) return;
+
+  const t = todayKey();
+  const start = t+'T00:00:00.000Z';
+  const next = new Date(start); next.setUTCDate(next.getUTCDate()+1);
+  const end = next.toISOString();
+
+  await Promise.all([
+    sb.from('quests').delete().eq('user_id', state.user.id).eq('date', t),
+    sb.from('retros').delete().eq('user_id', state.user.id).gte('created_at', start).lt('created_at', end),
+  ]);
+
+  state.quests = state.quests.filter(q=>q.date!==t);
+  delete state.retro[t];
+  state.meta.stats[t] = { total:0, done:0 };
+  state.meta.selected = null;
+
+  render(); log('오늘 데이터가 초기화되었습니다.');
+  celebrateReset(false);
+  toggleKebab(false);
+}
+async function resetLevel(){
+  if(!confirm('정말 초기화하시겠습니까? (레벨/XP/코인/스트릭이 0이 됩니다)')) return;
+
+  state.meta.xp=0; state.meta.level=1; state.meta.coins=0; state.meta.streak=0; state.meta.lastClear=null;
+  await saveMeta();
+  render(); log('레벨이 초기화되었습니다.'); blip(500,200);
+  toggleKebab(false);
+}
+
+/* 초기화 축하 연출 */
+function celebrateReset(full=true){
+  try{
+    els.overlay.classList.remove('show'); void els.overlay.offsetWidth;
+    els.overlay.querySelector('.msg').textContent = full ? '새 시즌이 시작되었습니다!' : '새로운 하루가 시작되었네요! 오늘의 퀘스트를 추가해보세요!';
+    els.overlay.classList.add('show');
+    for(let i=0;i<22;i++){
+      const p=document.createElement('div'); p.className='particle';
+      const x=Math.random()*95+2; const delay=Math.random()*0.6;
+      p.style.left = x+'vw'; p.style.top='-10px'; p.style.animationDelay=delay+'s';
+      document.body.appendChild(p); setTimeout(()=>p.remove(), 2000);
+    }
+  }catch(e){}
+}
+
+/* ===== 5) 렌더링 ===== */
+function render(){
+  els.today.textContent = new Date().toLocaleDateString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit',weekday:'short'});
+  renderQuests(); renderStats(); renderStore();
+}
+function renderQuests(){
+  els.list.innerHTML='';
+  const today=todayKey();
+  const items=state.quests.filter(q=>q.date===today);
+  state.meta.stats[today] ||= { total:0, done:0 };
+  state.meta.stats[today].total = items.length;
+  state.meta.stats[today].done  = items.filter(q=>q.done).length;
+
+  items.forEach(q=>{
+    const row=document.createElement('div');
+    row.className='card'+(q.done?' done':'')+(state.meta.selected===q.id?' flash':'');
+    row.tabIndex=0;
+
+    const badge=document.createElement('div'); badge.className='badge'; badge.textContent=q.done?'DONE':(q.doing?'DOING':'TODO');
+    const title=document.createElement('div'); title.className='title'; title.textContent=q.text;
+
+    const actions=document.createElement('div'); actions.className='row';
+    const bDo=mkBtn('진행','Doing',async()=>{ q.doing=true; q.done=false; await updateQuestDB(q.id,{doing:true,done:false}); log(`Started: ${q.text}`); render(); });
+    const bDone=mkBtn('완료','Complete',()=>toggleDone(q));
+    const bDel=mkBtn('삭제','Delete',async()=>{ await deleteQuestDB(q.id); state.quests = state.quests.filter(x=>x.id!==q.id); log(`Deleted: ${q.text}`); render(); });
+    actions.append(bDo,bDone,bDel);
+
+    row.onclick = ()=> state.meta.selected=q.id;
+    row.append(badge,title,actions);
+    els.list.append(row);
   });
 
-  player.attacking = 140;
+  if(!items.length) els.list.innerHTML = `<div class="small">오늘 퀘스트가 없습니다. 위 입력창에서 추가하세요.</div>`;
 }
+function renderStats(){
+  const xp100=state.meta.xp%100;
+  els.xp.textContent=xp100; els.level.textContent=state.meta.level; els.coins.textContent=state.meta.coins;
+  const xpPct=Math.min(100, Math.floor(xp100)); els.xpbar.style.width=xpPct+'%'; els.xpPct.textContent=xpPct+'%';
 
-/* 타겟 오브젝트 */
-let target = null;
-let gameActive = false;
-
-function spawnTarget(){
-  const size = 120;
-  target = {
-    x: W*0.75 - size*0.5, // 오른쪽 집 앞으로 이동
-    y: floorY - size - 10,
-    w: size,
-    h: size,
-    hp: 100,
-    maxHp: 100,
-    shakeX: 0,
-    shakeY: 0,
-    shakeTime: 0
-  };
-  updateHPBar();
+  const today=todayKey();
+  const items=state.quests.filter(q=>q.date===today);
+  const dailyPct = items.length ? Math.floor(items.filter(q=>q.done).length/items.length*100) : 0;
+  els.dailybar.style.width=dailyPct+'%'; els.dailyPct.textContent=dailyPct+'%';
+  els.streak.textContent=`Streak ${state.meta.streak} day`;
 }
+function renderStore(){
+  els.store.innerHTML='';
+  state.rewards.forEach(item=>{
+    const wrap=document.createElement('div'); wrap.className='storeItem';
+    wrap.innerHTML=`<div class="name">${item.name}</div><div class="cost">${item.cost} 코인</div>`;
+    const buy=document.createElement('button'); buy.className='buy'; buy.textContent='BUY'; buy.onclick=()=>buyReward(item);
 
-function shakeTarget(){
-  if(!target) return;
-  target.shakeTime = 200; // 200ms 흔들림
+    const row=document.createElement('div'); row.className='miniRow';
+    const edit=document.createElement('button'); edit.className='mini'; edit.textContent='수정'; edit.onclick=()=>editReward(item);
+    const del=document.createElement('button'); del.className='mini'; del.textContent='삭제'; del.onclick=()=>deleteReward(item.id);
+    row.append(edit,del);
+
+    wrap.append(buy,row);
+    els.store.append(wrap);
+  });
 }
+function mkBtn(txt,title,on){ const d=document.createElement('div'); d.className='iconbtn'; d.textContent=txt; d.title=title; d.onclick=on; return d; }
 
-function updateHPBar(){
-  if(!target) return;
-  const pct = Math.max(0, (target.hp / target.maxHp) * 100);
-  document.getElementById('hpFill').style.width = pct + '%';
-  document.getElementById('hpText').textContent = Math.max(0, target.hp) + ' / ' + target.maxHp;
-}
+/* ===== 6) 이벤트 바인딩 ===== */
+els.add.onclick = async ()=>{ await addQuest(els.input.value); els.input.value=''; els.input.focus(); };
+els.input.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); els.add.click(); } });
 
-function checkCollision(shot, obj){
-  return shot.x < obj.x + obj.w &&
-         shot.x + shot.w > obj.x &&
-         shot.y < obj.y + obj.h &&
-         shot.y + shot.h > obj.y;
-}
+els.rewardAdd.onclick = async ()=>{ await addReward(els.rewardName.value, els.rewardCost.value); els.rewardName.value=''; els.rewardCost.value=''; els.rewardName.focus(); };
 
-function destroyTarget(){
-  target = null;
-  gameActive = false;
+els.kebabBtn.addEventListener('click',e=>{ e.stopPropagation(); toggleKebab(); });
+document.addEventListener('click',e=>{ if(!els.kebab.contains(e.target)) toggleKebab(false); });
 
-  // 폭발 효과
-  const exp = document.getElementById('explosion');
-  exp.classList.add('show');
+els.viewRetros.onclick  = ()=>{ toggleKebab(false); openRetroList(); };
+els.giveUpToday.onclick = resetToday;
+els.resetLevel.onclick  = resetLevel;
+els.logout.onclick      = doLogout;
 
-  setTimeout(() => {
-    exp.classList.remove('show');
-    location.href = 'login.html';
-  }, 1200);
-}
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape' && els.retroDetailModal.classList.contains('show')) closeRetroDetail();
+  else if(e.key==='Escape' && els.retroListModal.classList.contains('show')) closeRetroList();
+  else if(e.key==='Escape' && els.modal.classList.contains('show')) closeRetro();
+});
+els.rCancel.onclick = ()=> closeRetro();
+els.retroListClose.onclick = ()=> closeRetroList();
+els.retroListWrite.onclick = ()=>{ closeRetroList(); openRetro(); };
+els.retroDetailClose.onclick = ()=> closeRetroDetail();
+els.rSave.onclick = async ()=>{
+  const date=todayKey();
+  const obj={ done:els.rDone.value.trim(), feel:els.rFeel.value.trim(), next:els.rNext.value.trim(), ts:Date.now() };
+  state.retro[date]=obj; await insertRetro(obj.done, obj.feel, obj.next);
+  log(`Retrospect saved for ${date}`); closeRetro();
+};
+els.tOpen.onclick = ()=>{ hideRetroToast(); openRetro(); };
+els.tLater.onclick = ()=> hideRetroToast();
 
-/* 업데이트 */
-let last=0;
-function update(dt){
-  if(keys.left){ player.vx=-player.speed; player.dir=-1; camX-=player.speed*0.25*dt; }
-  else if(keys.right){ player.vx= player.speed; player.dir= 1; camX+=player.speed*0.25*dt; }
-  else { player.vx*=0.85; if(Math.abs(player.vx)<0.5) player.vx=0; }
+/* ===== 7) 시작 ===== */
+els.today.textContent = new Date().toLocaleDateString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit',weekday:'short'});
+ensureAuthAndLoad();
 
-  if(player.pose==='side' && Math.abs(player.vx)>1){
-    player.animTimer += dt*1000;
-    if(player.animTimer>120){ player.animTimer=0; player.animIndex = 1 - player.animIndex; }
-  }else{
-    player.animIndex = 0;
-  }
-
-  if(keys.space && player.pose==='side') shoot();
-
-  player.x += player.vx*dt;
-  const minX=20, maxX=W-20-player.w;
-  if(player.x<minX) player.x=minX;
-  if(player.x>maxX) player.x=maxX;
-  if(player.attacking>0) player.attacking -= dt*1000;
-
-  // 타겟 흔들림 업데이트
-  if(target && target.shakeTime > 0){
-    target.shakeTime -= dt*1000;
-    const intensity = 5;
-    target.shakeX = (Math.random() - 0.5) * intensity;
-    target.shakeY = (Math.random() - 0.5) * intensity;
-    if(target.shakeTime <= 0){
-      target.shakeX = 0;
-      target.shakeY = 0;
-    }
-  }
-
-  // 투사체 업데이트 & 충돌 감지
-  for(let i=shots.length-1;i>=0;i--){
-    const s=shots[i];
-    s.x += s.vx*dt;
-    s.life -= dt*1000;
-
-    // 타겟과 충돌 체크
-    if(gameActive && target && checkCollision(s, target)){
-      target.hp -= s.damage;
-      updateHPBar();
-      shakeTarget(); // 흔들림 효과
-      shots.splice(i,1);
-
-      if(target.hp <= 0){
-        destroyTarget();
-      }
-      continue;
-    }
-
-    if(s.x<-s.w || s.x>W+s.w || s.life<=0) shots.splice(i,1);
-  }
-}
-
-/* 그리기 */
-function draw(){
-  drawBGPattern(ctx);
-
-  // 타겟 그리기
-  if(target && gameActive){
-    const tx=Math.round(target.x + target.shakeX);
-    const ty=Math.round(target.y + target.shakeY);
-
-    // 박스 그림자
-    ctx.fillStyle = 'rgba(0,0,0,0.3)';
-    ctx.fillRect(tx+4, ty+4, target.w, target.h);
-
-    // 박스 이미지 그리기
-    if(BOX_IMG.complete){
-      ctx.imageSmoothingEnabled = false;
-      ctx.drawImage(BOX_IMG, tx, ty, target.w, target.h);
-    } else {
-      // 이미지 로드 전 폴백
-      ctx.fillStyle = '#8B4513';
-      ctx.fillRect(tx, ty, target.w, target.h);
-      ctx.strokeStyle = '#654321';
-      ctx.lineWidth = 3;
-      ctx.strokeRect(tx, ty, target.w, target.h);
-    }
-
-    // HP 텍스트 (픽셀 아트 스타일)
-    ctx.fillStyle = '#000';
-    ctx.font = '16px "DNFBitBitv2", "Courier New", monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText(Math.max(0, target.hp) + ' HP', tx + target.w/2 + 2, ty + target.h/2 + 8);
-    ctx.fillStyle = '#fff';
-    ctx.fillText(Math.max(0, target.hp) + ' HP', tx + target.w/2, ty + target.h/2 + 6);
-  }
-
-  // 투사체
-  for(const s of shots){
-    const dx=Math.round(s.x), dy=Math.round(s.y);
-    if(s.img && s.img.complete){
-      if(s.vx>=0) ctx.drawImage(s.img, dx, dy, s.w, s.h);
-      else{
-        ctx.save(); ctx.translate(dx+s.w,0); ctx.scale(-1,1);
-        ctx.drawImage(s.img, 0, dy, s.w, s.h); ctx.restore();
-      }
-    }else{ ctx.fillStyle="#ff9a00"; ctx.fillRect(dx,dy,s.w,s.h); }
-  }
-
-  // 플레이어
-  const px=Math.round(player.x), py=Math.round(player.y);
-  let img = null;
-  if(player.pose==='front' && IMGS.center.complete) img = IMGS.center;
-  else if(player.pose==='back' && IMGS.back.complete) img = IMGS.back;
-  else{
-    if(player.attacking>0 && IMGS.attack.complete) img = IMGS.attack;
-    else{
-      img = (Math.abs(player.vx)>1 && player.animIndex===0) ? IMGS.right : IMGS.stopRight;
-    }
-  }
-
-  if(player.dir===1){
-    if(img && img.complete) ctx.drawImage(img, px, py, player.w, player.h);
-  }else{
-    ctx.save(); ctx.translate(px+player.w,0); ctx.scale(-1,1);
-    if(img && img.complete) ctx.drawImage(img, 0, py, player.w, player.h);
-    ctx.restore();
-  }
-}
-
-/* 루프 */
-function loop(ts){
-  const dt=Math.min(0.033,(ts-last)/1000||0.016); last=ts;
-  update(dt); draw();
-  requestAnimationFrame(loop);
-}
-requestAnimationFrame(loop);
+/* ===== 8) Electron 메뉴를 위한 함수 노출 ===== */
+window.openRetroList = openRetroList;
+window.resetToday = resetToday;
+window.resetLevel = resetLevel;
+window.doLogout = doLogout;
 </script>
+
+
 
 </body>
 </html>
