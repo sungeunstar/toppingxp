@@ -237,3 +237,9 @@ ipcMain.on('set-always-on-top', (_, flag: boolean) => {
     mainWindow.setAlwaysOnTop(flag);
   }
 });
+
+ipcMain.on('close-window', () => {
+  if (mainWindow) {
+    mainWindow.close();
+  }
+});
