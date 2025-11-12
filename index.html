@@ -252,6 +252,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           <div class="kebab" id="kebab">
             <button class="kebabBtn" id="kebabBtn" aria-haspopup="true" aria-expanded="false">⋯</button>
             <div class="kebabMenu" id="kebabMenu" role="menu">
+              <button id="viewRetros" role="menuitem">회고록 보기</button>
               <button id="giveUpToday" role="menuitem">퀘스트 초기화</button>
               <button id="resetLevel"  role="menuitem">레벨 초기화</button>
               <button id="logout"      role="menuitem">로그아웃</button>
@@ -301,6 +302,19 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <div class="modalBtns">
       <button id="rCancel" class="btn">나중에</button>
       <button id="rSave" class="btn">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- Retrospect List Modal -->
+<div class="modal" id="retroListModal" role="dialog" aria-modal="true" aria-labelledby="retroListTitle">
+  <div class="modalCard" style="max-width: 700px; max-height: 80vh; overflow-y: auto;">
+    <div class="h1" id="retroListTitle">회고록</div>
+    <div id="retroListContent" style="margin-top: 16px;">
+      <div class="small" style="text-align: center; padding: 20px;">로딩 중...</div>
+    </div>
+    <div class="modalBtns">
+      <button id="retroListClose" class="btn">닫기</button>
     </div>
   </div>
 </div>
@@ -357,10 +371,11 @@ const els = {
   rSave:$('rSave'), rCancel:$('rCancel'),
   rewardName:$('rewardName'), rewardCost:$('rewardCost'), rewardAdd:$('rewardAdd'),
   kebab:document.getElementById('kebab'), kebabBtn:$('kebabBtn'), kebabMenu:$('kebabMenu'),
-  giveUpToday:$('giveUpToday'), resetLevel:$('resetLevel'), logout:$('logout'),
+  giveUpToday:$('giveUpToday'), resetLevel:$('resetLevel'), logout:$('logout'), viewRetros:$('viewRetros'),
   overlay:$('seasonOverlay'),
   retroToast:$('retroToast'), toastTitle:$('toastTitle'), tOpen:$('tOpen'), tLater:$('tLater'),
-  buyToast:$('buyToast')
+  buyToast:$('buyToast'),
+  retroListModal:$('retroListModal'), retroListContent:$('retroListContent'), retroListClose:$('retroListClose')
 };
 
 function blip(freq=880,ms=120){
@@ -472,6 +487,14 @@ async function insertRetro(done, feel, next){
   const { error } = await sb.from('retros').insert({ user_id:state.user.id, done, feel, next });
   if(error) console.error(error);
 }
+async function loadAllRetros(){
+  const { data, error } = await sb.from('retros')
+    .select('*')
+    .eq('user_id', state.user.id)
+    .order('created_at', { ascending: false });
+  if(error){ console.error(error); return []; }
+  return data || [];
+}
 
 /* ===== 4) 비즈 로직 ===== */
 function gainXP(n=10){
@@ -550,6 +573,48 @@ function openRetro(){
   setTimeout(()=>els.rDone.focus(),10);
 }
 function closeRetro(){ els.modal.classList.remove('show'); }
+
+/* 회고록 목록 */
+async function openRetroList(){
+  els.retroListModal.classList.add('show');
+  els.retroListContent.innerHTML = '<div class="small" style="text-align: center; padding: 20px;">로딩 중...</div>';
+
+  const retros = await loadAllRetros();
+
+  if(!retros || retros.length === 0){
+    els.retroListContent.innerHTML = '<div class="small" style="text-align: center; padding: 20px;">아직 작성된 회고가 없습니다.</div>';
+    return;
+  }
+
+  els.retroListContent.innerHTML = '';
+  retros.forEach(r => {
+    const date = new Date(r.created_at);
+    const dateStr = date.toLocaleDateString('ko-KR', {year:'numeric', month:'2-digit', day:'2-digit', weekday:'short'});
+    const timeStr = date.toLocaleTimeString('ko-KR', {hour:'2-digit', minute:'2-digit'});
+
+    const item = document.createElement('div');
+    item.style.cssText = 'background: var(--btn-bg); border: 1px solid var(--g-deep); border-radius: 6px; padding: 16px; margin-bottom: 12px;';
+
+    const header = document.createElement('div');
+    header.style.cssText = 'color: var(--g-weak); font-size: 13px; margin-bottom: 8px;';
+    header.textContent = `${dateStr} ${timeStr}`;
+
+    const done = document.createElement('div');
+    done.style.cssText = 'margin-bottom: 8px;';
+    done.innerHTML = `<strong style="color: var(--g);">✅ 끝낸 일:</strong> ${r.done || '(없음)'}`;
+
+    const feel = document.createElement('div');
+    feel.style.cssText = 'margin-bottom: 8px; white-space: pre-wrap;';
+    feel.innerHTML = `<strong style="color: var(--g);">💭 느낀 점:</strong> ${r.feel || '(없음)'}`;
+
+    const next = document.createElement('div');
+    next.innerHTML = `<strong style="color: var(--g);">🔁 내일 포인트:</strong> ${r.next || '(없음)'}`;
+
+    item.append(header, done, feel, next);
+    els.retroListContent.append(item);
+  });
+}
+function closeRetroList(){ els.retroListModal.classList.remove('show'); }
 
 /* 케밥 메뉴 */
 function toggleKebab(show){
@@ -681,12 +746,17 @@ els.rewardAdd.onclick = async ()=>{ await addReward(els.rewardName.value, els.re
 els.kebabBtn.addEventListener('click',e=>{ e.stopPropagation(); toggleKebab(); });
 document.addEventListener('click',e=>{ if(!els.kebab.contains(e.target)) toggleKebab(false); });
 
+els.viewRetros.onclick  = ()=>{ toggleKebab(false); openRetroList(); };
 els.giveUpToday.onclick = resetToday;
 els.resetLevel.onclick  = resetLevel;
 els.logout.onclick      = doLogout;
 
-document.addEventListener('keydown',e=>{ if(e.key==='Escape' && els.modal.classList.contains('show')) closeRetro(); });
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape' && els.modal.classList.contains('show')) closeRetro();
+  if(e.key==='Escape' && els.retroListModal.classList.contains('show')) closeRetroList();
+});
 els.rCancel.onclick = ()=> closeRetro();
+els.retroListClose.onclick = ()=> closeRetroList();
 els.rSave.onclick = async ()=>{
   const date=todayKey();
   const obj={ done:els.rDone.value.trim(), feel:els.rFeel.value.trim(), next:els.rNext.value.trim(), ts:Date.now() };
