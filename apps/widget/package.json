@@ -13,20 +13,15 @@
     "productName": "ToppingXP",
     "electronVersion": "28.0.0",
     "win": {
-      "target": ["nsis"],
+      "target": ["portable"],
       "icon": "assets/icon.ico"
     },
-    "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true
+    "portable": {
+      "artifactName": "ToppingXP-Setup.exe"
     },
     "files": [
       "dist/**/*",
-      "assets/**/*",
-      "!node_modules"
-    ],
-    "asarUnpack": [
-      "**/*.node"
+      "assets/**/*"
     ]
   },
   "dependencies": {
