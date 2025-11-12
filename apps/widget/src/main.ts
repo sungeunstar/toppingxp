@@ -34,6 +34,15 @@ function createWindow() {
   });
 }
 
+function updateWindowSize(width: number, height: number) {
+  if (mainWindow) {
+    const { width: screenWidth, height: screenHeight } = screen.getPrimaryDisplay().workAreaSize;
+    mainWindow.setSize(width, height);
+    // Keep widget positioned at top-right
+    mainWindow.setPosition(screenWidth - width - 20, 20);
+  }
+}
+
 function createTray() {
   const iconPath = path.join(__dirname, '../assets/icon.png');
   tray = new Tray(iconPath);
@@ -49,6 +58,28 @@ function createTray() {
           mainWindow.setIgnoreMouseEvents(isClickThrough, { forward: true });
         }
       }
+    },
+    { type: 'separator' },
+    {
+      label: 'Window Size',
+      submenu: [
+        {
+          label: 'Small (350 × 500)',
+          click: () => updateWindowSize(350, 500)
+        },
+        {
+          label: 'Medium (400 × 600)',
+          click: () => updateWindowSize(400, 600)
+        },
+        {
+          label: 'Large (500 × 800)',
+          click: () => updateWindowSize(500, 800)
+        },
+        {
+          label: 'Extra Large (600 × 900)',
+          click: () => updateWindowSize(600, 900)
+        }
+      ]
     },
     { type: 'separator' },
     {
