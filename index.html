@@ -313,12 +313,11 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     };
   }
 
-  if(dragBar){
-    dragBar.oncontextmenu = (e) => {
-      e.preventDefault();
-      if(window.electronAPI) window.electronAPI.showContextMenu();
-    };
-  }
+  // 전체 화면에서 우클릭 메뉴 열기
+  document.addEventListener('contextmenu', (e) => {
+    e.preventDefault();
+    if(window.electronAPI) window.electronAPI.showContextMenu();
+  });
 })();
 </script>
 
