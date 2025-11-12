@@ -12,7 +12,9 @@
     "appId": "com.toppingxp.widget",
     "productName": "ToppingXP",
     "win": {
-      "target": ["nsis"],
+      "target": [
+        "nsis"
+      ],
       "icon": "assets/icon.ico"
     },
     "nsis": {
