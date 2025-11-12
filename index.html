@@ -169,8 +169,7 @@ body{
 
 <!-- 하단 액션 버튼 -->
 <div class="actions">
-  <button class="btn" id="startBtn">시작하기</button>
-  <button class="btn" id="playBtn" style="display:none">게임으로 입장하기</button>
+  <button class="btn" id="startBtn">바로 시작하기</button>
 </div>
 
 <div class="hint">←/→ 이동 · ↑ 등 보이기 · ↓ 정면 보기 · Space 발사</div>
@@ -192,7 +191,6 @@ musicBtn.onclick = ()=>{
 <script>
 /* ===== 버튼 로직 ===== */
 const startBtn = document.getElementById('startBtn');
-const playBtn = document.getElementById('playBtn');
 const hpWrap = document.getElementById('hpWrap');
 
 // 이미 로그인되어 있으면 앱으로
@@ -203,14 +201,12 @@ const hpWrap = document.getElementById('hpWrap');
 
 startBtn.onclick = () => location.href="login.html";
 
-playBtn.onclick = () => {
-  // 게임 시작
-  startBtn.style.display = 'none';
-  playBtn.style.display = 'none';
+// 페이지 로드 시 자동으로 게임 시작
+setTimeout(() => {
   hpWrap.style.display = 'block';
   gameActive = true;
   spawnTarget();
-};
+}, 500);
 </script>
 
 <script>
