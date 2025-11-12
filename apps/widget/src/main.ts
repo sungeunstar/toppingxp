@@ -1,7 +1,7 @@
 import { app, BrowserWindow, Tray, Menu, ipcMain, screen } from 'electron';
 import * as path from 'path';
 
-const PROD_URL = process.env.VERCEL_PROD_URL || 'https://example.com';
+const PROD_URL = process.env.VERCEL_PROD_URL || 'https://toppingxp.vercel.app';
 
 let mainWindow: BrowserWindow | null = null;
 let tray: Tray | null = null;
