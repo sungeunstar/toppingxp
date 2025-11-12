@@ -101,7 +101,7 @@ function createTray() {
 
 app.whenReady().then(() => {
   createWindow();
-  // createTray(); // Disabled until proper icon is added
+  createTray();
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
