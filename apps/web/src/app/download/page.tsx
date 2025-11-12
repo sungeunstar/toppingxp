@@ -38,12 +38,22 @@ export default function Download() {
       <div className="download-container">
         <h2>Desktop Widget (Windows)</h2>
         <p>Download the desktop widget for always-on-top productivity.</p>
-        <a
-          href="https://github.com/sungeunstar/toppingxp/releases/latest/download/ToppingXP-Setup.exe"
-          className="download-button"
-        >
-          Download for Windows
-        </a>
+        <div style={{ marginTop: '1rem' }}>
+          <p style={{ color: '#666', fontSize: '0.875rem', marginBottom: '0.5rem' }}>
+            위젯이 아직 빌드되지 않았습니다. 릴리즈를 만들려면:
+          </p>
+          <ol style={{ color: '#666', fontSize: '0.875rem', marginLeft: '1.5rem' }}>
+            <li>위젯을 빌드하거나</li>
+            <li>Git 태그를 생성하여 자동 빌드 (예: git tag v1.0.0)</li>
+          </ol>
+          <a
+            href="https://github.com/sungeunstar/toppingxp/releases"
+            className="download-button"
+            style={{ opacity: 0.6, marginTop: '1rem', display: 'inline-block' }}
+          >
+            GitHub Releases 보기
+          </a>
+        </div>
       </div>
 
       <div className="download-container" style={{ marginTop: '2rem' }}>
