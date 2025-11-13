@@ -107,6 +107,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       font-weight:800; cursor:pointer; box-shadow:var(--glow); line-height:1; min-width:68px; text-align:center
     }
     .btn:hover,.btn:focus{background:var(--btn-bg-hover); color:var(--text-hover); outline:none}
+    .btn:disabled{opacity:0.5; cursor:not-allowed; box-shadow:none}
+    .input:disabled{opacity:0.6; cursor:not-allowed}
 
     .list{display:flex; flex-direction:column; gap:10px; min-height:140px}
     .card{
@@ -532,13 +534,27 @@ function showRetroToast(message){
 function hideRetroToast(){ els.retroToast.classList.remove('show'); }
 
 /* 퀘스트 */
+let isAddingQuest = false;
 async function addQuest(text){
   const t=text.trim(); if(!t) return;
-  const row = await addQuestDB(t); if(!row) return;
-  state.quests.unshift(row);
-  state.meta.stats[todayKey()].total++;
-  state.meta.selected = row.id;
-  log(`Added: ${t}`); render();
+  if(isAddingQuest) return; // 중복 방지
+
+  isAddingQuest = true;
+  els.add.disabled = true;
+  els.input.disabled = true;
+
+  try{
+    const row = await addQuestDB(t);
+    if(!row) return;
+    state.quests.unshift(row);
+    state.meta.stats[todayKey()].total++;
+    state.meta.selected = row.id;
+    log(`Added: ${t}`); render();
+  }finally{
+    isAddingQuest = false;
+    els.add.disabled = false;
+    els.input.disabled = false;
+  }
 }
 async function toggleDone(q){
   if(q.done){
